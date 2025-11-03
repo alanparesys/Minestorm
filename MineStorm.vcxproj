@@ -186,6 +186,11 @@ xcopy /y /d /s  "$(SolutionDir)Assets\*" "$(OutDir)Assets\"</Command>
   <ItemGroup>
     <ClCompile Include="Code\src\main.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\include\rectangle2D.h" />
+    <ClInclude Include="Code\include\triangle2D.h" />
+    <ClInclude Include="Code\include\vector2D.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
