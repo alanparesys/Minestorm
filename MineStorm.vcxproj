@@ -184,6 +184,7 @@ xcopy /y /d /s  "$(SolutionDir)Assets\*" "$(OutDir)Assets\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\src\game.c" />
     <ClCompile Include="Code\src\main.c" />
   </ItemGroup>
   <ItemGroup>

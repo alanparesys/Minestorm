@@ -18,6 +18,9 @@
     <ClCompile Include="Code\src\main.c">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="Code\src\game.c">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\include\rectangle2D.h">

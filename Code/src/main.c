@@ -2,7 +2,6 @@
 
 #include "game.h"
 
-GameScreen currentScreen = TITLE;
 
 int main()
 {
@@ -13,7 +12,7 @@ int main()
 
     while (!WindowShouldClose())
     {
-        UpdateGame(background, currentScreen);
+        UpdateGame(background/*, currentScreen */);
     }
 
     UnloadTexture(background);

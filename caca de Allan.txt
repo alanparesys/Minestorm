@@ -1,9 +1,0 @@
-def Mo = 250**10;
-
-res$//AlanParesy/microsoft_account//upload(Mo)tores :
-
-return "true" or "false"
-
-res$//LouisGilSilveira/microsoft_account//upload(Mo)tores :
-
-return "true" or "false"
