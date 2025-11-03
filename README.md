@@ -1,3 +1,3 @@
 # Minestorm
 
-Minestorm en conxtruction, revenez plus tard
+Minestorm en construction, revenez plus tard !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
