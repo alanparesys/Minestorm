@@ -1,5 +1,9 @@
 #include <raylib.h>
 
+#include "game.h"
+
+GameScreen currentScreen = TITLE;
+
 int main()
 {
     InitWindow(640, 800, "MineStorm");
@@ -9,20 +13,7 @@ int main()
 
     while (!WindowShouldClose())
     {
-        // Update
-        
-        BeginDrawing();
-        ClearBackground(BLACK);
-
-        // Draw
-        DrawTexture(background, 0, 0, WHITE);
-
-        //Text
-        DrawText("(F) : Launch Solo Game", 160, 350, 20, WHITE);
-        DrawText("(K) : Launch Duo Game", 160, 400, 20, WHITE);
-        DrawText("(Esc) : Quit Game", 160, 450, 20, WHITE);
-
-        EndDrawing();
+        UpdateGame(background, currentScreen);
     }
 
     UnloadTexture(background);
