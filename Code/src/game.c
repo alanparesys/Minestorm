@@ -3,6 +3,9 @@
 #include "game.h"
 
 GameScreen currentScreen = TITLE;
+bool title = true;
+bool pause = false;
+bool solo = false;
 
 void UpdateTitleScreen(Texture2D background/*, GameScreen currentScreen*/)
 {
@@ -23,32 +26,57 @@ void UpdateTitleScreen(Texture2D background/*, GameScreen currentScreen*/)
     if (IsKeyPressed(KEY_F))
     {
         currentScreen = SOLO_GAMEPLAY;
+        bool title = false;
+        bool solo = true;
     }
     /*
-        else if (IsKeyPressed(KEY_K))
-        {
-            currentScreen = VS_GAMEPLAY;
-        }*/
+    else if (IsKeyPressed(KEY_K))
+    {
+        currentScreen = VS_GAMEPLAY;
+    }
+    */
 }
 
 
-void UpdateSoloGameplay(Texture2D background/*, GameScreen currentScreen*/)
+void UpdateSoloGameplay(Texture2D background, Texture2D ship/*, GameScreen currentScreen*/)
 {
     BeginDrawing();
     ClearBackground(BLACK);
     // Draw
     DrawTexture(background, 0, 0, WHITE);
+    DrawTexture(ship, 625 / 2 - 50 / 2, 1070 / 2 - 50 / 2 - 40, WHITE);
     DrawText("Solo Gameplay Screen", 160, 300, 20, WHITE);
     EndDrawing();
 
     if (IsKeyPressed(KEY_P))
     {
-        currentScreen = TITLE;
+        currentScreen = PAUSE;
+        bool solo = false;
+        bool pause = true;
+
     }
 }
 
 
-int UpdateGame(Texture2D background/*, GameScreen currentScreen*/)
+void UpdatePauseMenu(Texture2D background/*, GameScreen currentScreen*/)
+{
+    BeginDrawing();
+    ClearBackground(BLACK);
+    // Draw
+    DrawTexture(background, 0, 0, WHITE);
+    DrawText("Pause Menu Screen", 160, 300, 20, WHITE);
+    EndDrawing();
+    if (IsKeyPressed(KEY_P))
+    {
+        currentScreen = SOLO_GAMEPLAY;
+        bool pause = false;
+        bool solo = true;
+
+    }
+}
+
+
+int UpdateGame(Texture2D background, Texture2D ship/*, GameScreen currentScreen*/)
 {
     switch (currentScreen)
     {
@@ -56,11 +84,13 @@ int UpdateGame(Texture2D background/*, GameScreen currentScreen*/)
         UpdateTitleScreen(background/*, currentScreen*/);
         break;
     case SOLO_GAMEPLAY:
-        UpdateSoloGameplay(background/*, currentScreen*/);
+        UpdateSoloGameplay(background, ship/*, GameScreen currentScreen*/);
+        break;
+    case PAUSE:
+        UpdatePauseMenu(background/*, currentScreen*/);
         break;
     default:
         break;
     }
 }
-
 
