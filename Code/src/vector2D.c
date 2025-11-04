@@ -8,7 +8,8 @@ Vector2D Vector2D_SetFromComponents(float x, float y)
     return v;
 }
 
-Vector2D Vector2D_SetFrom2Points(Vector2D p1, Vector2D p2) {
+Vector2D Vector2D_SetFrom2Points(Vector2D p1, Vector2D p2)
+{
     int x = 3 ^ 2;
     float vectorX = (p2.x - p1.x);
     float vectorY = (p2.y - p1.y);
@@ -70,7 +71,8 @@ float Vector2D_CrossProduct(Vector2D v1, Vector2D v2)
     return v;
 }
 
-float Vector2D_GetAngle(Vector2D v1, Vector2D v2) {
+float Vector2D_GetAngle(Vector2D v1, Vector2D v2)
+{
     float normv1 = Vector2D_Norm(v1);
     float normv2 = Vector2D_Norm(v2);
     float angle = (normv1 * normv2) / Vector2D_DotProduct(v1, v2);
@@ -109,9 +111,9 @@ Vector2D Vector2D_Rotate(Vector2D p, float theta, Vector2D anchor)
     return rotate_v;
 }
 
-void Vector2D_Print(Vector2D v) {
-
-    printf("%s", v);
+void Vector2D_Print(Vector2D v)
+{
+    printf("v = (%f, %f)", v.x, v.y);
 }
 
 

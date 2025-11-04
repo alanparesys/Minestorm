@@ -30,6 +30,11 @@ Triangle2D Triangle2D_Translate(Triangle2D tri, Vector2D t);
 Triangle2D Triangle2D_Scale(Triangle2D tri, float a, Vector2D anchor);
 Triangle2D Triangle2D_Rotate(Triangle2D tri, float theta, Vector2D anchor);
 
+// -------------------------------------------------------------
+// Bonus
+Triangle2D Triangle2D_RotateAll(Triangle2D tri, float theta, Vector2D anchor);
+// -------------------------------------------------------------
+
 void Triangle_Print(Triangle2D tri);
 
 #endif

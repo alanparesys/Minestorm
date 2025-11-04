@@ -23,3 +23,5 @@ Vector2D Vector2D_Scale(Vector2D p, float a, Vector2D anchor);
 Vector2D Vector2D_Rotate(Vector2D p, float theta, Vector2D anchor);
 
 void Vector2D_Print(Vector2D v);
+
+#endif
