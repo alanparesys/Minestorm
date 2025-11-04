@@ -75,6 +75,7 @@ float Vector2D_GetAngle(Vector2D v1, Vector2D v2) {
     float normv2 = Vector2D_Norm(v2);
     float angle = (normv1 * normv2) / Vector2D_DotProduct(v1, v2);
     acosf(angle);
+    return angle;
 }
 
 Vector2D Vector2D_Translate(Vector2D p, Vector2D t)
