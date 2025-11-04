@@ -1,7 +1,7 @@
 #ifndef TRIANGLE2D_H
 #define TRIANGLE2D_H
 
-# include " Vector2D .h"
+#include "Vector2D.h"
 typedef struct Triangle2D
 {
 	Vector2D p1;
@@ -31,3 +31,5 @@ Triangle2D Triangle2D_Scale(Triangle2D tri, float a, Vector2D anchor);
 Triangle2D Triangle2D_Rotate(Triangle2D tri, float theta, Vector2D anchor);
 
 void Triangle_Print(Triangle2D tri);
+
+#endif
