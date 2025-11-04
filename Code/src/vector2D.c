@@ -1,5 +1,6 @@
 #include "vector2D.h"
 #include "math.h"
+#include "stdio.h"
 
 Vector2D Vector2D_SetFromComponents(float x, float y)
 {
@@ -108,7 +109,8 @@ Vector2D Vector2D_Rotate(Vector2D p, float theta, Vector2D anchor)
 }
 
 void Vector2D_Print(Vector2D v) {
-    printf(v);
+
+    printf("%s", v);
 }
 
 
