@@ -85,11 +85,11 @@ Vector2D Vector2D_Scale(Vector2D p, float a, Vector2D anchor)
 {
     if (a == 0)
     {
-        return anchor;        // if a = 0, point becomes anchor : nv point = anchor
+        return anchor;
     }
     if (a == 1)
     {
-        return p;             // if a = 1, nothing change : nv point = point
+        return p;
     }
     Vector2D nvp;
     nvp.x = anchor.x + (p.x - anchor.x) * a;
@@ -98,14 +98,17 @@ Vector2D Vector2D_Scale(Vector2D p, float a, Vector2D anchor)
     return nvp;
 }
 
+// ?
 Vector2D Vector2D_Rotate(Vector2D p, float theta, Vector2D anchor)
 {
-    // Rotate Function
+    Vector2D rotate_v;
+    rotate_v.x = anchor.x* cos(theta) + p.y * sin(theta) - 0;
+    rotate_v.y = -(anchor.x)* sin(theta) + p.y * cos(theta) - 0;
+    return rotate_v;
 }
 
 void Vector2D_Print(Vector2D v) {
     printf(v);
-    //return v;
 }
 
 
