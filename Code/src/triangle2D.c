@@ -165,6 +165,25 @@ Triangle2D Triangle2D_Rotate(Triangle2D tri, float theta, Vector2D anchor)
     return nvtri;
 }
 
+Triangle2D Triangle2D_RotateAll(Triangle2D tri, float theta, Vector2D anchor)
+{
+    Triangle2D rotatetri;
+    rotatetri.p1.x = anchor.x * cos(theta) + tri.p1.y * sin(theta) - 0;
+    rotatetri.p1.y = -(anchor.x) * sin(theta) + tri.p1.y * cos(theta) - 0;
+    rotatetri.p2.x = anchor.x * cos(theta) + tri.p2.y * sin(theta) - 0;
+    rotatetri.p2.y = -(anchor.x) * sin(theta) + tri.p2.y * cos(theta) - 0;
+    rotatetri.p3.x = anchor.x * cos(theta) + tri.p3.y * sin(theta) - 0;
+    rotatetri.p3.y = -(anchor.x) * sin(theta) + tri.p3.y * cos(theta) - 0;
+
+    Vector2D nvp1 = Vector2D_SetFromComponents(rotatetri.p1.x, rotatetri.p1.y);
+    Vector2D nvp2 = Vector2D_SetFromComponents(rotatetri.p2.x, rotatetri.p2.y);
+    Vector2D nvp3 = Vector2D_SetFromComponents(rotatetri.p3.x, rotatetri.p3.y);
+
+    Triangle2D nvtri = Triangle2D_SetFrom3Points(nvp1, nvp2, nvp3);
+
+    return nvtri;
+}
+
 void Triangle_Print(Triangle2D tri)
 {
     printf("triangle : \n p1 = (%f, %f); \n p2 = (%f, %f); \n p3 = (%f, %f)", tri.p1.x, tri.p1.y, tri.p2.x, tri.p2.y, tri.p3.x, tri.p3.y);
