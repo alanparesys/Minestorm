@@ -40,42 +40,40 @@ Triangle2D Triangle2D_SetFrom1Point2Vectors(Vector2D p1, Vector2D v1, Vector2D v
 
 float Triangle2D_GetSurface(Triangle2D tri)
 {
-    float a = Vector2D_Distance(tri.p1, tri.p2);
-    float b = Vector2D_Distance(tri.p2, tri.p3);
-    float c = Vector2D_Distance(tri.p3, tri.p1);
-    float p = (a + b + c) / 2;
-    float surf = sqrt(p * (p - a) * (p - b) * (p - c));
-    return surf;
+    Vector2D v1 = Vector2D_SetFrom2Points(tri.p1, tri.p2);
+    Vector2D v2 = Vector2D_SetFrom2Points(tri.p1, tri.p3);
+    return fabs(Vector2D_CrossProduct(v1, v2)) / 2.0f; // fabs --> absolute value in floating point
 }
 
 int Triangle2D_IsSpecial(Triangle2D tri)
 {
-    int specialtri = 0;
+    float epsilon = 1e-3f; // epsilon 1e-3 (0.001) = average accuracy
+    int special = 0;
 
-    //tri is equilateral
-    if (tri.a == tri.b && tri.a == tri.c)
+    // Check equilateral
+    if (fabs(tri.a - tri.b) < epsilon && fabs(tri.b - tri.c) < epsilon)
+        special = 3;
+
+    // Check isosceles
+    else if (fabs(tri.a - tri.b) < epsilon || fabs(tri.a - tri.c) < epsilon || fabs(tri.b - tri.c) < epsilon)   // fabs --> absolute value in floating point
+        special = 2;
+
+    // Check rectangle (zero scalar product)
+    Vector2D v1 = Vector2D_SetFrom2Points(tri.p1, tri.p2);
+    Vector2D v2 = Vector2D_SetFrom2Points(tri.p2, tri.p3);
+    Vector2D v3 = Vector2D_SetFrom2Points(tri.p3, tri.p1);
+
+    if (fabs(Vector2D_DotProduct(v1, Vector2D_SetFrom2Points(tri.p1, tri.p3))) < epsilon ||
+        fabs(Vector2D_DotProduct(v2, Vector2D_SetFrom2Points(tri.p2, tri.p1))) < epsilon || // fabs --> absolute value in floating point
+        fabs(Vector2D_DotProduct(v3, Vector2D_SetFrom2Points(tri.p3, tri.p2))) < epsilon)
     {
-        specialtri = 3;
-    }
-    //tri is isocele
-    else if (tri.a == tri.b || tri.a == tri.c)
-    {
-        specialtri = 2;
-    }
-    //tri is right
-    if (tri.alpha == 90.0f || tri.beta == 90.0f || tri.gamma == 90.0f)
-    {
-        //tri is also isocele
-        if (specialtri == 2)
-        {
-            specialtri == 12;
-        }
+        if (special == 2)
+            special = 12; // rectangle and isosceles
         else
-        {
-            specialtri == 1;
-        }
+            special = 1;  // rectangle
     }
-    return specialtri;
+
+    return special;
 }
 
 // 0: nothing special , 1: right triangle , 2: isoceles triangle , 3: equilateral triangle, 
@@ -83,106 +81,72 @@ int Triangle2D_IsSpecial(Triangle2D tri)
 
 Vector2D Triangle2D_Circumcenter(Triangle2D tri)
 {
-    float D = 2 * (tri.p1.x * (tri.p2.y - tri.p3.y) + tri.p2.x * (tri.p2.y - tri.p1.y) + tri.p3.x * (tri.p1.y - tri.p2.y));        // D = 2 * (A.x*(B.y-C.y) + B.x*(C.y-A.y) + C.x*(A.y-B.y))
+    float D = 2 * (tri.p1.x * (tri.p2.y - tri.p3.y) +
+        tri.p2.x * (tri.p3.y - tri.p1.y) +
+        tri.p3.x * (tri.p1.y - tri.p2.y));
 
-    float A2 = pow(tri.p1.x, 2) + pow(tri.p1.y, 2);                                                                                // A2 = A.x² + A.y²
-    float B2 = pow(tri.p2.x, 2) + pow(tri.p2.y, 2);                                                                                // B2 = B.x² + B.y²
-    float C2 = pow(tri.p3.x, 2) + pow(tri.p3.y, 2);                                                                                // C2 = C.x² + C.y²
+    float A2 = tri.p1.x * tri.p1.x + tri.p1.y * tri.p1.y;
+    float B2 = tri.p2.x * tri.p2.x + tri.p2.y * tri.p2.y;
+    float C2 = tri.p3.x * tri.p3.x + tri.p3.y * tri.p3.y;
 
-    float centerx = (A2 * (tri.p2.y - tri.p3.y) + B2 * (tri.p3.y - tri.p1.y) + C2 * (tri.p1.y - tri.p2.y)) / D;                    // centre.x = (A2*(B.y-C.y) + B2*(C.y-A.y) + C2*(A.y-B.y)) / D
-    float centery = (A2 * (tri.p3.x - tri.p2.x) + B2 * (tri.p1.x - tri.p3.x) + C2 * (tri.p2.x - tri.p1.x)) / D;                    // centre.y = (A2*(C.x-B.x) + B2*(A.x-C.x) + C2*(B.x-A.x)) / D
+    float cx = (A2 * (tri.p2.y - tri.p3.y) +
+        B2 * (tri.p3.y - tri.p1.y) +
+        C2 * (tri.p1.y - tri.p2.y)) / D;
 
-    Vector2D center = Vector2D_SetFromComponents(centerx, centery);
-    return center;
+    float cy = (A2 * (tri.p3.x - tri.p2.x) +
+        B2 * (tri.p1.x - tri.p3.x) +
+        C2 * (tri.p2.x - tri.p1.x)) / D;
+
+    return Vector2D_SetFromComponents(cx, cy);
 }
 
 Vector2D Triangle2D_Isobarycenter(Triangle2D tri)
 {
-    float Gx = (tri.p1.x + tri.p2.x + tri.p3.x) / 3;
-    float Gy = (tri.p1.y + tri.p2.y + tri.p3.y) / 3;
+    Vector2D G;
+    G.x = (tri.p1.x + tri.p2.x + tri.p3.x) / 3.0f;
+    G.y = (tri.p1.y + tri.p2.y + tri.p3.y) / 3.0f;
 
-    Vector2D grav = Vector2D_SetFromComponents(Gx, Gy);
-    return grav;
+    return G;
 }
 
 Triangle2D Triangle2D_Translate(Triangle2D tri, Vector2D t)
 {
-    Vector2D nvp1 = Vector2D_Add(tri.p1, t);
-    Vector2D nvp2 = Vector2D_Add(tri.p2, t);
-    Vector2D nvp3 = Vector2D_Add(tri.p3, t);
+    Vector2D p1 = Vector2D_Translate(tri.p1, t);
+    Vector2D p2 = Vector2D_Translate(tri.p2, t);
+    Vector2D p3 = Vector2D_Translate(tri.p3, t);
 
-    Triangle2D nvtri = Triangle2D_SetFrom3Points(nvp1, nvp2, nvp3);
-    return nvtri;
+    return Triangle2D_SetFrom3Points(p1, p2, p3);
 }
 
 Triangle2D Triangle2D_Scale(Triangle2D tri, float a, Vector2D anchor)
 {
-    Triangle2D nvp;
-    nvp.p1.x = anchor.x + (tri.p1.x - anchor.x) * a;
-    nvp.p1.y = anchor.y + (tri.p1.y - anchor.y) * a;
+    Vector2D p1 = Vector2D_Scale(tri.p1, a, anchor);
+    Vector2D p2 = Vector2D_Scale(tri.p2, a, anchor);
+    Vector2D p3 = Vector2D_Scale(tri.p3, a, anchor);
 
-    nvp.p2.x = anchor.x + (tri.p2.x - anchor.x) * a;
-    nvp.p2.y = anchor.y + (tri.p2.y - anchor.y) * a;
-
-    nvp.p3.x = anchor.x + (tri.p3.x - anchor.x) * a;
-    nvp.p3.y = anchor.y + (tri.p3.y - anchor.y) * a;
-
-    Vector2D nvp1 = Vector2D_SetFromComponents(nvp.p1.x, nvp.p1.y);
-    Vector2D nvp2 = Vector2D_SetFromComponents(nvp.p2.x, nvp.p2.y);
-    Vector2D nvp3 = Vector2D_SetFromComponents(nvp.p3.x, nvp.p3.y);
-
-    Triangle2D nvtri = Triangle2D_SetFrom3Points(nvp1, nvp2, nvp3);
-
-    return nvtri;
+    return Triangle2D_SetFrom3Points(p1, p2, p3);
 }
 
 Triangle2D Triangle2D_Rotate(Triangle2D tri, float theta, Vector2D anchor)
 {
-    Vector2D gtri = Triangle2D_Isobarycenter(tri);
+    Vector2D p1 = Vector2D_Rotate(tri.p1, theta, anchor);
+    Vector2D p2 = Vector2D_Rotate(tri.p2, theta, anchor);
+    Vector2D p3 = Vector2D_Rotate(tri.p3, theta, anchor);
 
-    Vector2D GA = Vector2D_SetFrom2Points(gtri, tri.p1);
-    Vector2D GB = Vector2D_SetFrom2Points(gtri, tri.p2);
-    Vector2D GC = Vector2D_SetFrom2Points(gtri, tri.p3);
-
-    Vector2D nvgtri;
-    nvgtri.x = anchor.x * cos(theta) + gtri.y * sin(theta) - 0;
-    nvgtri.y = -(anchor.x) * sin(theta) + gtri.y * cos(theta) - 0;
-
-    Triangle2D nvp;
-    nvp.p1.x = nvgtri.x + GA.x;
-    nvp.p1.y = nvgtri.y + GA.y;
-    nvp.p2.x = nvgtri.x + GB.x;
-    nvp.p2.y = nvgtri.y + GB.y;
-    nvp.p3.x = nvgtri.x + GC.x;
-    nvp.p3.y = nvgtri.y + GC.y;
-
-    Vector2D nvp1 = Vector2D_SetFromComponents(nvp.p1.x, nvp.p1.y);
-    Vector2D nvp2 = Vector2D_SetFromComponents(nvp.p2.x, nvp.p2.y);
-    Vector2D nvp3 = Vector2D_SetFromComponents(nvp.p3.x, nvp.p3.y);
-
-    Triangle2D nvtri = Triangle2D_SetFrom3Points(nvp1, nvp2, nvp3);
-
-    return nvtri;
+    return Triangle2D_SetFrom3Points(p1, p2, p3);
 }
 
+// ------------------------------------------------------------------------------
+// Bonus
 Triangle2D Triangle2D_RotateAll(Triangle2D tri, float theta, Vector2D anchor)
 {
-    Triangle2D rotatetri;
-    rotatetri.p1.x = anchor.x * cos(theta) + tri.p1.y * sin(theta) - 0;
-    rotatetri.p1.y = -(anchor.x) * sin(theta) + tri.p1.y * cos(theta) - 0;
-    rotatetri.p2.x = anchor.x * cos(theta) + tri.p2.y * sin(theta) - 0;
-    rotatetri.p2.y = -(anchor.x) * sin(theta) + tri.p2.y * cos(theta) - 0;
-    rotatetri.p3.x = anchor.x * cos(theta) + tri.p3.y * sin(theta) - 0;
-    rotatetri.p3.y = -(anchor.x) * sin(theta) + tri.p3.y * cos(theta) - 0;
+    Vector2D p1 = Vector2D_Rotate(tri.p1, theta, anchor);
+    Vector2D p2 = Vector2D_Rotate(tri.p2, theta, anchor);
+    Vector2D p3 = Vector2D_Rotate(tri.p3, theta, anchor);
 
-    Vector2D nvp1 = Vector2D_SetFromComponents(rotatetri.p1.x, rotatetri.p1.y);
-    Vector2D nvp2 = Vector2D_SetFromComponents(rotatetri.p2.x, rotatetri.p2.y);
-    Vector2D nvp3 = Vector2D_SetFromComponents(rotatetri.p3.x, rotatetri.p3.y);
-
-    Triangle2D nvtri = Triangle2D_SetFrom3Points(nvp1, nvp2, nvp3);
-
-    return nvtri;
+    return Triangle2D_SetFrom3Points(p1, p2, p3);
 }
+// ------------------------------------------------------------------------------
 
 void Triangle_Print(Triangle2D tri)
 {
