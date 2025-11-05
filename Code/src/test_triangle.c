@@ -18,6 +18,7 @@ int main()
     Triangle_Print(tri1);
     printf("__________________________\n");
     printf("\n");
+
     // 2
     printf("(FUNCTION 2) :\n");
 
@@ -62,38 +63,56 @@ int main()
     printf("__________________________\n");
     printf("\n");
 
-    // 5
-    printf("(FUNCTION 5) :\n");
+}
 
-    Vector2D p10 = Triangle2D_Circumcenter(tri1);
-    printf("Circumcenter of triangle 1 : ");
-    Vector2D_Print(p10);
-    printf("\n\n__________________________\n");
-    printf("\n");
+// 5
+printf("(FUNCTION 5) :\n");
 
-    // 6
-    printf("(FUNCTION 6) :\n");
-    Vector2D p11 = Triangle2D_Isobarycenter(tri1);
-    printf("Isobarycenter of triangle 1 : ");
-    Vector2D_Print(p11);
-    printf("\n\n__________________________\n");
-    printf("\n");
+Vector2D p10 = Triangle2D_Circumcenter(tri1);
+printf("Circumcenter of triangle 1 : ");
+Vector2D_Print(p10);
+printf("\n\n__________________________\n");
+printf("\n");
 
-    // 7
-    printf("(FUNCTION 7) :\n");
-    Vector2D t = Vector2D_SetFrom2Points(p4, p5);
-    Triangle2D tri5 = Triangle2D_Translate(tri1, t);
-    printf("Translation of triangle 1 : ");
-    Triangle_Print(tri5);
-    printf("\n\n__________________________\n");
-    printf("\n");
+// 6
+printf("(FUNCTION 6) :\n");
+Vector2D p11 = Triangle2D_Isobarycenter(tri1);
+printf("Isobarycenter of triangle 1 : ");
+Vector2D_Print(p11);
+printf("\n\n__________________________\n");
+printf("\n");
 
-    // 8
-    printf("(FUNCTION 8) :\n");
-    Vector2D p12 = Vector2D_SetFromComponents(1, 1);
-    Triangle2D tri6 = Triangle2D_Scale(tri1, 2, p12);
-    printf("Scale of triangle 1 : ");
-    Triangle_Print(tri6);
-    printf("\n\n__________________________\n");
-    printf("\n");
+// 7
+printf("(FUNCTION 7) :\n");
+Vector2D t = Vector2D_SetFrom2Points(p4, p5);
+Triangle2D tri5 = Triangle2D_Translate(tri1, t);
+printf("Translation of triangle 1 : ");
+Triangle_Print(tri5);
+printf("\n\n__________________________\n");
+printf("\n");
+
+// 8
+printf("(FUNCTION 8) :\n");
+Vector2D p12 = Vector2D_SetFromComponents(1, 1);
+Triangle2D tri6 = Triangle2D_Scale(tri1, 2, p12);
+printf("Scale of triangle 1 : ");
+Triangle_Print(tri6);
+printf("\n\n__________________________\n");
+printf("\n");
+
+// 9
+printf("(FUNCTION 9) :\n");
+Triangle2D tri7 = Triangle2D_Rotate(tri1, M_PI / 2, p12);
+printf("Rotation of triangle 1 : ");
+Triangle_Print(tri7);
+printf("\n\n__________________________\n");
+printf("\n");
+
+// 10 Bonus
+printf("(FUNCTION 10 bonus) :\n");
+Triangle2D tri8 = Triangle2D_RotateAll(tri1, M_PI / 2, p12);
+printf("Rotation of triangle 1 : ");
+Triangle_Print(tri8);
+printf("\n\n__________________________\n");
+printf("\n");
 }

@@ -128,10 +128,25 @@ Triangle2D Triangle2D_Scale(Triangle2D tri, float a, Vector2D anchor)
 
 Triangle2D Triangle2D_Rotate(Triangle2D tri, float theta, Vector2D anchor)
 {
-    Vector2D p1 = Vector2D_Rotate(tri.p1, theta, anchor);
-    Vector2D p2 = Vector2D_Rotate(tri.p2, theta, anchor);
-    Vector2D p3 = Vector2D_Rotate(tri.p3, theta, anchor);
+    // Calculating the centroid of a triangle
+    Vector2D gtri = Triangle2D_Isobarycenter(tri);
 
+    // Rotation of the center of gravity around the anchor
+    Vector2D nvgtri;
+    nvgtri.x = anchor.x + (gtri.x - anchor.x) * cos(theta) - (gtri.y - anchor.y) * sin(theta);
+    nvgtri.y = anchor.y + (gtri.x - anchor.x) * sin(theta) + (gtri.y - anchor.y) * cos(theta);
+
+    // Calculation of the displacement vector
+    Vector2D delta;
+    delta.x = nvgtri.x - gtri.x;
+    delta.y = nvgtri.y - gtri.y;
+
+    // Translation of all points of the triangle by the same vector
+    Vector2D p1 = Vector2D_SetFromComponents(tri.p1.x + delta.x, tri.p1.y + delta.y);
+    Vector2D p2 = Vector2D_SetFromComponents(tri.p2.x + delta.x, tri.p2.y + delta.y);
+    Vector2D p3 = Vector2D_SetFromComponents(tri.p3.x + delta.x, tri.p3.y + delta.y);
+
+    // New triangle
     return Triangle2D_SetFrom3Points(p1, p2, p3);
 }
 
