@@ -29,20 +29,27 @@ Rectangle2D Rectangle2D_SetFrom1Point2Vectors(Vector2D p1, Vector2D v1, Vector2D
 
 Rectangle2D Rectangle2D_SetFromCenterLengthWidthAngle(Vector2D center, float length, float width, float angle)
 {
-    // half --> moitié
+    // half --> "moitié"
     float half_length = length / 2.0f;
     float half_width = width / 2.0f;
 
+    // relative corners to the center
     Vector2D p1 = Vector2D_SetFromComponents(-half_length, -half_width);
     Vector2D p2 = Vector2D_SetFromComponents(half_length, -half_width);
     Vector2D p3 = Vector2D_SetFromComponents(half_length, half_width);
     Vector2D p4 = Vector2D_SetFromComponents(-half_length, half_width);
 
-    // Rotation and translation toward the center
-    p1 = Vector2D_Add(Vector2D_Rotate(p1, angle, Vector2D_SetFromComponents(0, 0)), center);
-    p2 = Vector2D_Add(Vector2D_Rotate(p2, angle, Vector2D_SetFromComponents(0, 0)), center);
-    p3 = Vector2D_Add(Vector2D_Rotate(p3, angle, Vector2D_SetFromComponents(0, 0)), center);
-    p4 = Vector2D_Add(Vector2D_Rotate(p4, angle, Vector2D_SetFromComponents(0, 0)), center);
+    // rotation directly around the center
+    p1 = Vector2D_Rotate(p1, angle, Vector2D_SetFromComponents(0, 0));
+    p2 = Vector2D_Rotate(p2, angle, Vector2D_SetFromComponents(0, 0));
+    p3 = Vector2D_Rotate(p3, angle, Vector2D_SetFromComponents(0, 0));
+    p4 = Vector2D_Rotate(p4, angle, Vector2D_SetFromComponents(0, 0));
+
+    // shift the points toward the center
+    p1 = Vector2D_Add(p1, center);
+    p2 = Vector2D_Add(p2, center);
+    p3 = Vector2D_Add(p3, center);
+    p4 = Vector2D_Add(p4, center);
 
     return Rectangle2D_SetFrom4Points(p1, p2, p3, p4);
 }

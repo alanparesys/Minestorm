@@ -144,7 +144,7 @@ Vector2D Vector2D_Rotate(Vector2D p, float theta, Vector2D anchor)
 
 void Vector2D_Print(Vector2D v)
 {
-    printf("v = (%f, %f)", v.x, v.y);
+    printf("pt = (% f, % f)", v.x, v.y);
 }
-
+    
 

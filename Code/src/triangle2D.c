@@ -9,23 +9,22 @@ Triangle2D Triangle2D_SetFrom3Points(Vector2D p1, Vector2D p2, Vector2D p3)
     tri.p2 = p2;
     tri.p3 = p3;
 
-    float a = Vector2D_Distance(p1, p2);
-    float b = Vector2D_Distance(p2, p3);
-    float c = Vector2D_Distance(p3, p1);
-    tri.a = a;
-    tri.b = b;
-    tri.c = c;
+    tri.a = Vector2D_Distance(p1, p2);
+    tri.b = Vector2D_Distance(p2, p3);
+    tri.c = Vector2D_Distance(p3, p1);
 
+    // Angles : vecteurs partant de chaque sommet
     Vector2D v1 = Vector2D_SetFrom2Points(p1, p2);
-    Vector2D v2 = Vector2D_SetFrom2Points(p2, p3);
-    Vector2D v3 = Vector2D_SetFrom2Points(p1, p3);
+    Vector2D v2 = Vector2D_SetFrom2Points(p1, p3);
+    tri.alpha = Vector2D_GetAngle(v1, v2);  // angle en p1
 
-    float beta = Vector2D_GetAngle(Vector2D_Opposite(v1), v2);
-    float gamma = Vector2D_GetAngle(Vector2D_Opposite(v2), Vector2D_Opposite(v3));
-    float alpha = Vector2D_GetAngle(v1, v3);
-    tri.alpha = alpha;
-    tri.beta = beta;
-    tri.gamma = gamma;
+    v1 = Vector2D_SetFrom2Points(p2, p1);
+    v2 = Vector2D_SetFrom2Points(p2, p3);
+    tri.beta = Vector2D_GetAngle(v1, v2);   // angle en p2
+
+    v1 = Vector2D_SetFrom2Points(p3, p1);
+    v2 = Vector2D_SetFrom2Points(p3, p2);
+    tri.gamma = Vector2D_GetAngle(v1, v2);  // angle en p3
 
     return tri;
 }
@@ -150,7 +149,7 @@ Triangle2D Triangle2D_RotateAll(Triangle2D tri, float theta, Vector2D anchor)
 
 void Triangle_Print(Triangle2D tri)
 {
-    printf("pts : \n p1 = (%f, %f); \n p2 = (%f, %f); \n p3 = (%f, %f); \n\n", tri.p1.x, tri.p1.y, tri.p2.x, tri.p2.y, tri.p3.x, tri.p3.y);
-    printf("normes : \n p1 p2 = %f; \n p2 p3 = %f; \n p3 p1 = %f; \n\n", tri.a, tri.b, tri.c);
-    printf("angles : \n p1 = %f; \n p2 = %f; \n p3 = %f; \n\n", tri.alpha, tri.beta, tri.gamma);
+    printf("points : \n p1 = (%f, %f) \n p2 = (%f, %f) \n p3 = (%f, %f) \n\n", tri.p1.x, tri.p1.y, tri.p2.x, tri.p2.y, tri.p3.x, tri.p3.y);
+    printf("normes : \n p1 p2 = %f \n p2 p3 = %f \n p3 p1 = %f \n\n", tri.a, tri.b, tri.c);
+    printf("angles : \n p1 = %f \n p2 = %f \n p3 = %f \n\n", tri.alpha, tri.beta, tri.gamma);
 }
