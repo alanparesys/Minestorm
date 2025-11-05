@@ -29,6 +29,7 @@ Rectangle2D Rectangle2D_SetFrom1Point2Vectors(Vector2D p1, Vector2D v1, Vector2D
 
 Rectangle2D Rectangle2D_SetFromCenterLengthWidthAngle(Vector2D center, float length, float width, float angle)
 {
+    // half --> moitié
     float half_length = length / 2.0f;
     float half_width = width / 2.0f;
 
@@ -68,7 +69,7 @@ Rectangle2D Rectangle2D_Scale(Rectangle2D rect, float a, Vector2D anchor)
     rect.p3 = Vector2D_Scale(rect.p3, a, anchor);
     rect.p4 = Vector2D_Scale(rect.p4, a, anchor);
     rect.center = Vector2D_Scale(rect.center, a, anchor);
-    rect.length *= a;
+    rect.length *= a; // *= --> Assignment after multiplication
     rect.width *= a;
     return rect;
 }
