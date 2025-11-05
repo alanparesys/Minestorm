@@ -30,31 +30,12 @@ Triangle2D Triangle2D_SetFrom3Points(Vector2D p1, Vector2D p2, Vector2D p3)
     return tri;
 }
 
-// Soon
 Triangle2D Triangle2D_SetFrom1Point2Vectors(Vector2D p1, Vector2D v1, Vector2D v2)
 {
-    Triangle2D tri;
-    tri.p1 = p1;
+    Vector2D p2 = Vector2D_Add(p1, v1);
+    Vector2D p3 = Vector2D_Add(p1, v2);
 
-    float a = Vector2D_Distance(p1, Vector2D_SetFromComponents(v1.x, v1.y));
-    float b = Vector2D_Distance(p1, Vector2D_SetFromComponents(v2.x, v2.y));
-    float c = Vector2D_Distance(Vector2D_SetFromComponents(v1.x, v1.y), Vector2D_SetFromComponents(v2.x, v2.y));
-    tri.a = a;
-    tri.b = b;
-    tri.c = c;
-
-    Vector2D v1 = Vector2D_SetFrom2Points(p1, Vector2D_SetFromComponents(v1.x, v1.y));
-    Vector2D v2 = Vector2D_SetFrom2Points(p1, Vector2D_SetFromComponents(v2.x, v2.y));
-    Vector2D v3 = Vector2D_SetFrom2Points(Vector2D_SetFromComponents(v1.x, v1.y), Vector2D_SetFromComponents(v2.x, v2.y));
-
-    float beta = Vector2D_GetAngle(Vector2D_Opposite(v1), v2);
-    float gamma = Vector2D_GetAngle(Vector2D_Opposite(v2), Vector2D_Opposite(v3));
-    float alpha = Vector2D_GetAngle(v1, v3);
-    tri.alpha = alpha;
-    tri.beta = beta;
-    tri.gamma = gamma;
-
-    return tri;
+    return Triangle2D_SetFrom3Points(p1, p2, p3);
 }
 
 float Triangle2D_GetSurface(Triangle2D tri)
