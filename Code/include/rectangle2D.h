@@ -1,3 +1,6 @@
+#ifndef RECTANGLE2D_H
+#define RECTANGLE2D_H
+
 #include "Vector2D.h"
 typedef struct Rectangle2D
 {
@@ -22,3 +25,5 @@ Rectangle2D Rectangle2D_Scale(Rectangle2D rect, float a, Vector2D anchor);
 Rectangle2D Rectangle2D_Rotate(Rectangle2D rect, float theta, Vector2D anchor);
 
 void Rectangle2D_Print(Rectangle2D rect);
+
+#endif
