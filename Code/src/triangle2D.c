@@ -150,5 +150,7 @@ Triangle2D Triangle2D_RotateAll(Triangle2D tri, float theta, Vector2D anchor)
 
 void Triangle_Print(Triangle2D tri)
 {
-    printf("triangle : \n p1 = (%f, %f); \n p2 = (%f, %f); \n p3 = (%f, %f)", tri.p1.x, tri.p1.y, tri.p2.x, tri.p2.y, tri.p3.x, tri.p3.y);
+    printf("pts : \n p1 = (%f, %f); \n p2 = (%f, %f); \n p3 = (%f, %f); \n\n", tri.p1.x, tri.p1.y, tri.p2.x, tri.p2.y, tri.p3.x, tri.p3.y);
+    printf("normes : \n p1 p2 = %f; \n p2 p3 = %f; \n p3 p1 = %f; \n\n", tri.a, tri.b, tri.c);
+    printf("angles : \n p1 = %f; \n p2 = %f; \n p3 = %f; \n\n", tri.alpha, tri.beta, tri.gamma);
 }
