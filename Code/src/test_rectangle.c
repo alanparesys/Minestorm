@@ -3,8 +3,6 @@
 #include "rectangle2D.h"
 #include "vector2D.h"
 
-
-
 int main()
 {
     printf("=============================================\n");
@@ -60,16 +58,22 @@ int main()
     printf("\n");
 
     // 5 Rectangle2D_Scale
-    /*
     printf("(Function 5) : \n");
-    float a = ;
-    Vector2D anchor = ;
-    Rectangle2D rect5 = Rectangle2D_Scale(rect, a, anchor);
+    Rectangle2D rect5 = Rectangle2D_Scale(rect, 2.0f, center);
     Rectangle2D_Print(rect5);
+    printf("Surface: %.2f\n\n", Rectangle2D_GetSurface(rect5));
     printf("__________________________\n");
 
     printf("\n");
-    */
+
+    // 6 Rectangle2D_Rotate
+    printf("(Function 6) : \n");
+    Rectangle2D rect6 = Rectangle2D_Rotate(rect5, angle, center);
+    Rectangle2D_Print(rect6);
+    printf("Surface: %.2f\n\n", Rectangle2D_GetSurface(rect6));
+    printf("__________________________\n");
+
+    printf("\n");
 
 
     return 0;
