@@ -76,5 +76,14 @@ int main()
     printf("\n");
 
 
+    // 7 Rectangle2D_RotateAll (Bonus)
+    printf("(Function 7) : \n");
+    Rectangle2D rect7 = Rectangle2D_RotateAll(rect5, angle, center);
+    Rectangle2D_Print(rect7);
+    printf("Surface: %.2f\n\n", Rectangle2D_GetSurface(rect7));
+    printf("__________________________\n");
+
+    printf("\n");
+
     return 0;
 }

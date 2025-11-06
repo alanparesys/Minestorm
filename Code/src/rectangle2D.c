@@ -83,6 +83,33 @@ Rectangle2D Rectangle2D_Scale(Rectangle2D rect, float a, Vector2D anchor)
 
 Rectangle2D Rectangle2D_Rotate(Rectangle2D rect, float theta, Vector2D anchor)
 {
+    // Calculating the centroid of a triangle
+    Vector2D grect = Vector2D_SetFromComponents(rect.length / 2, rect.width / 2);
+
+    // Rotation of the center of gravity around the anchor
+    Vector2D nvgrect;
+    nvgrect.x = anchor.x + (grect.x - anchor.x) * cos(theta) - (grect.y - anchor.y) * sin(theta);
+    nvgrect.y = anchor.y + (grect.x - anchor.x) * sin(theta) + (grect.y - anchor.y) * cos(theta);
+
+    // Calculation of the displacement vector
+    Vector2D delta;
+    delta.x = nvgrect.x - grect.x;
+    delta.y = nvgrect.y - grect.y;
+
+    // Translation of all points of the triangle by the same vector
+    Vector2D p1 = Vector2D_SetFromComponents(rect.p1.x + delta.x, rect.p1.y + delta.y);
+    Vector2D p2 = Vector2D_SetFromComponents(rect.p2.x + delta.x, rect.p2.y + delta.y);
+    Vector2D p3 = Vector2D_SetFromComponents(rect.p3.x + delta.x, rect.p3.y + delta.y);
+    Vector2D p4 = Vector2D_SetFromComponents(rect.p4.x + delta.x, rect.p4.y + delta.y);
+
+    // New triangle
+    return Rectangle2D_SetFrom4Points(p1, p2, p3, p4);
+
+}
+
+// Function Rectangle2D_RotateAll (Bonus)
+Rectangle2D Rectangle2D_RotateAll(Rectangle2D rect, float theta, Vector2D anchor)
+{
     rect.p1 = Vector2D_Rotate(rect.p1, theta, anchor);
     rect.p2 = Vector2D_Rotate(rect.p2, theta, anchor);
     rect.p3 = Vector2D_Rotate(rect.p3, theta, anchor);
