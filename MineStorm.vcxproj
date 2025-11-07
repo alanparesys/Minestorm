@@ -18,6 +18,20 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\src\game.c" />
+    <ClCompile Include="Code\src\main.c" />
+    <ClCompile Include="Code\src\polygone2D.c" />
+    <ClCompile Include="Code\src\rectangle2D.c" />
+    <ClCompile Include="Code\src\sphere2D.c" />
+    <ClCompile Include="Code\src\test_polygone2D.c" />
+    <ClCompile Include="Code\src\test_rectangle2D.c" />
+    <ClCompile Include="Code\src\test_sphere2D.c" />
+    <ClCompile Include="Code\src\test_triangle2D.c" />
+    <ClCompile Include="Code\src\test_vector2D.c" />
+    <ClCompile Include="Code\src\triangle2D.c" />
+    <ClCompile Include="Code\src\vector2D.c" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -183,20 +197,6 @@ xcopy /y /d /s  "$(SolutionDir)Assets\*" "$(OutDir)Assets\"</Command>
 xcopy /y /d /s  "$(SolutionDir)Assets\*" "$(OutDir)Assets\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Code\src\game.c" />
-    <ClCompile Include="Code\src\main.c" />
-    <ClCompile Include="Code\src\polygone2D.c" />
-    <ClCompile Include="Code\src\rectangle2D.c" />
-    <ClCompile Include="Code\src\sphere2D.c" />
-    <ClCompile Include="Code\src\test_polygone2D.c" />
-    <ClCompile Include="Code\src\test_rectangle2D.c" />
-    <ClCompile Include="Code\src\test_sphere2D.c" />
-    <ClCompile Include="Code\src\test_triangle2D.c" />
-    <ClCompile Include="Code\src\test_vector2D.c" />
-    <ClCompile Include="Code\src\triangle2D.c" />
-    <ClCompile Include="Code\src\vector2D.c" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

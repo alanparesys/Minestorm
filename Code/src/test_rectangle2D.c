@@ -2,12 +2,14 @@
 #include <math.h>
 #include "rectangle2D.h"
 #include "vector2D.h"
+#include "test_rectangle2D.h"
 
-int main()
+void launch_rectangle2D()
 {
     printf("=============================================\n");
-    printf("Rectangle\n");
+    printf("Rectangle2D\n");
     printf("=============================================\n");
+    printf("\n");
 
     // 1 Rectangle2D_SetFrom4Points
     Vector2D p1 = Vector2D_SetFromComponents(1, 0);
@@ -85,5 +87,4 @@ int main()
 
     printf("\n");
 
-    return 0;
 }

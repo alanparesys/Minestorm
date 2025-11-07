@@ -1,4 +1,4 @@
-#include "rectangle2D.h"
+ï»¿#include "rectangle2D.h"
 #include "vector2D.h"
 #include <stdio.h>
 
@@ -29,7 +29,7 @@ Rectangle2D Rectangle2D_SetFrom1Point2Vectors(Vector2D p1, Vector2D v1, Vector2D
 
 Rectangle2D Rectangle2D_SetFromCenterLengthWidthAngle(Vector2D center, float length, float width, float angle)
 {
-    // half --> "moitié"
+    // half --> "moitiï¿½"
     float half_length = length / 2.0f;
     float half_width = width / 2.0f;
 
