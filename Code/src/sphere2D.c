@@ -1,11 +1,11 @@
-﻿#include "sphere2D.h"
+﻿#define _USE_MATH_DEFINES
+
+
+#include "sphere2D.h"
 #include "vector2D.h"
 #include <math.h>
 #include <stdio.h>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846 // PI Value
-#endif
 
 Sphere2D Sphere2D_SetFromCenterRadius(Vector2D center, float radius)
 {
@@ -33,10 +33,9 @@ float Sphere2D_GetPerimeter(Sphere2D sph)
 
 Sphere2D Sphere2D_Translate(Sphere2D sph, Vector2D t)
 {
-    Sphere2D result;
-    result.center = Vector2D_Add(sph.center, t);
-    result.radius = sph.radius;
-    return result;
+    Vector2D nwCenter = Vector2D_Translate(sph.center, t);
+    Sphere2D nwSph = Sphere2D_SetFromCenterRadius(nwCenter, sph.radius);
+    return nwSph;
 }
 
 Sphere2D Sphere2D_Scale(Sphere2D sph, float a, Vector2D anchor)
@@ -52,6 +51,7 @@ void Sphere2D_Print(Sphere2D sph)
     printf("Sphere2D :\n");
     printf(" Centre : (%.2f, %.2f)\n", sph.center.x, sph.center.y);
     printf(" Rayon  : %.2f\n", sph.radius);
+    printf(" Perimetre : %.2f\n", Sphere2D_GetPerimeter(sph));
     printf(" Surface : %.2f\n", Sphere2D_GetSurface(sph));
-    printf(" P�rim�tre : %.2f\n", Sphere2D_GetPerimeter(sph));
+
 }

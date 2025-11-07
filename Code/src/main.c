@@ -11,6 +11,7 @@
 #include "test_triangle2D.h"
 #include "test_rectangle2D.h"
 #include "test_polygone2D.h"
+#include "test_sphere2D.h"
 
 int main()
 {
@@ -21,6 +22,7 @@ int main()
     printf("> (2) : Triangle2D\n");
     printf("> (3) : Rectangle2D\n");
     printf("> (4) : Polygone2D\n");
+    printf("> (5) : Sphere2D\n");
     printf("___________________\n\n");
 
     int number;
@@ -42,18 +44,17 @@ int main()
         launch_rectangle2D();
         printf("\n\n\n");
     }
-    /*
+
     else if (number == 4)
-    {
-        launch_sphere2D();
-        printf("\n\n\n");
-    }
-    else if (number == 5)
     {
         launch_polygone2D();
         printf("\n\n\n");
     }
-    */
+    else if (number == 5)
+    {
+        launch_sphere2D();
+        printf("\n\n\n");
+    }
 
     return 0;
 }
