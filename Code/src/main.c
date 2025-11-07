@@ -42,6 +42,7 @@ int main()
         launch_rectangle2D();
         printf("\n\n\n");
     }
+    /*
     else if (number == 4)
     {
         launch_sphere2D();
@@ -52,6 +53,7 @@ int main()
         launch_polygone2D();
         printf("\n\n\n");
     }
+    */
 
     return 0;
 }
