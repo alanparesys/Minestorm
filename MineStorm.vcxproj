@@ -186,14 +186,16 @@ xcopy /y /d /s  "$(SolutionDir)Assets\*" "$(OutDir)Assets\"</Command>
   <ItemGroup>
     <ClCompile Include="Code\src\game.c" />
     <ClCompile Include="Code\src\main.c" />
+    <ClCompile Include="Code\src\polygone2D.c" />
     <ClCompile Include="Code\src\rectangle2D.c" />
+    <ClCompile Include="Code\src\sphere2D.c" />
+    <ClCompile Include="Code\src\test_polygone2D.c" />
+    <ClCompile Include="Code\src\test_rectangle2D.c" />
+    <ClCompile Include="Code\src\test_sphere2D.c" />
+    <ClCompile Include="Code\src\test_triangle2D.c" />
+    <ClCompile Include="Code\src\test_vector2D.c" />
     <ClCompile Include="Code\src\triangle2D.c" />
     <ClCompile Include="Code\src\vector2D.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Code\include\rectangle2D.h" />
-    <ClInclude Include="Code\include\triangle2D.h" />
-    <ClInclude Include="Code\include\vector2D.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

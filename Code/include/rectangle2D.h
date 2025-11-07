@@ -23,6 +23,7 @@ float Rectangle2D_GetSurface(Rectangle2D rect);
 Rectangle2D Rectangle2D_Translate(Rectangle2D rect, Vector2D t);
 Rectangle2D Rectangle2D_Scale(Rectangle2D rect, float a, Vector2D anchor);
 Rectangle2D Rectangle2D_Rotate(Rectangle2D rect, float theta, Vector2D anchor);
+Rectangle2D Rectangle2D_RotateAll(Rectangle2D rect, float theta, Vector2D anchor)
 
 void Rectangle2D_Print(Rectangle2D rect);
 
