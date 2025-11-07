@@ -1,11 +1,3 @@
-// -------------------------------------------------------------
-// ToolBox2D
-// -------------------------------------------------------------
-// Alan , Louis & Eden
-// GP1
-// Vector2D / Triangle2D / Rectangle2D
-// -------------------------------------------------------------
-
 #include <stdio.h>
 #include "test_vector2D.h"
 #include "test_triangle2D.h"
@@ -13,9 +5,8 @@
 #include "test_polygone2D.h"
 #include "test_sphere2D.h"
 
-int main()
+int main(void)
 {
-    // Selection of program
     printf("Select a program to run\n");
     printf("___________________\n\n");
     printf("> (1) : Vector2D\n");
@@ -25,36 +16,26 @@ int main()
     printf("> (5) : Sphere2D\n");
     printf("___________________\n\n");
 
-    int number;
+    int number = 0;
     printf(">> ");
-    int result = scanf_s("%d", &number); // Choose a number
-
-    if (number == 1)
+    if (scanf_s("%d", &number) != 1)
     {
-        launch_vector2D();
-        printf("\n\n\n");
-    }
-    else if (number == 2)
-    {
-        launch_triangle2D();
-        printf("\n\n\n");
-    }
-    else if (number == 3)
-    {
-        launch_rectangle2D();
-        printf("\n\n\n");
+        printf("Invalid input.\n");
+        return 1;
     }
 
-    else if (number == 4)
+    switch (number)
     {
-        launch_polygone2D();
-        printf("\n\n\n");
-    }
-    else if (number == 5)
-    {
-        launch_sphere2D();
-        printf("\n\n\n");
+    case 1: launch_vector2D(); break;
+    case 2: launch_triangle2D(); break;
+    case 3: launch_rectangle2D(); break;
+    case 4: launch_polygone2D(); break;
+    case 5: launch_sphere2D(); break;
+    default: printf("Invalid selection.\n"); break;
     }
 
+    printf("\n\n\nPress Enter to exit...");
+    getchar();
+    getchar();
     return 0;
 }

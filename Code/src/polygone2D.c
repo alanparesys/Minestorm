@@ -25,7 +25,7 @@ Polygone2D Polygone2D_SetFromPoints(int Nbsommets, ...)
             Points* newPoint = malloc(sizeof(Points));
             if (!newPoint)
             {
-                printf("Erreur d’allocation mémoire.\n");
+                printf("Memory allocation error.\n");
                 Points_Free(firstPoint);
                 va_end(args);
                 return newPoly;
@@ -46,7 +46,7 @@ Polygone2D Polygone2D_SetFromPoints(int Nbsommets, ...)
     }
     else if (Nbsommets == -1)
     {
-        // On passe directement une liste chaînée
+        // We pass a linked list directly
         Points* firstPoint = va_arg(args, Points*);
         newPoly.point = firstPoint;
     }
@@ -85,7 +85,7 @@ Polygone2D Polygone2D_Translate(Polygone2D poly, Vector2D t)
         Points* newPoint = malloc(sizeof(Points));
         if (newPoint == NULL)
         {
-            printf("Erreur d’allocation mémoire.\n");
+            printf("Memory allocation error.\n");
             Points_Free(firstPoint);
             return poly;
         }
@@ -106,7 +106,7 @@ Polygone2D Polygone2D_Translate(Polygone2D poly, Vector2D t)
         current = current->next;
     }
 
-    Polygone2D newPoly = Polygone2D_SetFromPoints(-1, firstPoint);  // -1 pour dire qu'on passe une liste chainnée
+    Polygone2D newPoly = Polygone2D_SetFromPoints(-1, firstPoint);  // -1 to say that we are passing a linked list
     return newPoly;
 }
 
@@ -127,7 +127,7 @@ Polygone2D Polygone2D_Scale(Polygone2D poly, float a, Vector2D anchor)
         Points* newPoint = malloc(sizeof(Points));
         if (newPoint == NULL)
         {
-            printf("Erreur d’allocation mémoire.\n");
+            printf("Memory allocation error.\n");
             Points_Free(firstPoint);
             return poly;
         }
@@ -221,7 +221,7 @@ Vector2D Polygone2D_Isobarycenter(Polygone2D poly)
     Points* current = poly.point;
     Points* next = current->next;
 
-    float A = 0.0f; // aire signée pour barycentre
+    float A = 0.0f; // signed area for barycenter
 
     while (next != NULL)
     {
@@ -239,7 +239,7 @@ Vector2D Polygone2D_Isobarycenter(Polygone2D poly)
         next = next->next;
     }
 
-    // Fermer le polygone
+    // Close the polygon
     float x0 = current->coordinate.x;
     float y0 = current->coordinate.y;
     float x1 = first->coordinate.x;
@@ -265,7 +265,7 @@ Polygone2D Polygone2D_Rotate(Polygone2D poly, float theta, Vector2D anchor)
 {
     if (poly.point == NULL)
     {
-        printf("Erreur : polygone vide.\n");
+        printf("Error: empty polygon.\n");
         return poly;
     }
 
@@ -288,7 +288,7 @@ Polygone2D Polygone2D_Rotate(Polygone2D poly, float theta, Vector2D anchor)
         Points* newPoint = malloc(sizeof(Points));
         if (newPoint == NULL)
         {
-            printf("Erreur d’allocation mémoire.\n");
+            printf("Memory allocation error.n");
             Points_Free(firstPoint);
             return poly;
         }
@@ -320,7 +320,7 @@ Polygone2D Polygone2D_RotateAll(Polygone2D poly, float theta, Vector2D anchor)
 {
     if (poly.point == NULL)
     {
-        printf("Erreur : polygone vide.\n");
+        printf("Error: empty polygon.\n");
         return poly;
     }
 
@@ -333,7 +333,7 @@ Polygone2D Polygone2D_RotateAll(Polygone2D poly, float theta, Vector2D anchor)
         Points* newPoint = malloc(sizeof(Points));
         if (newPoint == NULL)
         {
-            printf("Erreur d’allocation mémoire.\n");
+            printf("Memory allocation error.\n");
             Points_Free(firstPoint);
             return poly;
         }
@@ -362,7 +362,7 @@ void Polygone2D_Print(Polygone2D poly)
 {
     if (poly.point == NULL)
     {
-        printf("Polygone vide.\n");
+        printf("Empty polygon.\n");
         return;
     }
 
