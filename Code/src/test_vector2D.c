@@ -1,9 +1,10 @@
 #define _USE_MATH_DEFINES
 #include <stdio.h>
 #include <math.h>
+#include "test_vector2D.h"
 #include "vector2D.h"
 
-int main()
+void launch_vector2D()
 {
     // 1
     printf("(FUNCTION 1) :\n");

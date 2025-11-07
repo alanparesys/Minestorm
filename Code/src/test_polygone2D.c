@@ -8,10 +8,10 @@
 #include <stdarg.h>
 
 
-int main()
+void launch_polygone2D()
 {
     printf("=============================================\n");
-    printf("Polygone\n");
+    printf("Polygone2D\n");
     printf("=============================================\n\n");
 
     // 1 Polygone2D_SetFromPoints

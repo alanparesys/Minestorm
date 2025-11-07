@@ -15,11 +15,6 @@ float Sphere2D_GetSurface(Sphere2D sph);
 float Sphere2D_GetPerimeter(Sphere2D sph);
 Sphere2D Sphere2D_Translate(Sphere2D sph, Vector2D t);
 Sphere2D Sphere2D_Scale(Sphere2D sph, float a, Vector2D anchor);
-
-// Bonus
-Sphere2D Sphere2D_Rotate(Sphere2D sph, float a, Vector2D anchor);
-//
-
 void Sphere2D_Print(Sphere2D sph);
 
 #endif
