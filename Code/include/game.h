@@ -11,10 +11,20 @@ typedef enum GameScreen
     ENDING,
 } GameScreen;
 
-int UpdateGame(Texture2D background, Texture2D ship/*, GameScreen currentScreen*/);
-void UpdateTitleScreen(Texture2D background /*GameScreen currentScreen*/);
-void UpdateSoloGameplay(Texture2D background, Texture2D ship/*, GameScreen currentScreen*/);
-void UpdateHelpGameplay(Texture2D background);
-void UpdatePauseMenu(Texture2D background/*, GameScreen currentScreen*/);
+typedef struct GameAssets
+{
+    Texture2D background;
+    Texture2D ship;
+    Texture2D basicEnemy;
+} GameAssets;
+
+
+void InitAssets(GameAssets* assets);
+void UnloadAssets(GameAssets* assets);
+void UpdateGame(GameAssets* assets);
+void UpdateTitleScreen(GameAssets* assets);
+void UpdateSoloGameplay(GameAssets* assets);
+void UpdateHelpGameplay(GameAssets* assets);
+void UpdatePauseMenu(GameAssets* assets);
 
 #endif  // GAME_H	

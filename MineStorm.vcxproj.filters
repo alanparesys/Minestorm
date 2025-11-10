@@ -51,5 +51,8 @@
     <ClCompile Include="Code\src\vector2D.c">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="Code\src\enemy.c">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

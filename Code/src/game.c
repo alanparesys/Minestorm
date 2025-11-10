@@ -8,40 +8,55 @@ bool help = false;
 bool solo = false;
 bool pause = false;
 
+void InitAssets(GameAssets* assets)
+{
+    assets->background = LoadTexture("Assets/minestorm_background.png");
+    assets->ship = LoadTexture("Assets/Kenney/ship_K.png");
+    assets->basicEnemy = LoadTexture("Assets/Kenney/meteor_detailedLarge.png");
+}
 
-int UpdateGame(Texture2D background, Texture2D ship/*, GameScreen currentScreen*/)
+void UnloadAssets(GameAssets* assets)
+{
+    UnloadTexture(assets->background);
+    UnloadTexture(assets->ship);
+    UnloadTexture(assets->basicEnemy);
+}
+
+
+void UpdateGame(GameAssets* assets)
 {
     switch (currentScreen)
     {
     case TITLE:
-        UpdateTitleScreen(background/*, currentScreen*/);
+        UpdateTitleScreen(assets);
         break;
     case HELP:
-        UpdateHelpGameplay(background);
+        UpdateHelpGameplay(assets);
         break;
     case SOLO_GAMEPLAY:
-        UpdateSoloGameplay(background, ship/*, GameScreen currentScreen*/);
+        UpdateSoloGameplay(assets);
         break;
     case PAUSE:
-        UpdatePauseMenu(background/*, currentScreen*/);
+        UpdatePauseMenu(assets);
         break;
     default:
         break;
     }
 }
 
-void UpdateTitleScreen(Texture2D background/*, GameScreen currentScreen*/)
+
+void UpdateTitleScreen(GameAssets* assets)
 {
     BeginDrawing();
     ClearBackground(BLACK);
 
     // Draw
-    DrawTexture(background, 0, 0, WHITE);
+    DrawTexture(assets->background, 0, 0, WHITE);
 
     //Text
     DrawText("(F) : Launch Solo Game", 160, 350, 20, WHITE);
     DrawText("(K) : Launch Duo Game", 160, 400, 20, WHITE);
-    DrawText("(H) : Help", 160, 450, 20, WHITE);    // png des obstacle et pressition de leur spécificités
+    DrawText("(H) : Help", 160, 450, 20, WHITE);
     DrawText("(P) : Pause Menu", 160, 500, 20, WHITE);
     DrawText("(Esc) : Quit Game", 160, 550, 20, WHITE);
 
@@ -50,76 +65,67 @@ void UpdateTitleScreen(Texture2D background/*, GameScreen currentScreen*/)
     if (IsKeyPressed(KEY_H))
     {
         currentScreen = HELP;
-        bool title = false;
-        bool help = true;
+        title = false;
+        help = true;
     }
     if (IsKeyPressed(KEY_F))
     {
         currentScreen = SOLO_GAMEPLAY;
-        bool title = false;
-        bool solo = true;
+        title = false;
+        solo = true;
     }
-    /*
-    else if (IsKeyPressed(KEY_K))
-    {
-        currentScreen = VS_GAMEPLAY;
-    }
-    */
 }
 
-
-void UpdateHelpGameplay(Texture2D background)
+void UpdateHelpGameplay(GameAssets* assets)
 {
     BeginDrawing();
     ClearBackground(BLACK);
     // Draw
-    DrawTexture(background, 0, 0, WHITE);
+    DrawTexture(assets->background, 0, 0, WHITE);
     DrawText("Pause Menu Screen", 160, 300, 20, WHITE);
     DrawText("(H) to return", 160, 350, 20, WHITE);
     EndDrawing();
     if (IsKeyPressed(KEY_H))
     {
         currentScreen = TITLE;
-        bool help = false;
-        bool title = true;
-
+        help = false;
+        title = true;
     }
 }
 
-void UpdateSoloGameplay(Texture2D background, Texture2D ship/*, GameScreen currentScreen*/)
+void UpdateSoloGameplay(GameAssets* assets)
 {
     BeginDrawing();
     ClearBackground(BLACK);
     // Draw
-    DrawTexture(background, 0, 0, WHITE);
-    DrawTexture(ship, 625 / 2 - 50 / 2, 1070 / 2 - 50 / 2 - 40, WHITE);
+    DrawTexture(assets->background, 0, 0, WHITE);
+    DrawTexture(assets->ship, 625 / 2 - 50 / 2, 1070 / 2 - 50 / 2 - 40, WHITE);
+    DrawTexture(assets->basicEnemy, 550 / 2 - 50 / 2, 1070 / 2 - 50 / 2 - 40, WHITE);
     DrawText("Solo Gameplay Screen", 160, 300, 20, WHITE);
     EndDrawing();
 
     if (IsKeyPressed(KEY_P))
     {
         currentScreen = PAUSE;
-        bool solo = false;
-        bool pause = true;
-
+        solo = false;
+        pause = true;
     }
 }
 
-
-void UpdatePauseMenu(Texture2D background/*, GameScreen currentScreen*/)
+void UpdatePauseMenu(GameAssets* assets)
 {
     BeginDrawing();
     ClearBackground(BLACK);
     // Draw
-    DrawTexture(background, 0, 0, WHITE);
+    DrawTexture(assets->background, 0, 0, WHITE);
     DrawText("Pause Menu Screen", 160, 300, 20, WHITE);
     EndDrawing();
     if (IsKeyPressed(KEY_P))
     {
         currentScreen = SOLO_GAMEPLAY;
-        bool pause = false;
-        bool solo = true;
-
+        pause = false;
+        solo = true;
     }
 }
+
 
