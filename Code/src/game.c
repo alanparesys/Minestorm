@@ -1,4 +1,3 @@
-
 #include <raylib.h>
 
 #include "math.h"
@@ -22,14 +21,12 @@ Ship* player = NULL;
 float positionX = (625 / 2) - (50 / 2);                // player's x-position
 float positionY = (1070 / 2) - (50 / 2) - (2 - 40);    // player's y-position
 
-
 // physique du jeu
 const float ROTATION_SPEED = 0.05f;                    // the speed of rotation in one frame
 const float PUSH = 1.5f;                            // thrust value (press Z or W once = 0.2f)
 const float FRICTION = 0.93f;                        // friction (slowdown) = 0.99f
 
 // InitGame: initializes the basic values for physics and player position
-
 Enemy* basicEnemy;
 
 void InitAssets(GameAssets* assets)
@@ -45,7 +42,6 @@ void UnloadAssets(GameAssets* assets)
     UnloadTexture(assets->ship);
     UnloadTexture(assets->basicEnemyTexture);
 }
-
 
 void UpdateGame(GameAssets* assets, Enemy* enemy)
 {
@@ -69,7 +65,6 @@ void UpdateGame(GameAssets* assets, Enemy* enemy)
         break;
     }
 }
-
 
 void UpdateTitleScreen(GameAssets* assets)
 {
@@ -142,7 +137,6 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy)
         EndDrawing();
     }
 
-
     if (IsKeyPressed(KEY_P))
     {
         currentScreen = PAUSE;
@@ -208,7 +202,6 @@ void InitGame(void)
 // Implementation and verification of game controls
 Vector2D CheckInput(void)
 {
-
     // Turn right
     if (IsKeyDown('D'))
     {
