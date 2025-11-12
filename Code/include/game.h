@@ -12,8 +12,9 @@ typedef enum GameScreen
     SOLO_GAMEPLAY,
     VS_GAMEPLAY,
     HELP,
-	PAUSE,
+    PAUSE,
     ENDING,
+    GAMEOVER,
 } GameScreen;
 
 typedef struct GameAssets
@@ -22,6 +23,14 @@ typedef struct GameAssets
     Texture2D ship;
     Texture2D basicEnemyTexture;
 } GameAssets;
+
+typedef struct Ship {
+    Vector2D position;
+    Vector2D size;
+    Vector2D velocity;
+    float angle;                        // en radians
+    Color color;
+} Ship;
 
 typedef struct Enemy Enemy; // Déclaration anticipée pour éviter boucle d'inclusion
 
@@ -33,5 +42,11 @@ void UpdateTitleScreen(GameAssets* assets);
 void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy);
 void UpdateHelpGameplay(GameAssets* assets);
 void UpdatePauseMenu(GameAssets* assets);
+void UpdateGameOver(GameAssets* assets);
+void RestartGame(GameAssets* assets);
+
+void InitGame(void);
+void UpdateControlGame(void);
+Vector2D CheckInput(void);
 
 #endif  // GAME_H	

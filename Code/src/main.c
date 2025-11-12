@@ -14,8 +14,11 @@ int main(void)
     Enemy basicEnemy = { 0 };
 
     InitAssets(&assets);
+    InitGame();
 
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose())
+    {
+        UpdateControlGame();
         UpdateGame(&assets, &basicEnemy);
     }
 
