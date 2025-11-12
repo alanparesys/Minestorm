@@ -1,109 +1,114 @@
-#include "stdlib.h"
+#define M_PI 3.14159265f
+
+#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
 #include "enemy.h"
+#include "game.h"
 
-Enemy* basicEnemy;
+const int screenWidth = 1080;
+const int screenHeight = 1300;
 
-bool allowEnemySpawn = false;
+Enemy basicEnemies[3];
+int basicEnemyCount = 3;
+bool enemiesSpawned = false;
+EnemySize currentBasicEnemySize = BIG;
 
-bool basicEnemyMax = true;
-int basicEnemyNumber = 0;
-
-
-void BasicEnemySpawn(int screenHeight, int screenWigth, Enemy enemy)
+// Mettre à jour tous les ennemis
+void UpdateBasicEnemy(Enemy* dummy, GameAssets* assets)
 {
-    float positionX = 0;
-    float positionY = 0;
-
-
-    Vector2D bigSize = Vector2D_SetFromComponents(100, 100);
-    Vector2D midSize = Vector2D_SetFromComponents(50, 50);
-    Vector2D smallSize = Vector2D_SetFromComponents(25, 25);
-    if (basicEnemyNumber == 3)
+    switch (currentBasicEnemySize)
     {
-        basicEnemyMax = false;
+    case BIG:
+        UpdateBigBasicEnemy(assets);
+        break;
+    case MID:
+        // UpdateMidBasicEnemy(dummy, assets);
+        break;
+    case SMALL:
+        // UpdateSmallBasicEnemy(dummy, assets);
+        break;
+    default:
+        break;
     }
+}
 
-    if (allowEnemySpawn == true)
+// Mettre à jour les ennemis BIG
+void UpdateBigBasicEnemy(GameAssets* assets)
+{
+    if (!enemiesSpawned)
     {
-        basicEnemy = (Enemy*)malloc(sizeof(Enemy));
-        if (basicEnemy == NULL)
-        {
-            printf("Allocation du basicEnemy non réussi");
-            return;
-        }
+        BasicEnemySpawn();
+        enemiesSpawned = true;
+    }
 
-        int XorYSpawn = GetRandomValue(1, 2);
-
-        // enemy spawn at X
-        if (XorYSpawn == 1)
-        {
-            positionX = GetRandomValue(-50, screenWigth + 50);
-            positionY = GetRandomValue(1, 2);
-            if (positionY == 1) positionY = -50;
-            else positionY = screenHeight + 50;
-        }
-        // enemy spawn a Y
-        else
-        {
-            positionX = GetRandomValue(1, 2);
-            positionY = GetRandomValue(-50, screenHeight + 50);
-            if (positionX == 1) positionX = -50;
-            else positionX = screenWigth + 50;
-        }
-
-        basicEnemy->position = Vector2D_SetFromComponents(positionX, positionY);
-
-        basicEnemy->angle = 0.0f;
-
-        basicEnemyNumber += 1;
+    for (int i = 0; i < basicEnemyCount; i++)
+    {
+        BasicEnemyMovement(&basicEnemies[i]);
+        DrawTextureEx(
+            assets->basicEnemyTexture,
+            (Vector2) {
+            basicEnemies[i].position.x, basicEnemies[i].position.y
+        },
+            basicEnemies[i].angle * 180.0f / M_PI,
+            2.5f, WHITE
+        );
     }
 }
 
-/*
+// Spawn des ennemis
+void BasicEnemySpawn(void)
+{
+    for (int i = 0; i < basicEnemyCount; i++)
+    {
+        int side = GetRandomValue(1, 4);
+        if (side == 1) { basicEnemies[i].position.x = -50; basicEnemies[i].position.y = (float)GetRandomValue(0, screenHeight); }
+        if (side == 2) { basicEnemies[i].position.x = screenWidth + 50; basicEnemies[i].position.y = (float)GetRandomValue(0, screenHeight); }
+        if (side == 3) { basicEnemies[i].position.y = -50; basicEnemies[i].position.x = (float)GetRandomValue(0, screenWidth); }
+        if (side == 4) { basicEnemies[i].position.y = screenHeight + 50; basicEnemies[i].position.x = (float)GetRandomValue(0, screenWidth); }
 
-// Implémentation et vérification des controles du jeu
+        basicEnemies[i].target.x = (float)GetRandomValue(50, screenWidth - 50);
+        basicEnemies[i].target.y = (float)GetRandomValue(50, screenHeight - 50);
 
-Vector2D CheckInput(void) {
-    Vector2D input = Vector2D_SetFromComponents(0, 0);
-    Vector2D OY = Vector2D_SetFromComponents(0, 1);
-    Vector2D OX = Vector2D_SetFromComponents(1, 0);
+        basicEnemies[i].size.x = 50.0f;
+        basicEnemies[i].size.y = 50.0f;
 
-    //tourner à droite
-    if (IsKeyDown('D')) {
-        player->angle = player->angle + ROTATION_SPEED;
-
-    }
-    // tourner à gauche
-    if (IsKeyDown('A') | IsKeyDown('Q')) {
-        player->angle = player->angle - ROTATION_SPEED;
-
-    }
-
-    if (IsKeyDown('Z') | IsKeyDown('W')) {
-        Vector2D pushVector = Vector2D_SetFromComponents(
-            cos(player->angle) * PUSH, sin(player->angle) * PUSH);
-        player->velocity = Vector2D_Add(player->velocity, pushVector);
-
-
-    }
-
-    if (IsKeyDown(KEY_SPACE)) {
-        // les tirs ici (Alan)
-    }
-
-    Vector2D_Print(player->velocity);
-    return input;
-}
-
-void UpdateControlGame(void) {
-    if (true) {
-        CheckInput();
-
-        // on applique l'inertie : la position = la position + la vélocité
-        player->position = Vector2D_Add(player->position, player->velocity);
-
-        // on applique la friction : la vélocity = la vélocité x la friction
-        player->velocity = Vector2D_Scale(player->velocity, FRICTION, Vector2D_SetFromComponents(0, 0););
+        basicEnemies[i].rotationSpeed = ((float)GetRandomValue(-50, 50)) / 100.0f;
+        basicEnemies[i].angle = 0.0f;
     }
 }
-*/
+
+// Déplacement et rotation de l’ennemi
+void BasicEnemyMovement(Enemy* enemy)
+{
+    float dirX = enemy->target.x - enemy->position.x;
+    float dirY = enemy->target.y - enemy->position.y;
+    float dist = sqrtf(dirX * dirX + dirY * dirY);
+
+    float speed = 2.0f; // ajustable
+    if (dist > 1.0f)
+    {
+        enemy->velocity.x = dirX / dist * speed;
+        enemy->velocity.y = dirY / dist * speed;
+
+        enemy->position.x += enemy->velocity.x;
+        enemy->position.y += enemy->velocity.y;
+
+        enemy->angle = atan2f(enemy->velocity.y, enemy->velocity.x);
+    }
+    else
+    {
+        enemy->target.x = (float)GetRandomValue(50, screenWidth - 50);
+        enemy->target.y = (float)GetRandomValue(50, screenHeight - 50);
+    }
+
+    enemy->angle += enemy->rotationSpeed;
+}
+
+// grossir l'enemi
+// angle d'apparition
+// faire tourner l'enemi
+// moyenne et petite taille
+// autre type d'enemis
+// hitbox
+// respawner les ennemis quand ils sortent de l'ecran avec hitbox de l'ecran

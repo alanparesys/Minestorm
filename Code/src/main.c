@@ -1,23 +1,25 @@
 #include <raylib.h>
-
 #include "game.h"
+#include "enemy.h"
 
-int main()
+int main(void)
 {
-    int screenHeight = 1300;
-    int screenWigth = 1080;
+    const int screenWidth = 1080;
+    const int screenHeight = 1300;
 
-    InitWindow(screenWigth, screenHeight, "MineStorm");
+    InitWindow(screenWidth, screenHeight, "MineStorm");
     SetTargetFPS(60);
-    GameAssets assets;
-    InitAssets(&assets); // charge les textures et initialise le module game
 
-    while (!WindowShouldClose())
-    {
-        UpdateGame(&assets);
+    GameAssets assets;
+    Enemy basicEnemy = { 0 };
+
+    InitAssets(&assets);
+
+    while (!WindowShouldClose()) {
+        UpdateGame(&assets, &basicEnemy);
     }
 
-    UnloadAssets(&assets); // décharge les textures
+    UnloadAssets(&assets);
     CloseWindow();
 
     return 0;
