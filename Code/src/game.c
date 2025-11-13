@@ -29,11 +29,15 @@ const float FRICTION = 0.93f;                        // friction (slowdown) = 0.
 // InitGame: initializes the basic values for physics and player position
 Enemy* basicEnemy;
 
+Color shipColor = { 186, 18, 186, 255 };
+
 void InitAssets(GameAssets* assets)
 {
     assets->background = LoadTexture("Assets/Background1080_1300.png");
-    assets->ship = LoadTexture("Assets/Kenney/ship_K.png");
+    assets->ship = LoadTexture("Assets/Kenney/ship_sidesA.png"); // ship_K.png  // Kenney/ship_sidesA.png
     assets->basicEnemyTexture = LoadTexture("Assets/Kenney/meteor_detailedLarge.png");
+    assets->interface = LoadTexture("Assets/interface1.png");
+    assets->font = LoadFont("Assets/pixel_police.ttf");
 }
 
 void UnloadAssets(GameAssets* assets)
@@ -41,6 +45,8 @@ void UnloadAssets(GameAssets* assets)
     UnloadTexture(assets->background);
     UnloadTexture(assets->ship);
     UnloadTexture(assets->basicEnemyTexture);
+    UnloadTexture(assets->interface);
+    UnloadFont(assets->font);
 }
 
 void UpdateGame(GameAssets* assets, Enemy* enemy)
@@ -126,14 +132,41 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy)
 
 
         // Ship display
-        DrawTexturePro(assets->ship, (Rectangle) {0, 0, assets->ship.width, assets->ship.height}, (Rectangle) {player->position.x, player->position.y, player->size.x, player->size.y}, (Vector2) {player->size.x / 2, player->size.y / 2},(player->angle * (180.0f / PI)) + 90, player->color);
+        DrawTexturePro(assets->ship, (Rectangle) { 0, 0, assets->ship.width, assets->ship.height },
+            (Rectangle) {
+            player->position.x, player->position.y, player->size.x, player->size.y
+        },
+            (Vector2) {
+            player->size.x / 2, player->size.y / 2
+        }, (player->angle * (180.0f / PI)) + 90, player->color);
 
-        DrawText("Solo Gameplay Screen", 160, 300, 20, WHITE);
+        //DrawText("Solo Gameplay Screen", 160, 300, 20, WHITE);
         // <-- passes assets to the enemy manager
         UpdateBasicEnemy(enemy, assets);
-
+        Vector2 interfacePos = { 0, 0 };
+        DrawTextureEx(assets->interface, interfacePos, 0, 1, WHITE);
         // Help Text
-        DrawText("Use Z or W to move\n A or Q to turn left\n D to turn right\n Ctrl to teleport", 10, 10, 20, WHITE);
+        Vector2 controlPos = { 15, 61 };
+        float fontSize = 15;
+        float spacing = 2;
+        Vector2 controlPosrot = { 0, 0 };
+        float rotation = -6.0f;
+        // Texte séparé en lignes
+        const char* lines[] = {
+            "Use Z or W to move",
+            "A or Q to turn left",
+            "D to turn right",
+            "Ctrl to teleport"
+        };
+
+        for (int i = 0; i < 4; i++) {
+            DrawTextPro(assets->font, lines[i],
+                (Vector2) {
+                controlPos.x, controlPos.y + i * (fontSize + 5)
+            },
+                controlPosrot, rotation,
+                fontSize, spacing, WHITE);
+        }
         EndDrawing();
     }
 
@@ -196,7 +229,7 @@ void InitGame(void)
     player->size = Vector2D_SetFromComponents(50, 50);                        // The player's base size is “size.”
     player->velocity = Vector2D_SetFromComponents(0, 0);
     player->angle = PI;
-    player->color = WHITE;
+    player->color = shipColor;
 }
 
 // Implementation and verification of game controls

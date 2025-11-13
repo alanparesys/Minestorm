@@ -25,7 +25,7 @@ typedef enum EnemySize
 typedef struct GameAssets GameAssets; // Déclaration anticipée
 
 // Fonctions
-void UpdateBasicEnemy(Enemy* dummy, GameAssets* assets);
+void UpdateBasicEnemy(Enemy* enemy, GameAssets* assets);
 void UpdateBigBasicEnemy(GameAssets* assets);
 void BasicEnemySpawn(int i);
 void BasicEnemyMovement(int i);

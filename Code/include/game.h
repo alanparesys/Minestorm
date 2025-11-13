@@ -22,6 +22,8 @@ typedef struct GameAssets
     Texture2D background;
     Texture2D ship;
     Texture2D basicEnemyTexture;
+    Texture2D interface;
+    Font font;
 } GameAssets;
 
 typedef struct Ship {

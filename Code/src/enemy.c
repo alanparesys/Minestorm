@@ -13,13 +13,14 @@ const int screenHeight = 1300;
 // Tableau des ennemis
 Enemy basicEnemies[3];
 int maxBasicEnemy = 3;
-bool enemiesSpawned = false;
+bool bigBasicEnemiesSpawn = false;
+bool bigBasicEnemiesColision = false;
 
 // Taille actuelle des ennemis
 EnemySize currentBasicEnemySize = BIG;
 
 // Mise à jour de tous les ennemis
-void UpdateBasicEnemy(Enemy* dummy, GameAssets* assets)
+void UpdateBasicEnemy(Enemy* enemy, GameAssets* assets)
 {
     switch (currentBasicEnemySize)
     {
@@ -27,10 +28,10 @@ void UpdateBasicEnemy(Enemy* dummy, GameAssets* assets)
         UpdateBigBasicEnemy(assets);
         break;
     case MID:
-        // UpdateMidBasicEnemy(dummy, assets);
+        // UpdateMidBasicEnemy(enemy, assets);
         break;
     case SMALL:
-        // UpdateSmallBasicEnemy(dummy, assets);
+        // UpdateSmallBasicEnemy(enemy, assets);
         break;
     default:
         break;
@@ -41,12 +42,12 @@ void UpdateBasicEnemy(Enemy* dummy, GameAssets* assets)
 void UpdateBigBasicEnemy(GameAssets* assets)
 {
     // Spawn une seule fois
-    if (!enemiesSpawned)
+    if (!bigBasicEnemiesSpawn)
     {
         int i;
         for (i = 0; i < maxBasicEnemy; i++)
             BasicEnemySpawn(i);
-        enemiesSpawned = true;
+        bigBasicEnemiesSpawn = true;
     }
 
     int i;
@@ -58,24 +59,19 @@ void UpdateBigBasicEnemy(GameAssets* assets)
         Rectangle sourceRec = { 0, 0, assets->basicEnemyTexture.width, assets->basicEnemyTexture.height };
 
         // rectangle de destination (position et taille finale)
-        Rectangle destRec = {
-            basicEnemies[i].position.x,
-            basicEnemies[i].position.y,
-            basicEnemies[i].size.x * 2.5f,
-            basicEnemies[i].size.y * 2.5f
-        };
+        Rectangle destRec = { basicEnemies[i].position.x, basicEnemies[i].position.y, basicEnemies[i].size.x * 3.5f, basicEnemies[i].size.y * 3.5f };
 
         // centre de rotation = centre du rectangle destination
-        Vector2 origin = { (basicEnemies[i].size.x * 2.5f) / 2, (basicEnemies[i].size.y * 2.5f) / 2 };
+        Vector2 origin = { (basicEnemies[i].size.x * 3.5f) / 2, (basicEnemies[i].size.y * 3.5f) / 2 };
 
         // dessiner la texture
-        DrawTexturePro(
-            assets->basicEnemyTexture,
-            sourceRec,
-            destRec,
-            origin,
-            basicEnemies[i].angle * 180.0f / M_PI,
-            WHITE);
+        DrawTexturePro(assets->basicEnemyTexture, sourceRec, destRec, origin, basicEnemies[i].angle * 180.0f / M_PI, WHITE);
+        /*
+        if (bigBasicEnemiesColision = true)
+        {
+            bigBasicEnemiesSpawn = false;
+        }
+        */
     }
 }
 
@@ -124,3 +120,34 @@ void BasicEnemyMovement(int i)
         BasicEnemySpawn(i);
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+Enemy shooterEnemies[3];
+int maxShooterEnemy = 2;
+bool bigShooterEnemiesSpawn = false;
+bool bigShooterEnemiesColision = false;
+
+EnemySize currentShooterEnemySize = BIG;
+
+void UpdateShooterEnemy(Enemy* enemy, GameAssets* assets)
+{
+    switch (currentShooterEnemySize)
+    {
+    case BIG:
+        UpdateBigShooterEnemy(assets);
+        break;
+    case MID:
+        // UpdateMidBasicEnemy(enemy, assets);
+        break;
+    case SMALL:
+        // UpdateSmallBasicEnemy(enemy, assets);
+        break;
+    default:
+        break;
+    }
+}
+
+
+UpdateBigShooterEnemy(GameAssets* assets)
+*/
