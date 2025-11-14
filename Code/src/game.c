@@ -34,18 +34,24 @@ Color shipColor = { 186, 18, 186, 255 };
 void InitAssets(GameAssets* assets)
 {
     assets->background = LoadTexture("Assets/Background1080_1300.png");
+    assets->interface = LoadTexture("Assets/interface1.png");
     assets->ship = LoadTexture("Assets/Kenney/ship_sidesA.png"); // ship_K.png  // Kenney/ship_sidesA.png
     assets->basicEnemyTexture = LoadTexture("Assets/Kenney/meteor_detailedLarge.png");
-    assets->interface = LoadTexture("Assets/interface1.png");
+    assets->shooterEnemyTexture = LoadTexture("Assets/shooter_enemy.png");
+    assets->followerEnemyTexture = LoadTexture("Assets/Kenney/icon_crossLarge.png");
+	assets->followerShooterEnemyTexture = LoadTexture("Assets/follower_shooter_enemy.png");
     assets->font = LoadFont("Assets/pixel_police.ttf");
 }
 
 void UnloadAssets(GameAssets* assets)
 {
     UnloadTexture(assets->background);
+    UnloadTexture(assets->interface);
     UnloadTexture(assets->ship);
     UnloadTexture(assets->basicEnemyTexture);
-    UnloadTexture(assets->interface);
+    UnloadTexture(assets->shooterEnemyTexture);
+	UnloadTexture(assets->followerEnemyTexture);
+	UnloadTexture(assets->followerShooterEnemyTexture);
     UnloadFont(assets->font);
 }
 
@@ -142,7 +148,11 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy)
 
         //DrawText("Solo Gameplay Screen", 160, 300, 20, WHITE);
         // <-- passes assets to the enemy manager
+        UpdateControlGame();
         UpdateBasicEnemy(enemy, assets);
+		UpdateShooterEnemy(enemy, assets);
+        UpdateFollowerEnemy(enemy, assets);
+		UpdateFollowerShooterEnemy(enemy, assets);
         Vector2 interfacePos = { 0, 0 };
         DrawTextureEx(assets->interface, interfacePos, 0, 1, WHITE);
         // Help Text
@@ -208,7 +218,7 @@ void UpdateGameOver(GameAssets* assets)
     EndDrawing();
     if (IsKeyPressed(KEY_ENTER))
     {
-        RestartGame(assets);
+        RestartGame(assets, basicEnemy);
     }
 }
 
@@ -278,6 +288,5 @@ void UpdateControlGame(void) {
 
         // friction is applied: velocity = velocity x friction
         player->velocity = Vector2D_Scale(player->velocity, FRICTION, Vector2D_SetFromComponents(0, 0));
-
     }
 }

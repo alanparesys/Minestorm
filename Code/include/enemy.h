@@ -13,6 +13,7 @@ typedef struct Enemy
     Vector2D target;       // point cible aléatoire
     float angle;           // orientation du sprite
     float rotationSpeed;   // rotation sur lui-même
+	float speed;          // vitesse de déplacement
 } Enemy;
 
 typedef enum EnemySize
@@ -27,7 +28,21 @@ typedef struct GameAssets GameAssets; // Déclaration anticipée
 // Fonctions
 void UpdateBasicEnemy(Enemy* enemy, GameAssets* assets);
 void UpdateBigBasicEnemy(GameAssets* assets);
-void BasicEnemySpawn(int i);
-void BasicEnemyMovement(int i);
+void BigBasicEnemySpawn(int i);
+void BigBasicEnemyMovement(int i);
 
+void UpdateShooterEnemy (Enemy* enemy, GameAssets* assets);
+void UpdateBigShooterEnemy(GameAssets* assets);
+void BigShooterEnemySpawn(int i);
+void BigShooterEnemyMovement(int i);
+
+void UpdateFollowerEnemy(Enemy* enemy, GameAssets* assets);
+void UpdateBigFollowerEnemy(GameAssets* assets);
+void BigFollowerEnemySpawn(int i);
+void BigFollowerEnemyMovement(int i);
+
+void UpdateFollowerShooterEnemy(Enemy* enemy, GameAssets* assets);
+void UpdateBigFollowerShooterEnemy(GameAssets* assets);
+void BigFollowerShooterEnemySpawn(int i);
+void BigFollowerShooterEnemyMovement(int i);
 #endif

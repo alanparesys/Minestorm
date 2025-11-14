@@ -18,7 +18,6 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        UpdateControlGame();
         UpdateGame(&assets, &basicEnemy);
     }
 

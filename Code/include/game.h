@@ -20,9 +20,12 @@ typedef enum GameScreen
 typedef struct GameAssets
 {
     Texture2D background;
+    Texture2D interface;
     Texture2D ship;
     Texture2D basicEnemyTexture;
-    Texture2D interface;
+    Texture2D shooterEnemyTexture;
+	Texture2D followerEnemyTexture;
+	Texture2D followerShooterEnemyTexture;
     Font font;
 } GameAssets;
 
@@ -45,7 +48,7 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy);
 void UpdateHelpGameplay(GameAssets* assets);
 void UpdatePauseMenu(GameAssets* assets);
 void UpdateGameOver(GameAssets* assets);
-void RestartGame(GameAssets* assets);
+void RestartGame(GameAssets* assets, Enemy* enemy);
 
 void InitGame(void);
 void UpdateControlGame(void);
