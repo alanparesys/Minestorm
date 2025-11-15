@@ -6,6 +6,7 @@
 #include "vector2D.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include "bullet.h"
 
 GameScreen currentScreen = TITLE;
 bool title = true;
@@ -28,6 +29,7 @@ const float FRICTION = 0.93f;                        // friction (slowdown) = 0.
 
 // InitGame: initializes the basic values for physics and player position
 Enemy* basicEnemy;
+Enemy bigBasicEnemies[3];
 
 Color shipColor = { 186, 18, 186, 255 };
 
@@ -36,6 +38,7 @@ void InitAssets(GameAssets* assets)
     assets->background = LoadTexture("Assets/Background1080_1300.png");
     assets->interface = LoadTexture("Assets/interface1.png");
     assets->ship = LoadTexture("Assets/Kenney/ship_sidesA.png"); // ship_K.png  // Kenney/ship_sidesA.png
+    assets->bulletTexture = LoadTexture("Assets/Kenney/meteor_large.png");
     assets->basicEnemyTexture = LoadTexture("Assets/Kenney/meteor_detailedLarge.png");
     assets->shooterEnemyTexture = LoadTexture("Assets/shooter_enemy.png");
     assets->followerEnemyTexture = LoadTexture("Assets/Kenney/icon_crossLarge.png");
@@ -48,6 +51,7 @@ void UnloadAssets(GameAssets* assets)
     UnloadTexture(assets->background);
     UnloadTexture(assets->interface);
     UnloadTexture(assets->ship);
+	UnloadTexture(assets->bulletTexture);
     UnloadTexture(assets->basicEnemyTexture);
     UnloadTexture(assets->shooterEnemyTexture);
 	UnloadTexture(assets->followerEnemyTexture);
@@ -155,6 +159,28 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy)
 		UpdateFollowerShooterEnemy(enemy, assets);
         Vector2 interfacePos = { 0, 0 };
         DrawTextureEx(assets->interface, interfacePos, 0, 1, WHITE);
+        const float scale = 3.5f; // same scale as in enemy.c
+        for (int i = 0; i < 3 /*maxBigBasicEnemy*/; i++)
+        {
+            if (bigBasicEnemies[i].size.x <= 0.0f || bigBasicEnemies[i].size.y <= 0.0f) continue;
+
+            float destW = bigBasicEnemies[i].size.x * scale;
+            float destH = bigBasicEnemies[i].size.y * scale;
+
+            // exact center of the displayed sprite
+            float centerX = bigBasicEnemies[i].position.x + destW / 2.0f;
+            float centerY = bigBasicEnemies[i].position.y + destH / 2.0f;
+
+            float radius = fmaxf(destW, destH) / 2.0f;
+
+            // collision circle
+            DrawCircleLines((int)centerX, (int)centerY, radius, RED);
+        }
+
+        // --- Updating and drawing bullets ---
+        UpdateBullets(assets);
+
+
         // Help Text
         Vector2 controlPos = { 15, 61 };
         float fontSize = 15;
@@ -267,9 +293,12 @@ Vector2D CheckInput(void)
         player->velocity = Vector2D_Add(player->velocity, pushVector);
     }
 
-    if (IsKeyDown(KEY_SPACE))
+    if (IsKeyPressed(KEY_SPACE))
     {
-        // the shots here (Alan)
+        // tir depuis le centre du vaisseau
+        Vector2D firePos = Vector2D_SetFromComponents(player->position.x + player->size.x * 0.5f,
+            player->position.y + player->size.y * 0.5f);
+        FireBullet(firePos, player->angle);
     }
 
     if (IsKeyPressed(KEY_LEFT_CONTROL)) {

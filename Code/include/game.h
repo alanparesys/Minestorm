@@ -22,6 +22,7 @@ typedef struct GameAssets
     Texture2D background;
     Texture2D interface;
     Texture2D ship;
+	Texture2D bulletTexture;
     Texture2D basicEnemyTexture;
     Texture2D shooterEnemyTexture;
 	Texture2D followerEnemyTexture;

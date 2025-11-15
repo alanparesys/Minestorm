@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Code\src\bullet.c" />
     <ClCompile Include="Code\src\enemy.c" />
     <ClCompile Include="Code\src\game.c" />
     <ClCompile Include="Code\src\main.c" />
@@ -33,9 +34,6 @@
     <ClCompile Include="Code\src\test_vector2D.c" />
     <ClCompile Include="Code\src\triangle2D.c" />
     <ClCompile Include="Code\src\vector2D.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Code\include\ShipBullet.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

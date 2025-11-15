@@ -10,35 +10,46 @@
 const int screenWidth = 1080;
 const int screenHeight = 1300;
 
+Ship* player;
+
+
+//////////////////////////////////      BasicEnemy      ////////////////////////////////////////////////////////////////
+
+int maxBigBasicEnemies = 3;
+
 // Tableau des ennemis
 Enemy bigBasicEnemies[3];
-int maxBigBasicEnemies = 3;
 bool bigBasicEnemiesSpawn[3] = { false };
 bool bigBasicEnemiesCollision[3] = { false };
 
-Ship* player;
+
 // Taille actuelle des ennemis
-EnemySize currentBasicEnemySize = BIG;
+EnemySize currentBasicEnemySize[3] = { BIG, BIG, BIG };
 
 // Mise à jour de tous les ennemis
 void UpdateBasicEnemy(Enemy* enemy, GameAssets* assets)
 {
-    switch (currentBasicEnemySize)
+    for (int i = 0; i < maxBigBasicEnemies; i++)
     {
-    case BIG:
-        UpdateBigBasicEnemy(assets);
-        break;
-    case MID:
-        // UpdateMidBasicEnemy(enemy, assets);
-        break;
-    case SMALL:
-        // UpdateSmallBasicEnemy(enemy, assets);
-        break;
-    default:
-        break;
+        switch (currentBasicEnemySize[i])
+        {
+        case BIG:
+            UpdateBigBasicEnemy(assets);
+            break;
+        case MID:
+            UpdateMidBasicEnemy(enemy, assets);
+            break;
+        case SMALL:
+            // UpdateSmallBasicEnemy(enemy, assets);
+            break;
+        default:
+            break;
+        }
     }
 }
 
+// BIG
+// 
 // Mise à jour des ennemis BIG
 void UpdateBigBasicEnemy(GameAssets* assets)
 {
@@ -50,8 +61,6 @@ void UpdateBigBasicEnemy(GameAssets* assets)
             bigBasicEnemiesSpawn[i] = true;
         }
     }
-
-
 
     int i;
     for (i = 0; i < maxBigBasicEnemies; i++)
@@ -69,12 +78,11 @@ void UpdateBigBasicEnemy(GameAssets* assets)
 
         // dessiner la texture
         DrawTexturePro(assets->basicEnemyTexture, sourceRec, destRec, origin, bigBasicEnemies[i].angle * 180.0f / M_PI, WHITE);
-        /*
-        if (bigBasicEnemiesColision = true)
+
+        if (bigBasicEnemiesCollision[i] == true)
         {
-            bigBasicEnemiesSpawn = false;
+            currentBasicEnemySize[i] = MID;
         }
-        */
     }
 }
 
@@ -93,18 +101,19 @@ void BigBasicEnemySpawn(int i)
     float dirY = targetY - bigBasicEnemies[i].position.y;
     float dist = sqrtf(dirX * dirX + dirY * dirY);
 
-    float speed = 1.0f + ((float)GetRandomValue(0, 100) / 100.0f) * (3.0f - 1.0f);
+    // vitesse
+    float speed = 0.2f + ((float)GetRandomValue(0, 100) / 100.0f) * (1.0f - 0.2f);
     bigBasicEnemies[i].velocity.x = dirX / dist * speed;
     bigBasicEnemies[i].velocity.y = dirY / dist * speed;
 
-    bigBasicEnemies[i].size.x = 50.0;
+    bigBasicEnemies[i].size.x = 50.0f;
     bigBasicEnemies[i].size.y = 50.0f;
 
     bigBasicEnemies[i].rotationSpeed = 0.02f + ((float)GetRandomValue(0, 100) / 100.0f) * (0.05f - 0.02f);
+    bigBasicEnemies[i].angle = 0;
     if (GetRandomValue(0, 1) == 0)
     {
-        bigBasicEnemies[i].rotationSpeed *= -1;
-        bigBasicEnemies[i].angle = 0;
+        bigBasicEnemies[i].rotationSpeed *= -1; 
     }
 }
 
@@ -127,6 +136,14 @@ void BigBasicEnemyMovement(int i)
     }
 }
 
+// MID
+
+void UpdateMidBasicEnemy(Enemy* enemy, GameAssets* assets)
+{
+
+}
+
+
 //////////////////////////////////      ShooterEnemy      ////////////////////////////////////////////////////////////////
 
 Enemy bigShooterEnemies[2];
@@ -136,27 +153,31 @@ bool bigShooterEnemiesCollision[2] = { false };
 
 
 
-EnemySize currentShooterEnemySize = BIG;
+EnemySize currentShooterEnemySize[2] = { BIG, BIG };
 
 void UpdateShooterEnemy(Enemy* enemy, GameAssets* assets)
 {
-    switch (currentShooterEnemySize)
+    for (int i = 0; i < maxBigShooterEnemy; i++)
     {
-    case BIG:
-        UpdateBigShooterEnemy(assets);
-        break;
-    case MID:
-        // UpdateMidShooterEnemy(enemy, assets);
-        break;
-    case SMALL:
-        // UpdateSmallShooterEnemy(enemy, assets);
-        break;
-    default:
-        break;
+        switch (currentShooterEnemySize[i])
+        {
+        case BIG:
+            UpdateBigShooterEnemy(assets);
+            break;
+        case MID:
+            // UpdateMidShooterEnemy(enemy, assets);
+            break;
+        case SMALL:
+            // UpdateSmallShooterEnemy(enemy, assets);
+            break;
+        default:
+            break;
+        }
     }
 }
 
 
+// BIG
 
 // Mise à jour des ennemis BIG
 void UpdateBigShooterEnemy(GameAssets* assets)
@@ -182,12 +203,10 @@ void UpdateBigShooterEnemy(GameAssets* assets)
 
         // dessiner la texture
         DrawTexturePro(assets->shooterEnemyTexture, sourceRec, destRec, origin, bigShooterEnemies[i].angle * 180.0f / M_PI, WHITE);
-        /*
-        if (bigShooterEnemiesColision = true)
+        if (bigShooterEnemiesCollision[i] == true)
         {
-            bigShooterEnemiesSpawn = false;
+            currentShooterEnemySize[i] = MID;
         }
-        */
     }
 }
 
@@ -217,12 +236,12 @@ void BigShooterEnemySpawn(int i)
     }
 
     float targetX = (float)GetRandomValue(50, screenWidth - 50);
-    float targetY = (float)GetRandomValue(screenWidth - 50, 50);
+    float targetY = (float)GetRandomValue(50, screenHeight - 50);
     float dirX = targetX - bigShooterEnemies[i].position.x;
     float dirY = targetY - bigShooterEnemies[i].position.y;
     float dist = sqrtf(dirX * dirX + dirY * dirY);
 
-    float speed = 1.0f + ((float)GetRandomValue(0, 100) / 100.0f) * (1.0f - 0.2f);
+    float speed = 0.2f + ((float)GetRandomValue(0, 100) / 100.0f) * (1.0f - 0.2f);
     bigShooterEnemies[i].velocity.x = dirX / dist * speed;
     bigShooterEnemies[i].velocity.y = dirY / dist * speed;
 
@@ -256,6 +275,7 @@ void BigShooterEnemyMovement(int i)
         bigShooterEnemiesSpawn[i] = false;
     }
 }
+
 //////////////////////////////////      FollowerEnemy      ////////////////////////////////////////////////////////////////
 
 Enemy bigFollowerEnemies[2];
@@ -263,25 +283,31 @@ int maxBigFollowerEnemy = 2;
 bool bigFollowerEnemiesSpawn[2] = { false };
 bool bigFollowerEnemiesCollision[2] = { false };
 
-EnemySize currentFollowerEnemySize = BIG;
+EnemySize currentFollowerEnemySize[2] = { BIG, BIG };
+
 
 void UpdateFollowerEnemy(Enemy* enemy, GameAssets* assets)
 {
-    switch (currentFollowerEnemySize)
+    for (int i = 0; i < maxBigFollowerEnemy; i++)
     {
-    case BIG:
-        UpdateBigFollowerEnemy(assets);
-        break;
-    case MID:
-        // UpdateMidFollowerEnemy(enemy, assets);
-        break;
-    case SMALL:
-        // UpdateSmallFollowerEnemy(enemy, assets);
-        break;
-    default:
-        break;
+        switch (currentFollowerEnemySize[i])
+        {
+        case BIG:
+            UpdateBigFollowerEnemy(assets);
+            break;
+        case MID:
+            // UpdateMidFollowerEnemy(enemy, assets);
+            break;
+        case SMALL:
+            // UpdateSmallFollowerEnemy(enemy, assets);
+            break;
+        default:
+            break;
+        }
     }
 }
+
+// BIG
 
 void UpdateBigFollowerEnemy(GameAssets* assets)
 {
@@ -292,15 +318,6 @@ void UpdateBigFollowerEnemy(GameAssets* assets)
             BigFollowerEnemySpawn(i);
             bigFollowerEnemiesSpawn[i] = true;
         }
-
-        if (bigFollowerEnemiesCollision[i])
-        {
-            bigFollowerEnemiesSpawn[i] = false;
-            bigFollowerEnemiesCollision[i] = false;
-            BigFollowerEnemySpawn(i);
-            continue;
-        }
-
         BigFollowerEnemyMovement(i);
 
         Rectangle sourceRec = { 0, 0, assets->followerEnemyTexture.width, assets->followerEnemyTexture.height };
@@ -317,6 +334,10 @@ void UpdateBigFollowerEnemy(GameAssets* assets)
 
         DrawTexturePro(assets->followerEnemyTexture, sourceRec, destRec, origin,
             bigFollowerEnemies[i].angle * 180.0f / M_PI, WHITE);
+        if (bigFollowerEnemiesCollision[i] == true)
+        {
+            currentFollowerEnemySize[i] = MID;
+        }
     }
 }
 
@@ -328,7 +349,7 @@ void BigFollowerEnemySpawn(int i)
     else if (side == 3) { bigFollowerEnemies[i].position.y = -50; bigFollowerEnemies[i].position.x = (float)GetRandomValue(0, screenWidth); }
     else if (side == 4) { bigFollowerEnemies[i].position.y = screenHeight + 50; bigFollowerEnemies[i].position.x = (float)GetRandomValue(0, screenWidth); }
 
-    bigFollowerEnemies[i].speed = 1.5f + ((float)GetRandomValue(0, 100) / 100.0f) * (3.0f - 1.5f);
+    bigFollowerEnemies[i].speed = 0.8f + ((float)GetRandomValue(0, 100) / 100.0f) * (0.8f - 0.1f);
     bigFollowerEnemies[i].rotationSpeed = 0.03f + ((float)GetRandomValue(0, 100) / 100.0f) * (0.06f - 0.03f);
     bigFollowerEnemies[i].angle = 0;
     if (GetRandomValue(0, 1) == 0) bigFollowerEnemies[i].rotationSpeed *= -1;
@@ -374,25 +395,32 @@ int maxBigFollowerShooterEnemy = 1;
 bool bigFollowerShooterEnemiesSpawn[1] = { false };
 bool bigFollowerShooterEnemiesCollision[1] = { false };
 
-EnemySize currentFollowerShooterEnemySize = BIG;
+EnemySize currentFollowerShooterEnemySize[1] = { BIG };
+
+
 
 void UpdateFollowerShooterEnemy(Enemy* enemy, GameAssets* assets)
 {
-    switch (currentFollowerShooterEnemySize)
+    for (int i = 0; i < maxBigFollowerShooterEnemy; i++)
     {
-    case BIG:
-        UpdateBigFollowerShooterEnemy(assets);
-        break;
-    case MID:
-        // UpdateMidFollowerShooterEnemy(enemy, assets);
-        break;
-    case SMALL:
-        // UpdateSmallFollowerShooterEnemy(enemy, assets);
-        break;
-    default:
-        break;
+        switch (currentFollowerShooterEnemySize[i])
+        {
+        case BIG:
+            UpdateBigFollowerShooterEnemy(assets);
+            break;
+        case MID:
+            // UpdateMidFollowerShooterEnemy(enemy, assets);
+            break;
+        case SMALL:
+            // UpdateSmallFollowerShooterEnemy(enemy, assets);
+            break;
+        default:
+            break;
+        }
     }
 }
+
+// BIG
 
 void UpdateBigFollowerShooterEnemy(GameAssets* assets)
 {
@@ -402,14 +430,6 @@ void UpdateBigFollowerShooterEnemy(GameAssets* assets)
         {
             BigFollowerShooterEnemySpawn(i);
             bigFollowerShooterEnemiesSpawn[i] = true;
-        }
-
-        if (bigFollowerShooterEnemiesCollision[i])
-        {
-            bigFollowerShooterEnemiesSpawn[i] = false;
-            bigFollowerShooterEnemiesCollision[i] = false;
-            BigFollowerShooterEnemySpawn(i);
-            continue;
         }
 
         BigFollowerShooterEnemyMovement(i);
@@ -427,7 +447,10 @@ void UpdateBigFollowerShooterEnemy(GameAssets* assets)
         };
         DrawTexturePro(assets->followerShooterEnemyTexture, sourceRec, destRec, origin,
             bigFollowerShooterEnemies[i].angle * 180.0f / M_PI, WHITE);
-        
+        if (bigFollowerShooterEnemiesCollision[i] == true)
+        {
+            currentFollowerShooterEnemySize[i] = MID;
+        }
     }
 }
 
@@ -439,7 +462,7 @@ void BigFollowerShooterEnemySpawn(int i)
     else if (side == 3) { bigFollowerShooterEnemies[i].position.y = -50; bigFollowerShooterEnemies[i].position.x = (float)GetRandomValue(0, screenWidth); }
     else if (side == 4) { bigFollowerShooterEnemies[i].position.y = screenHeight + 50; bigFollowerShooterEnemies[i].position.x = (float)GetRandomValue(0, screenWidth); }
 
-    bigFollowerShooterEnemies[i].speed = 1.5f + ((float)GetRandomValue(0, 100) / 100.0f) * (3.0f - 1.5f);
+    bigFollowerShooterEnemies[i].speed = 0.8f + ((float)GetRandomValue(0, 100) / 100.0f) * (0.8f - 0.1f);
     bigFollowerShooterEnemies[i].rotationSpeed = 0.02f + ((float)GetRandomValue(0, 100) / 100.0f) * (0.05f - 0.02f);
     
 
