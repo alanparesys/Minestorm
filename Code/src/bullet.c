@@ -1,15 +1,10 @@
 #include "bullet.h"
-#include "Vector2D.h"
-#include "sphere2D.h"
 #include "enemy.h"
 #include "game.h"
 #include <math.h>
 #include <stdio.h>
 
 ShipBullet shipBullets[MAX_BULLETS];
-
-int maxBigBasicEnemy = 3;
-Enemy bigBasicEnemies[3];
 
 
 void InitBullets(void)
@@ -18,8 +13,8 @@ void InitBullets(void)
     {
         shipBullets[i].active = false;
         shipBullets[i].radius = BULLET_RADIUS;
-        shipBullets[i].position = Vector2D_SetFromComponents(0, 0);
-        shipBullets[i].velocity = Vector2D_SetFromComponents(0, 0);
+        shipBullets[i].position = (Vector2){ 0.0f, 0.0f };
+        shipBullets[i].velocity = (Vector2){ 0.0f, 0.0f };
     }
 }
 
@@ -30,89 +25,115 @@ void FireBullet(Vector2D startPos, float angle)
         if (!shipBullets[i].active)
         {
             shipBullets[i].active = true;
-
-            // tirer depuis le centre du vaisseau
-            shipBullets[i].position = startPos;
-
-            shipBullets[i].velocity = Vector2D_SetFromComponents(
-                cosf(angle) * BULLET_SPEED,
-                sinf(angle) * BULLET_SPEED
-            );
-
+            shipBullets[i].position = (Vector2){ startPos.x, startPos.y };
+            shipBullets[i].velocity = (Vector2){ cosf(angle) * BULLET_SPEED, sinf(angle) * BULLET_SPEED };
             shipBullets[i].radius = BULLET_RADIUS;
             return;
         }
     }
 }
 
-void UpdateBullets(GameAssets* assets)
+void UpdateBullets(GameAssets* assets, Collision* collision)
 {
     for (int i = 0; i < MAX_BULLETS; i++)
     {
         if (!shipBullets[i].active) continue;
 
-        // déplacer la bullet
-        shipBullets[i].position = Vector2D_Add(shipBullets[i].position, shipBullets[i].velocity);
+        // Mouvement
+        shipBullets[i].position.x += shipBullets[i].velocity.x;
+        shipBullets[i].position.y += shipBullets[i].velocity.y;
 
-        // --- Visualisation du cercle de collision ---
-        DrawCircleLines(
-            (int)shipBullets[i].position.x,
-            (int)shipBullets[i].position.y,
-            shipBullets[i].radius,
-            YELLOW
-        );
-
-        // Draw bullet avec texture si assets existe
+        // Affichage
         if (assets != NULL)
         {
-            Rectangle src = { 0, 0, assets->bulletTexture.width, assets->bulletTexture.height };
-            Rectangle dst = { shipBullets[i].position.x, shipBullets[i].position.y,
-                             shipBullets[i].radius * 2.0f, shipBullets[i].radius * 2.0f };
+            Rectangle src = { 0, 0, (float)assets->bulletTexture.width, (float)assets->bulletTexture.height };
+            Rectangle dst = { shipBullets[i].position.x, shipBullets[i].position.y, shipBullets[i].radius * 2.0f, shipBullets[i].radius * 2.0f };
             Vector2 origin = { shipBullets[i].radius, shipBullets[i].radius };
             DrawTexturePro(assets->bulletTexture, src, dst, origin, 0.0f, WHITE);
         }
         else
         {
-            DrawCircle((int)shipBullets[i].position.x, (int)shipBullets[i].position.y,
-                shipBullets[i].radius, WHITE);
+            DrawCircle((int)shipBullets[i].position.x, (int)shipBullets[i].position.y, shipBullets[i].radius, WHITE);
         }
 
-        // Sphere2D pour collision
-        Sphere2D bS = Sphere2D_SetFromCenterRadius(shipBullets[i].position, shipBullets[i].radius);
-
-        // Collision avec ennemis
-        for (int j = 0; j < maxBigBasicEnemy; j++)
+        // Collision BigBasicEnemies
+        for (int j = 0; j < maxBigBasicEnemies; j++)
         {
-            if (bigBasicEnemies[j].size.x <= 0 || bigBasicEnemies[j].size.y <= 0) continue;
+            if (bigBasicEnemies[j].size.x <= 0.0f || bigBasicEnemies[j].size.y <= 0.0f) continue;
 
-            Rectangle destRec = { bigBasicEnemies[j].position.x, bigBasicEnemies[j].position.y,
-                                  bigBasicEnemies[j].size.x * 2.5f, bigBasicEnemies[j].size.y * 2.5f };
-            Vector2 origin = { destRec.width / 2.0f, destRec.height / 2.0f };
+            Vector2 enemyCenter = { bigBasicEnemies[j].position.x + bigBasicEnemies[j].size.x * 1.25f,
+                                    bigBasicEnemies[j].position.y + bigBasicEnemies[j].size.y * 1.25f };
+            float enemyRadius = fmaxf(bigBasicEnemies[j].size.x * 1.25f, bigBasicEnemies[j].size.y * 1.25f);
 
-            Vector2D enemyCenter = Vector2D_SetFromComponents(destRec.x + origin.x, destRec.y + origin.y);
-            float enemyRadius = fmaxf(destRec.width, destRec.height) / 2.0f;
+            float dx = shipBullets[i].position.x - enemyCenter.x;
+            float dy = shipBullets[i].position.y - enemyCenter.y;
+            float distance = sqrtf(dx * dx + dy * dy);
 
-            Sphere2D eS = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-
-            float dx = bS.center.x - eS.center.x;
-            float dy = bS.center.y - eS.center.y;
-            float dist2 = dx * dx + dy * dy;
-            float radiiSum = bS.radius + eS.radius;
-
-            if (dist2 <= radiiSum * radiiSum)
+            if (distance < shipBullets[i].radius + enemyRadius)
             {
+                collision->bigBasicEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
-                bigBasicEnemies[j].size.x = 0.0f;
-                bigBasicEnemies[j].size.y = 0.0f;
-                break;
             }
         }
 
-        // désactiver si hors écran
-        if (shipBullets[i].position.x < -50 || shipBullets[i].position.x > GetScreenWidth() + 50 ||
-            shipBullets[i].position.y < -50 || shipBullets[i].position.y > GetScreenHeight() + 50)
+        // Collision BigShooterEnemies
+        for (int j = 0; j < maxBigShooterEnemy; j++)
         {
-            shipBullets[i].active = false;
+            if (bigShooterEnemies[j].size.x <= 0.0f || bigShooterEnemies[j].size.y <= 0.0f) continue;
+
+            Vector2 enemyCenter = { bigShooterEnemies[j].position.x + bigShooterEnemies[j].size.x * 1.75f,
+                                    bigShooterEnemies[j].position.y + bigShooterEnemies[j].size.y * 1.75f };
+            float enemyRadius = fmaxf(bigShooterEnemies[j].size.x * 1.75f, bigShooterEnemies[j].size.y * 1.75f);
+
+            float dx = shipBullets[i].position.x - enemyCenter.x;
+            float dy = shipBullets[i].position.y - enemyCenter.y;
+            float distance = sqrtf(dx * dx + dy * dy);
+
+            if (distance < shipBullets[i].radius + enemyRadius)
+            {
+                collision->bigShooterEnemiesBulletCollision[j] = true;
+                shipBullets[i].active = false;
+            }
+        }
+
+        // Collision BigFollowerEnemies
+        for (int j = 0; j < maxBigFollowerEnemy; j++)
+        {
+            if (bigFollowerEnemies[j].size.x <= 0.0f || bigFollowerEnemies[j].size.y <= 0.0f) continue;
+
+            Vector2 enemyCenter = { bigFollowerEnemies[j].position.x + bigFollowerEnemies[j].size.x * 1.75f,
+                                    bigFollowerEnemies[j].position.y + bigFollowerEnemies[j].size.y * 1.75f };
+            float enemyRadius = fmaxf(bigFollowerEnemies[j].size.x * 1.75f, bigFollowerEnemies[j].size.y * 1.75f);
+
+            float dx = shipBullets[i].position.x - enemyCenter.x;
+            float dy = shipBullets[i].position.y - enemyCenter.y;
+            float distance = sqrtf(dx * dx + dy * dy);
+
+            if (distance < shipBullets[i].radius + enemyRadius)
+            {
+                collision->bigFollowerEnemiesBulletCollision[j] = true;
+                shipBullets[i].active = false;
+            }
+        }
+
+        // Collision BigFollowerShooterEnemies
+        for (int j = 0; j < maxBigFollowerShooterEnemy; j++)
+        {
+            if (bigFollowerShooterEnemies[j].size.x <= 0.0f || bigFollowerShooterEnemies[j].size.y <= 0.0f) continue;
+
+            Vector2 enemyCenter = { bigFollowerShooterEnemies[j].position.x + bigFollowerShooterEnemies[j].size.x * 1.75f,
+                                    bigFollowerShooterEnemies[j].position.y + bigFollowerShooterEnemies[j].size.y * 1.75f };
+            float enemyRadius = fmaxf(bigFollowerShooterEnemies[j].size.x * 1.75f, bigFollowerShooterEnemies[j].size.y * 1.75f);
+
+            float dx = shipBullets[i].position.x - enemyCenter.x;
+            float dy = shipBullets[i].position.y - enemyCenter.y;
+            float distance = sqrtf(dx * dx + dy * dy);
+
+            if (distance < shipBullets[i].radius + enemyRadius)
+            {
+                collision->bigFollowerShooterEnemiesBulletCollision[j] = true;
+                shipBullets[i].active = false;
+            }
         }
     }
 }

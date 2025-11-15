@@ -26,6 +26,7 @@
     <ClCompile Include="Code\src\polygone2D.c" />
     <ClCompile Include="Code\src\rectangle2D.c" />
     <ClCompile Include="Code\src\ShipBullet.c" />
+    <ClCompile Include="Code\src\ship_player.c" />
     <ClCompile Include="Code\src\sphere2D.c" />
     <ClCompile Include="Code\src\test_polygone2D.c" />
     <ClCompile Include="Code\src\test_rectangle2D.c" />

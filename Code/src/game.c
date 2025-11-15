@@ -7,6 +7,8 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "bullet.h"
+#include "sphere2D.h"
+#include "ship_player.h"
 
 GameScreen currentScreen = TITLE;
 bool title = true;
@@ -18,6 +20,8 @@ bool allowMove = false;
 bool gameOver = false;
 
 Ship* player = NULL;
+Collision* collision;
+
 
 float positionX = (625 / 2) - (50 / 2);                // player's x-position
 float positionY = (1070 / 2) - (50 / 2) - (2 - 40);    // player's y-position
@@ -26,6 +30,11 @@ float positionY = (1070 / 2) - (50 / 2) - (2 - 40);    // player's y-position
 const float ROTATION_SPEED = 0.05f;                    // the speed of rotation in one frame
 const float PUSH = 1.5f;                            // thrust value (press Z or W once = 0.2f)
 const float FRICTION = 0.93f;                        // friction (slowdown) = 0.99f
+
+float fireCooldown = 0.25; // 0.25 seconds of cooldown
+float timeSinceLastShot = 0.0f;
+
+int lifeNumber = 3;                          // number of lives
 
 // InitGame: initializes the basic values for physics and player position
 Enemy* basicEnemy;
@@ -59,7 +68,7 @@ void UnloadAssets(GameAssets* assets)
     UnloadFont(assets->font);
 }
 
-void UpdateGame(GameAssets* assets, Enemy* enemy)
+void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision)
 {
     switch (currentScreen)
     {
@@ -70,13 +79,13 @@ void UpdateGame(GameAssets* assets, Enemy* enemy)
         UpdateHelpGameplay(assets);
         break;
     case SOLO_GAMEPLAY:
-        UpdateSoloGameplay(assets, enemy);
+        UpdateSoloGameplay(assets, enemy, collision);
         break;
     case PAUSE:
         UpdatePauseMenu(assets);
         break;
     case GAMEOVER:
-        UpdateGameOver(assets);
+        UpdateGameOver(assets, collision);
     default:
         break;
     }
@@ -130,14 +139,22 @@ void UpdateHelpGameplay(GameAssets* assets)
     }
 }
 
-void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy)
+void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
 {
 
     ClearBackground(BLACK);
+    player->bbox = Rectangle2D_SetFromCenterLengthWidthAngle(
+        player->position,
+        player->size.x,   // longueur
+        player->size.y,   // largeur
+        player->angle     // rotation
+    );
+
     // Draw
     DrawTexture(assets->background, 0, 0, WHITE);
     if (currentScreen == SOLO_GAMEPLAY)
     {
+        
         BeginDrawing();
 
 
@@ -153,32 +170,26 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy)
         //DrawText("Solo Gameplay Screen", 160, 300, 20, WHITE);
         // <-- passes assets to the enemy manager
         UpdateControlGame();
-        UpdateBasicEnemy(enemy, assets);
-		UpdateShooterEnemy(enemy, assets);
-        UpdateFollowerEnemy(enemy, assets);
-		UpdateFollowerShooterEnemy(enemy, assets);
+        for (int i = 0; i < maxBigBasicEnemies; i++) {
+            UpdateBasicEnemy(i, assets, collision);
+        }
+        for (int i = 0; i < maxBigShooterEnemy; i++) {
+            UpdateShooterEnemy(i, assets, collision);
+        }
+        for (int i = 0; i < maxBigFollowerEnemy; i++) {
+            UpdateFollowerEnemy(i, assets, collision);
+        }
+        for (int i = 0; i < maxBigFollowerShooterEnemy; i++) {
+            UpdateFollowerShooterEnemy(i, assets, collision);
+        }
         Vector2 interfacePos = { 0, 0 };
         DrawTextureEx(assets->interface, interfacePos, 0, 1, WHITE);
-        const float scale = 3.5f; // same scale as in enemy.c
-        for (int i = 0; i < 3 /*maxBigBasicEnemy*/; i++)
-        {
-            if (bigBasicEnemies[i].size.x <= 0.0f || bigBasicEnemies[i].size.y <= 0.0f) continue;
-
-            float destW = bigBasicEnemies[i].size.x * scale;
-            float destH = bigBasicEnemies[i].size.y * scale;
-
-            // exact center of the displayed sprite
-            float centerX = bigBasicEnemies[i].position.x + destW / 2.0f;
-            float centerY = bigBasicEnemies[i].position.y + destH / 2.0f;
-
-            float radius = fmaxf(destW, destH) / 2.0f;
-
-            // collision circle
-            DrawCircleLines((int)centerX, (int)centerY, radius, RED);
-        }
+       
 
         // --- Updating and drawing bullets ---
-        UpdateBullets(assets);
+        UpdateBullets(assets, collision);
+
+        DrawHitboxes();
 
 
         // Help Text
@@ -195,7 +206,8 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy)
             "Ctrl to teleport"
         };
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++)
+        {
             DrawTextPro(assets->font, lines[i],
                 (Vector2) {
                 controlPos.x, controlPos.y + i * (fontSize + 5)
@@ -230,7 +242,7 @@ void UpdatePauseMenu(GameAssets* assets)
     }
 }
 
-void UpdateGameOver(GameAssets* assets)
+void UpdateGameOver(GameAssets* assets, Collision* collision)
 {
     if (currentScreen == GAMEOVER)
     {
@@ -244,13 +256,13 @@ void UpdateGameOver(GameAssets* assets)
     EndDrawing();
     if (IsKeyPressed(KEY_ENTER))
     {
-        RestartGame(assets, basicEnemy);
+        RestartGame(assets, basicEnemy, collision);
     }
 }
 
-void RestartGame(GameAssets* assets, Enemy* enemy)
+void RestartGame(GameAssets* assets, Enemy* enemy, Collision* collision)
 {
-    UpdateGame(assets, enemy);
+    UpdateGame(assets, enemy, collision);
     gameOver = false;
 }
 
@@ -261,7 +273,7 @@ void InitGame(void)
         printf("Allocation unsuccessful");
         return;
     }
-    player->position = Vector2D_SetFromComponents(1300 / 2, 1080 / 2);
+    player->position = Vector2D_SetFromComponents(1300.0f / 2, 1080.0f / 2);
     player->size = Vector2D_SetFromComponents(50, 50);                        // The player's base size is “size.”
     player->velocity = Vector2D_SetFromComponents(0, 0);
     player->angle = PI;
@@ -269,7 +281,7 @@ void InitGame(void)
 }
 
 // Implementation and verification of game controls
-Vector2D CheckInput(void)
+void CheckInput(void)
 {
     // Turn right
     if (IsKeyDown('D'))
@@ -278,13 +290,13 @@ Vector2D CheckInput(void)
     }
 
     // Turn left
-    if (IsKeyDown('A') | IsKeyDown('Q'))
+    if (IsKeyDown('A') || IsKeyDown('Q'))
     {
         player->angle = player->angle - ROTATION_SPEED;
     }
 
     // accelerated toward the front of the ship
-    if (IsKeyDown('Z') | IsKeyDown('W'))
+    if (IsKeyDown('Z') || IsKeyDown('W'))
     {
         Vector2D pushVector = Vector2D_SetFromComponents(
             cos(player->angle) * PUSH, sin(player->angle) * PUSH);            // calculates the thrust vector based on the angle of the spacecraft
@@ -293,19 +305,48 @@ Vector2D CheckInput(void)
         player->velocity = Vector2D_Add(player->velocity, pushVector);
     }
 
+    
+
+    timeSinceLastShot = timeSinceLastShot + GetFrameTime();
+
+    if (IsKeyDown(KEY_SPACE) && timeSinceLastShot >= fireCooldown)
+    {
+
+        // tir depuis le centre du vaisseau
+        Vector2D firePos = Vector2D_SetFromComponents(player->position.x + player->size.x * 0.5f,
+            player->position.y + player->size.y * 0.5f);
+        FireBullet(firePos, player->angle);
+
+        timeSinceLastShot = 0.0f; // reset of the timer
+    }
+
+    /*
     if (IsKeyPressed(KEY_SPACE))
     {
         // tir depuis le centre du vaisseau
         Vector2D firePos = Vector2D_SetFromComponents(player->position.x + player->size.x * 0.5f,
             player->position.y + player->size.y * 0.5f);
         FireBullet(firePos, player->angle);
-    }
+    }*/
 
-    if (IsKeyPressed(KEY_LEFT_CONTROL)) {
+    if (IsKeyPressed(KEY_LEFT_CONTROL))
+    {
         float randX = (float)(rand() % (GetScreenWidth() - (int)player->size.x));
         float randY = (float)(rand() % (GetScreenHeight() - (int)player->size.y));
         player->position = Vector2D_SetFromComponents(randX, randY);
     }
+
+    if (IsKeyDown('H'))
+    {
+        BoundingBoxPlayer();
+    }
+}
+
+void BoundingBoxPlayer(void) {
+    DrawLine(player->bbox.p1.x, player->bbox.p1.y, player->bbox.p2.x, player->bbox.p2.y, RED);
+    DrawLine(player->bbox.p2.x, player->bbox.p2.y, player->bbox.p3.x, player->bbox.p3.y, RED);
+    DrawLine(player->bbox.p3.x, player->bbox.p3.y, player->bbox.p4.x, player->bbox.p4.y, RED);
+    DrawLine(player->bbox.p4.x, player->bbox.p4.y, player->bbox.p1.x, player->bbox.p1.y, RED);
 }
 
 void UpdateControlGame(void) {
@@ -317,5 +358,85 @@ void UpdateControlGame(void) {
 
         // friction is applied: velocity = velocity x friction
         player->velocity = Vector2D_Scale(player->velocity, FRICTION, Vector2D_SetFromComponents(0, 0));
+    }
+}
+
+
+void DrawHitboxes(void)
+{
+    const float scale = 3.5f; // same scale as in enemy.c
+    // BigBasicEnemies (ton code existant)
+    for (int i = 0; i < maxBigBasicEnemies; i++)
+    {
+        if (bigBasicEnemies[i].size.x <= 0.0f || bigBasicEnemies[i].size.y <= 0.0f) continue;
+        float destW = bigBasicEnemies[i].size.x * scale;
+        float destH = bigBasicEnemies[i].size.y * scale;
+        float centerX = bigBasicEnemies[i].position.x + destW / 2.0f;
+        float centerY = bigBasicEnemies[i].position.y + destH / 2.0f;
+        float radius = fmaxf(destW, destH) / 2.0f;
+        DrawCircleLines((int)centerX, (int)centerY, radius, RED);
+    }
+
+    for (int i = 0; i < maxBigShooterEnemy; i++)
+    {
+        if (bigShooterEnemies[i].size.x <= 0.0f || bigShooterEnemies[i].size.y <= 0.0f) continue;
+        float destW = bigShooterEnemies[i].size.x * scale;
+        float destH = bigShooterEnemies[i].size.y * scale;
+        float centerX = bigShooterEnemies[i].position.x + destW / 2.0f;
+        float centerY = bigShooterEnemies[i].position.y + destH / 2.0f;
+        float radius = fmaxf(destW, destH) / 2.0f;
+        DrawCircleLines((int)centerX, (int)centerY, radius, GREEN);
+    }
+
+    for (int i = 0; i < maxBigFollowerEnemy; i++)
+    {
+        if (bigFollowerEnemies[i].size.x <= 0.0f || bigFollowerEnemies[i].size.y <= 0.0f) continue;
+        float destW = bigFollowerEnemies[i].size.x * scale;
+        float destH = bigFollowerEnemies[i].size.y * scale;
+        float centerX = bigFollowerEnemies[i].position.x + destW / 2.0f;
+        float centerY = bigFollowerEnemies[i].position.y + destH / 2.0f;
+        float radius = fmaxf(destW, destH) / 2.0f;
+        DrawCircleLines((int)centerX, (int)centerY, radius, BLUE);
+    }
+
+    for (int i = 0; i < maxBigFollowerShooterEnemy; i++)
+    {
+        if (bigFollowerShooterEnemies[i].size.x <= 0.0f || bigFollowerShooterEnemies[i].size.y <= 0.0f) continue;
+        float destW = bigFollowerShooterEnemies[i].size.x * scale;
+        float destH = bigFollowerShooterEnemies[i].size.y * scale;
+        float centerX = bigFollowerShooterEnemies[i].position.x + destW / 2.0f;
+        float centerY = bigFollowerShooterEnemies[i].position.y + destH / 2.0f;
+        float radius = fmaxf(destW, destH) / 2.0f;
+        DrawCircleLines((int)centerX, (int)centerY, radius, YELLOW);
+    }
+}
+
+void PlayerEnemyCollision(void)
+{
+    for (int i = 0; i < maxBigBasicEnemies; i++) {
+        if (bigBasicEnemies[i].size.x <= 0 || bigBasicEnemies[i].size.y <= 0) continue;
+
+        // Rectangle de l’ennemi avec ton module
+        Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
+            bigBasicEnemies[i].position,
+            bigBasicEnemies[i].size.x * 2.5f,
+            bigBasicEnemies[i].size.y * 2.5f,
+            0.0f
+        );
+
+        Vector2D enemyCenter = enemyBox.center;
+        float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
+        Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
+
+        if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
+            player->invincibilityFrames = 360;
+            lifeNumber--;
+            printf("COLLISION DETECTÉE ! Vie restante : %d\n", lifeNumber);
+
+            if (lifeNumber <= 0) {
+                currentScreen = GAMEOVER;
+                gameOver = true;
+            }
+        }
     }
 }

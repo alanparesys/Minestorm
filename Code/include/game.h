@@ -2,9 +2,8 @@
 #define GAME_H
 
 #include "raylib.h"
-#include "Vector2D.h"
-#include "enemy.h"
-
+#include "struct.h"
+#include "sphere2D.h"
 
 typedef enum GameScreen
 {
@@ -17,42 +16,23 @@ typedef enum GameScreen
     GAMEOVER,
 } GameScreen;
 
-typedef struct GameAssets
-{
-    Texture2D background;
-    Texture2D interface;
-    Texture2D ship;
-	Texture2D bulletTexture;
-    Texture2D basicEnemyTexture;
-    Texture2D shooterEnemyTexture;
-	Texture2D followerEnemyTexture;
-	Texture2D followerShooterEnemyTexture;
-    Font font;
-} GameAssets;
-
-typedef struct Ship {
-    Vector2D position;
-    Vector2D size;
-    Vector2D velocity;
-    float angle;                        // en radians
-    Color color;
-} Ship;
-
-typedef struct Enemy Enemy; // Déclaration anticipée pour éviter boucle d'inclusion
-
+extern Ship* player;
 
 void InitAssets(GameAssets* assets);
 void UnloadAssets(GameAssets* assets);
-void UpdateGame(GameAssets* assets, Enemy* enemy);
+void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision);
 void UpdateTitleScreen(GameAssets* assets);
-void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy);
+void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision);
 void UpdateHelpGameplay(GameAssets* assets);
 void UpdatePauseMenu(GameAssets* assets);
-void UpdateGameOver(GameAssets* assets);
-void RestartGame(GameAssets* assets, Enemy* enemy);
-
+void UpdateGameOver(GameAssets* assets, Collision* collision);
+void RestartGame(GameAssets* assets, Enemy* enemy, Collision* collision);
 void InitGame(void);
 void UpdateControlGame(void);
-Vector2D CheckInput(void);
+void CheckInput(void);
+void BoundingBoxPlayer(void);
+void DrawHitboxes(void);
+void PlayerEnemyCollision(void);
 
-#endif  // GAME_H	
+
+#endif

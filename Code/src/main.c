@@ -12,13 +12,13 @@ int main(void)
 
     GameAssets assets;
     Enemy basicEnemy = { 0 };
-
+    Collision collision = { 0 };
     InitAssets(&assets);
     InitGame();
 
     while (!WindowShouldClose())
     {
-        UpdateGame(&assets, &basicEnemy);
+        UpdateGame(&assets, &basicEnemy, &collision);
     }
 
     UnloadAssets(&assets);
