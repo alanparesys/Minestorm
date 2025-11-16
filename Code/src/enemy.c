@@ -87,16 +87,14 @@ bool smallFollowerShooterEnemiesSpawn[4] = { false };
 //EnemySize currentSmallFollowerShooterEnemySize[4] = { SMALL, SMALL, SMALL, SMALL };
 
 // ===================== FONCTIONS DE HITBOX UTILISANT SPHERE2D =====================
-
 Sphere2D GetBigBasicEnemyHitbox(int i)
 {
-    // IMPORTANT : Avec DrawTexturePro et origin au centre, la position EST déjà le centre
     float renderedSize = bigBasicEnemies[i].size.x * BIG_SCALE;
     Vector2D center = Vector2D_SetFromComponents(
-        bigBasicEnemies[i].position.x,
-        bigBasicEnemies[i].position.y
+        bigBasicEnemies[i].position.x,  // PAS D'OFFSET
+        bigBasicEnemies[i].position.y   // PAS D'OFFSET
     );
-    float radius = renderedSize / 2.0f * 0.7f; // 0.7f pour une hitbox plus précise
+    float radius = renderedSize / 2.0f * 0.8f;
     return Sphere2D_SetFromCenterRadius(center, radius);
 }
 
@@ -104,10 +102,10 @@ Sphere2D GetMidBasicEnemyHitbox(int i)
 {
     float renderedSize = midBasicEnemies[i].size.x * MID_SCALE;
     Vector2D center = Vector2D_SetFromComponents(
-        midBasicEnemies[i].position.x,
-        midBasicEnemies[i].position.y
+        midBasicEnemies[i].position.x,  // PAS D'OFFSET
+        midBasicEnemies[i].position.y   // PAS D'OFFSET
     );
-    float radius = renderedSize / 2.0f * 0.7f;
+    float radius = renderedSize / 2.0f * 0.8f;
     return Sphere2D_SetFromCenterRadius(center, radius);
 }
 
@@ -115,8 +113,8 @@ Sphere2D GetSmallBasicEnemyHitbox(int i)
 {
     float renderedSize = smallBasicEnemies[i].size.x * SMALL_SCALE;
     Vector2D center = Vector2D_SetFromComponents(
-        smallBasicEnemies[i].position.x + renderedSize / 2.0f,
-        smallBasicEnemies[i].position.y + renderedSize / 2.0f
+        smallBasicEnemies[i].position.x,  // PAS D'OFFSET
+        smallBasicEnemies[i].position.y   // PAS D'OFFSET
     );
     float radius = renderedSize / 2.0f * 0.8f;
     return Sphere2D_SetFromCenterRadius(center, radius);
@@ -126,19 +124,64 @@ Sphere2D GetBigShooterEnemyHitbox(int i)
 {
     float renderedSize = bigShooterEnemies[i].size.x * BIG_SCALE;
     Vector2D center = Vector2D_SetFromComponents(
-        bigShooterEnemies[i].position.x + renderedSize / 2.0f,
-        bigShooterEnemies[i].position.y + renderedSize / 2.0f
+        bigShooterEnemies[i].position.x,  // PAS D'OFFSET
+        bigShooterEnemies[i].position.y   // PAS D'OFFSET
     );
     float radius = renderedSize / 2.0f * 0.8f;
     return Sphere2D_SetFromCenterRadius(center, radius);
 }
 
+Sphere2D GetMidShooterEnemyHitbox(int i)
+{
+    float renderedSize = midShooterEnemies[i].size.x * MID_SCALE;
+    Vector2D center = Vector2D_SetFromComponents(
+        midShooterEnemies[i].position.x,  // PAS D'OFFSET
+        midShooterEnemies[i].position.y   // PAS D'OFFSET
+    );
+    float radius = renderedSize / 2.0f * 0.8f;
+    return Sphere2D_SetFromCenterRadius(center, radius);
+}
+
+Sphere2D GetSmallShooterEnemyHitbox(int i)
+{
+    float renderedSize = smallShooterEnemies[i].size.x * SMALL_SCALE;
+    Vector2D center = Vector2D_SetFromComponents(
+        smallShooterEnemies[i].position.x,  // PAS D'OFFSET
+        smallShooterEnemies[i].position.y   // PAS D'OFFSET
+    );
+    float radius = renderedSize / 2.0f * 0.8f;
+    return Sphere2D_SetFromCenterRadius(center, radius);
+}
+
+
 Sphere2D GetBigFollowerEnemyHitbox(int i)
 {
     float renderedSize = bigFollowerEnemies[i].size.x * BIG_SCALE;
     Vector2D center = Vector2D_SetFromComponents(
-        bigFollowerEnemies[i].position.x + renderedSize / 2.0f,
-        bigFollowerEnemies[i].position.y + renderedSize / 2.0f
+        bigFollowerEnemies[i].position.x,  // PAS D'OFFSET
+        bigFollowerEnemies[i].position.y   // PAS D'OFFSET
+    );
+    float radius = renderedSize / 2.0f * 0.8f;
+    return Sphere2D_SetFromCenterRadius(center, radius);
+}
+
+Sphere2D GetMidFollowerEnemyHitbox(int i)
+{
+    float renderedSize = midFollowerEnemies[i].size.x * MID_SCALE;
+    Vector2D center = Vector2D_SetFromComponents(
+        midFollowerEnemies[i].position.x,  // PAS D'OFFSET
+        midFollowerEnemies[i].position.y   // PAS D'OFFSET
+    );
+    float radius = renderedSize / 2.0f * 0.8f;
+    return Sphere2D_SetFromCenterRadius(center, radius);
+}
+
+Sphere2D GetSmallFollowerEnemyHitbox(int i)
+{
+    float renderedSize = smallFollowerEnemies[i].size.x * SMALL_SCALE;
+    Vector2D center = Vector2D_SetFromComponents(
+        smallFollowerEnemies[i].position.x,  // PAS D'OFFSET
+        smallFollowerEnemies[i].position.y   // PAS D'OFFSET
     );
     float radius = renderedSize / 2.0f * 0.8f;
     return Sphere2D_SetFromCenterRadius(center, radius);
@@ -148,8 +191,30 @@ Sphere2D GetBigFollowerShooterEnemyHitbox(int i)
 {
     float renderedSize = bigFollowerShooterEnemies[i].size.x * BIG_SCALE;
     Vector2D center = Vector2D_SetFromComponents(
-        bigFollowerShooterEnemies[i].position.x + renderedSize / 2.0f,
-        bigFollowerShooterEnemies[i].position.y + renderedSize / 2.0f
+        bigFollowerShooterEnemies[i].position.x,  // PAS D'OFFSET
+        bigFollowerShooterEnemies[i].position.y   // PAS D'OFFSET
+    );
+    float radius = renderedSize / 2.0f * 0.8f;
+    return Sphere2D_SetFromCenterRadius(center, radius);
+}
+
+Sphere2D GetMidFollowerShooterEnemyHitbox(int i)
+{
+    float renderedSize = midFollowerShooterEnemies[i].size.x * MID_SCALE;
+    Vector2D center = Vector2D_SetFromComponents(
+        midFollowerShooterEnemies[i].position.x,  // PAS D'OFFSET
+        midFollowerShooterEnemies[i].position.y   // PAS D'OFFSET
+    );
+    float radius = renderedSize / 2.0f * 0.8f;
+    return Sphere2D_SetFromCenterRadius(center, radius);
+}
+
+Sphere2D GetSmallFollowerShooterEnemyHitbox(int i)
+{
+    float renderedSize = smallFollowerShooterEnemies[i].size.x * SMALL_SCALE;
+    Vector2D center = Vector2D_SetFromComponents(
+        smallFollowerShooterEnemies[i].position.x,  // PAS D'OFFSET
+        smallFollowerShooterEnemies[i].position.y   // PAS D'OFFSET
     );
     float radius = renderedSize / 2.0f * 0.8f;
     return Sphere2D_SetFromCenterRadius(center, radius);

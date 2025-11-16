@@ -35,7 +35,10 @@ float fireCooldown = 0.25; // 0.25 seconds of cooldown
 float timeSinceLastShot = 0.0f;
 
 char buffer[64];  // stock some text (lifes)
-int lifeNumber = 3;                          // number of lives
+
+char buffer[64];
+char buffer2[100];
+char buffer3[32];
 
 // InitGame: initializes the basic values for physics and player position
 Enemy* basicEnemy;
@@ -155,6 +158,7 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
     DrawTexture(assets->background, 0, 0, WHITE);
     if (currentScreen == SOLO_GAMEPLAY)
     {
+        LevelProgress();
         PlayerEnemyCollision();
         BeginDrawing();
 
@@ -207,6 +211,18 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
                 controlPosrot, rotation,
                 fontSize, spacing, WHITE);
         }
+        sprintf_s(buffer, sizeof(buffer), "number of life = %d", lifeNumber);
+        DrawText(buffer, GetScreenWidth() / 2 - MeasureText(buffer, 20) / 2,
+            GetScreenHeight() / 2 - 100, 20, ORANGE);
+
+        sprintf_s(buffer2, sizeof(buffer2), "Score = %d", score);
+        DrawText(buffer2, GetScreenWidth() / 2 - MeasureText(buffer2, 20) / 2,
+            GetScreenHeight() / 2 - 60, 20, ORANGE);
+
+        sprintf_s(buffer3, sizeof(buffer3), "level %d", actualLevel);
+        DrawText(buffer3, GetScreenWidth() / 2 - MeasureText(buffer3, 20) / 2,
+            GetScreenHeight() / 2 - 30, 20, ORANGE);
+        
         DrawTextureEx(assets->interface, interfacePos, 0, 1, WHITE);
         EndDrawing();
     }
@@ -554,158 +570,6 @@ void UpdateControlGame(void) {
         player->velocity = Vector2D_Scale(player->velocity, FRICTION, Vector2D_SetFromComponents(0, 0));
     }
 }
-/*
-
-// a faire and une fonction avec la touche h
-void DrawHitboxes(void)
-{
-    const float scale = 3.5f; // same scale as in enemy.c
-    // BigBasicEnemies 
-    for (int i = 0; i < maxBigBasicEnemies; i++)
-    {
-        if (bigBasicEnemies[i].size.x <= 0.0f || bigBasicEnemies[i].size.y <= 0.0f) continue;
-        float destW = bigBasicEnemies[i].size.x * scale;
-        float destH = bigBasicEnemies[i].size.y * scale;
-        float centerX = bigBasicEnemies[i].position.x + destW / 2.0f;
-        float centerY = bigBasicEnemies[i].position.y + destH / 2.0f;
-        float radius = fmaxf(destW, destH) / 2.0f;
-        DrawCircleLines((int)centerX, (int)centerY, radius, RED);
-    }
-
-	// MidBasicEnemies
-    for (int i = 0; i < maxMidBasicEnemies; i++)
-    {
-        if (midBasicEnemies[i].size.x <= 0.0f || midBasicEnemies[i].size.y <= 0.0f) continue;
-        float destW = midBasicEnemies[i].size.x * (scale * 2.0f / 3.5f); // scale for mid enemies
-        float destH = midBasicEnemies[i].size.y * (scale * 2.0f / 3.5f);
-        float centerX = midBasicEnemies[i].position.x + destW / 2.0f;
-        float centerY = midBasicEnemies[i].position.y + destH / 2.0f;
-        float radius = fmaxf(destW, destH) / 2.0f;
-        DrawCircleLines((int)centerX, (int)centerY, radius, ORANGE);
-	}
-
-	// SmallBasicEnemies
-    for (int i = 0; i < maxSmallBasicEnemies; i++)
-    {
-        if (smallBasicEnemies[i].size.x <= 0.0f || smallBasicEnemies[i].size.y <= 0.0f) continue;
-        float destW = smallBasicEnemies[i].size.x * (scale * 1.0f / 3.5f); // scale for small enemies
-        float destH = smallBasicEnemies[i].size.y * (scale * 1.0f / 3.5f);
-        float centerX = smallBasicEnemies[i].position.x + destW / 2.0f;
-        float centerY = smallBasicEnemies[i].position.y + destH / 2.0f;
-        float radius = fmaxf(destW, destH) / 2.0f;
-        DrawCircleLines((int)centerX, (int)centerY, radius, PURPLE);
-	}
-
-	// BigShooterEnemies
-    for (int i = 0; i < maxBigShooterEnemy; i++)
-    {
-        if (bigShooterEnemies[i].size.x <= 0.0f || bigShooterEnemies[i].size.y <= 0.0f) continue;
-        float destW = bigShooterEnemies[i].size.x * scale;
-        float destH = bigShooterEnemies[i].size.y * scale;
-        float centerX = bigShooterEnemies[i].position.x + destW / 2.0f;
-        float centerY = bigShooterEnemies[i].position.y + destH / 2.0f;
-        float radius = fmaxf(destW, destH) / 2.0f;
-        DrawCircleLines((int)centerX, (int)centerY, radius, GREEN);
-    }
-
-	// MidShooterEnemies
-    for (int i = 0; i < maxMidShooterEnemy; i++)
-    {
-        if (midShooterEnemies[i].size.x <= 0.0f || midShooterEnemies[i].size.y <= 0.0f) continue;
-        float destW = midShooterEnemies[i].size.x * (scale * 2.0f / 3.5f); // scale for mid enemies
-        float destH = midShooterEnemies[i].size.y * (scale * 2.0f / 3.5f);
-        float centerX = midShooterEnemies[i].position.x + destW / 2.0f;
-        float centerY = midShooterEnemies[i].position.y + destH / 2.0f;
-        float radius = fmaxf(destW, destH) / 2.0f;
-        DrawCircleLines((int)centerX, (int)centerY, radius, SKYBLUE);
-	}
-
-	// smallShooterEnemies
-    for (int i = 0; i < maxSmallShooterEnemy; i++)
-    {
-        if (smallShooterEnemies[i].size.x <= 0.0f || smallShooterEnemies[i].size.y <= 0.0f) continue;
-        float destW = smallShooterEnemies[i].size.x * (scale * 1.0f / 3.5f); // scale for small enemies
-        float destH = smallShooterEnemies[i].size.y * (scale * 1.0f / 3.5f);
-        float centerX = smallShooterEnemies[i].position.x + destW / 2.0f;
-        float centerY = smallShooterEnemies[i].position.y + destH / 2.0f;
-        float radius = fmaxf(destW, destH) / 2.0f;
-        DrawCircleLines((int)centerX, (int)centerY, radius, DARKGREEN);
-	}
-
-	// BigFollowerEnemies
-    for (int i = 0; i < maxBigFollowerEnemy; i++)
-    {
-        if (bigFollowerEnemies[i].size.x <= 0.0f || bigFollowerEnemies[i].size.y <= 0.0f) continue;
-        float destW = bigFollowerEnemies[i].size.x * scale;
-        float destH = bigFollowerEnemies[i].size.y * scale;
-        float centerX = bigFollowerEnemies[i].position.x + destW / 2.0f;
-        float centerY = bigFollowerEnemies[i].position.y + destH / 2.0f;
-        float radius = fmaxf(destW, destH) / 2.0f;
-        DrawCircleLines((int)centerX, (int)centerY, radius, BLUE);
-    }
-
-	// MidFollowerEnemies
-    for (int i = 0; i < maxMidFollowerEnemy; i++)
-    {
-        if (midFollowerEnemies[i].size.x <= 0.0f || midFollowerEnemies[i].size.y <= 0.0f) continue;
-        float destW = midFollowerEnemies[i].size.x * (scale * 2.0f / 3.5f); // scale for mid enemies
-        float destH = midFollowerEnemies[i].size.y * (scale * 2.0f / 3.5f);
-        float centerX = midFollowerEnemies[i].position.x + destW / 2.0f;
-        float centerY = midFollowerEnemies[i].position.y + destH / 2.0f;
-        float radius = fmaxf(destW, destH) / 2.0f;
-        DrawCircleLines((int)centerX, (int)centerY, radius, DARKBLUE);
-    }
-
-	// SmallFollowerEnemies
-    for (int i = 0; i < maxSmallFollowerEnemy; i++)
-    {
-        if (smallFollowerEnemies[i].size.x <= 0.0f || smallFollowerEnemies[i].size.y <= 0.0f) continue;
-        float destW = smallFollowerEnemies[i].size.x * (scale * 1.0f / 3.5f); // scale for small enemies
-        float destH = smallFollowerEnemies[i].size.y * (scale * 1.0f / 3.5f);
-        float centerX = smallFollowerEnemies[i].position.x + destW / 2.0f;
-        float centerY = smallFollowerEnemies[i].position.y + destH / 2.0f;
-        float radius = fmaxf(destW, destH) / 2.0f;
-        DrawCircleLines((int)centerX, (int)centerY, radius, SKYBLUE);
-	}
-    
-	// BigFollowerShooterEnemies
-    for (int i = 0; i < maxBigFollowerShooterEnemy; i++)
-    {
-        if (bigFollowerShooterEnemies[i].size.x <= 0.0f || bigFollowerShooterEnemies[i].size.y <= 0.0f) continue;
-        float destW = bigFollowerShooterEnemies[i].size.x * scale;
-        float destH = bigFollowerShooterEnemies[i].size.y * scale;
-        float centerX = bigFollowerShooterEnemies[i].position.x + destW / 2.0f;
-        float centerY = bigFollowerShooterEnemies[i].position.y + destH / 2.0f;
-        float radius = fmaxf(destW, destH) / 2.0f;
-        DrawCircleLines((int)centerX, (int)centerY, radius, YELLOW);
-    }
-
-	// MidFollowerShooterEnemies
-    for (int i = 0; i < maxMidFollowerShooterEnemy; i++)
-    {
-        if (midFollowerShooterEnemies[i].size.x <= 0.0f || midFollowerShooterEnemies[i].size.y <= 0.0f) continue;
-        float destW = midFollowerShooterEnemies[i].size.x * (scale * 2.0f / 3.5f); // scale for mid enemies
-        float destH = midFollowerShooterEnemies[i].size.y * (scale * 2.0f / 3.5f);
-        float centerX = midFollowerShooterEnemies[i].position.x + destW / 2.0f;
-        float centerY = midFollowerShooterEnemies[i].position.y + destH / 2.0f;
-        float radius = fmaxf(destW, destH) / 2.0f;
-        DrawCircleLines((int)centerX, (int)centerY, radius, GOLD);
-	}
-
-	// SmallFollowerShooterEnemies
-    for (int i = 0; i < maxSmallFollowerShooterEnemy; i++)
-    {
-        if (smallFollowerShooterEnemies[i].size.x <= 0.0f || smallFollowerShooterEnemies[i].size.y <= 0.0f) continue;
-        float destW = smallFollowerShooterEnemies[i].size.x * (scale * 1.0f / 3.5f); // scale for small enemies
-        float destH = smallFollowerShooterEnemies[i].size.y * (scale * 1.0f / 3.5f);
-        float centerX = smallFollowerShooterEnemies[i].position.x + destW / 2.0f;
-        float centerY = smallFollowerShooterEnemies[i].position.y + destH / 2.0f;
-        float radius = fmaxf(destW, destH) / 2.0f;
-        DrawCircleLines((int)centerX, (int)centerY, radius, ORANGE);
-	}
-
-}
-*/
 
 void PlayerEnemyCollision(void)
 {
@@ -1037,12 +901,44 @@ void DrawHitboxes(void)
         DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, GREEN);
     }
 
+	// MidShooterEnemies
+    for (int i = 0; i < maxMidShooterEnemy; i++)
+    {
+        if (midShooterEnemies[i].size.x <= 0.0f) continue;
+        Sphere2D hitbox = GetMidShooterEnemyHitbox(i);
+        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, SKYBLUE);
+	}
+
+	// smallShooterEnemies
+    for (int i = 0; i < maxSmallShooterEnemy; i++)
+    {
+        if (smallShooterEnemies[i].size.x <= 0.0f) continue;
+        Sphere2D hitbox = GetSmallShooterEnemyHitbox(i);
+        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, DARKGREEN);
+    }
+
     // BigFollowerEnemies
     for (int i = 0; i < maxBigFollowerEnemy; i++)
     {
         if (bigFollowerEnemies[i].size.x <= 0.0f) continue;
         Sphere2D hitbox = GetBigFollowerEnemyHitbox(i);
         DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, BLUE);
+    }
+
+	// MidFollowerEnemies
+    for (int i = 0; i < maxMidFollowerEnemy; i++)
+    {
+        if (midFollowerEnemies[i].size.x <= 0.0f) continue;
+        Sphere2D hitbox = GetMidFollowerEnemyHitbox(i);
+        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, DARKBLUE);
+	}
+
+	// SmallFollowerEnemies
+    for (int i = 0; i < maxSmallFollowerEnemy; i++)
+    {
+        if (smallFollowerEnemies[i].size.x <= 0.0f) continue;
+        Sphere2D hitbox = GetSmallFollowerEnemyHitbox(i);
+        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, SKYBLUE);
     }
 
     // BigFollowerShooterEnemies
@@ -1052,4 +948,20 @@ void DrawHitboxes(void)
         Sphere2D hitbox = GetBigFollowerShooterEnemyHitbox(i);
         DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, YELLOW);
     }
+
+	// MidFollowerShooterEnemies
+    for (int i = 0; i < maxMidFollowerShooterEnemy; i++)
+    {
+        if (midFollowerShooterEnemies[i].size.x <= 0.0f) continue;
+        Sphere2D hitbox = GetMidFollowerShooterEnemyHitbox(i);
+        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, GOLD);
+	}
+
+	// SmallFollowerShooterEnemies
+    for (int i = 0; i < maxSmallFollowerShooterEnemy; i++)
+    {
+        if (smallFollowerShooterEnemies[i].size.x <= 0.0f) continue;
+        Sphere2D hitbox = GetSmallFollowerShooterEnemyHitbox(i);
+        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, ORANGE);
+	}
 }

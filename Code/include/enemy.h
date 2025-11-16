@@ -78,9 +78,18 @@ extern bool smallFollowerShooterEnemiesSpawn[4];
 Sphere2D GetBigBasicEnemyHitbox(int i);
 Sphere2D GetMidBasicEnemyHitbox(int i);
 Sphere2D GetSmallBasicEnemyHitbox(int i);
+
 Sphere2D GetBigShooterEnemyHitbox(int i);
+Sphere2D GetMidShooterEnemyHitbox(int i);
+Sphere2D GetSmallShooterEnemyHitbox(int i);
+
 Sphere2D GetBigFollowerEnemyHitbox(int i);
+Sphere2D GetMidFollowerEnemyHitbox(int i);
+Sphere2D GetSmallFollowerEnemyHitbox(int i);
+
 Sphere2D GetBigFollowerShooterEnemyHitbox(int i);
+Sphere2D GetMidFollowerShooterEnemyHitbox(int i);
+Sphere2D GetSmallFollowerShooterEnemyHitbox(int i);
 
 // Fonctions
 

@@ -18,11 +18,16 @@ typedef struct ShipBullet {
     bool active;
 } ShipBullet;
 
+int score;
+int actualLevel;
+int lifeNumber;
+
 extern ShipBullet shipBullets[MAX_BULLETS];
 
 void InitBullets(void);
 void FireBullet(Vector2D startPos, float angle);
 void UpdateBullets(GameAssets* assets, Collision* collision);
 bool CheckCollissionShipEnemy(Rectangle2D shipBox, Sphere2D enemySphere);
+void LevelProgress(void);
 
 #endif

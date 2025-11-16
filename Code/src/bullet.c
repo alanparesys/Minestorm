@@ -7,6 +7,10 @@
 
 ShipBullet shipBullets[MAX_BULLETS];
 
+int score = 0;
+int actualLevel = 1;
+int lifeNumber = 3;                          // number of lives
+
 
 void InitBullets(void)
 {
@@ -83,6 +87,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
                 collision->bigBasicEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
                 printf("Hit Big Basic Enemy %d!\n", j); // Debug
+                score += 100;
                 break;
             }
         }
@@ -112,6 +117,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
                 collision->midBasicEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
                 printf("Hit Mid Basic Enemy %d!\n", j); // Debug
+                score += 135;
                 break;
             }
         }
@@ -133,6 +139,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
                 collision->smallBasicEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
                 printf("Hit Small Basic Enemy %d!\n", j); // Debug
+                score += 200;
                 break;
             }
         }
@@ -153,6 +160,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->bigShooterEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+                score += 325;
                 break;
             }
         }
@@ -173,6 +181,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->midShooterEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+                score += 360;
                 break;
             }
         }
@@ -193,6 +202,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->smallShooterEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+                score += 425;
                 break;
             }
         }
@@ -213,6 +223,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->bigFollowerEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+                score += 500;
                 break;
             }
         }
@@ -233,6 +244,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->midFollowerEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+                score += 535;
                 break;
             }
         }
@@ -253,6 +265,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->smallFollowerEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+                score += 600;
                 break;
             }
         }
@@ -273,6 +286,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->bigFollowerShooterEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+                score += 750;
                 break;
             }
         }
@@ -293,6 +307,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->midFollowerShooterEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+                score += 785;
                 break;
             }
         }
@@ -313,6 +328,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->smallFollowerShooterEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+                score += 850;
                 break;
             }
         }
@@ -335,4 +351,14 @@ bool CheckCollisionShipEnemy(Rectangle2D shipBox, Sphere2D enemySphere)
     float dy = enemySphere.center.y - closestY;
 
     return (dx * dx + dy * dy) <= (enemySphere.radius * enemySphere.radius);
+}
+
+void LevelProgress(void)
+{
+    if (score >= 5000) {
+        actualLevel = actualLevel++;
+        score = 0;
+        lifeNumber = 3;
+    }
+
 }
