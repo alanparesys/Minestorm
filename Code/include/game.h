@@ -29,6 +29,7 @@ void UpdateGameOver(GameAssets* assets, Collision* collision);
 void RestartGame(GameAssets* assets, Enemy* enemy, Collision* collision);
 void InitGame(void);
 void UpdateControlGame(void);
+void UpdateEnemies(GameAssets* assets, Collision* collision);
 void CheckInput(void);
 void BoundingBoxPlayer(void);
 void DrawHitboxes(void);

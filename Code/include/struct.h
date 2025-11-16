@@ -43,14 +43,14 @@ typedef struct Collision
     bool bigShooterEnemiesBulletCollision[2];
     bool bigFollowerEnemiesBulletCollision[2];
     bool bigFollowerShooterEnemiesBulletCollision[1];
-    bool midBasicEnemiesBulletCollision[3];
-    bool midShooterEnemiesBulletCollision[2];
-    bool midFollowerEnemiesBulletCollision[2];
-    bool midFollowerShooterEnemiesBulletCollision[1];
-    bool smallBasicEnemiesBulletCollision[3];
-    bool smallShooterEnemiesBulletCollision[2];
-    bool smallFollowerEnemiesBulletCollision[2];
-    bool smallFollowerShooterEnemiesBulletCollision[1];
+    bool midBasicEnemiesBulletCollision[6];
+    bool midShooterEnemiesBulletCollision[4];
+    bool midFollowerEnemiesBulletCollision[4];
+    bool midFollowerShooterEnemiesBulletCollision[2];
+    bool smallBasicEnemiesBulletCollision[12];
+    bool smallShooterEnemiesBulletCollision[8];
+    bool smallFollowerEnemiesBulletCollision[8];
+    bool smallFollowerShooterEnemiesBulletCollision[4];
 } Collision;
 
 // Structure GameAssets

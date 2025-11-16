@@ -1,4 +1,4 @@
-#include "bullet.h"
+/*#include "bullet.h"
 #include "Vector2D.h"
 #include "sphere2D.h"
 #include "enemy.h"
@@ -22,4 +22,4 @@ bool CheckCollisionShipEnemy(Rectangle2D shipBox, Sphere2D enemySphere)
     float dy = enemySphere.center.y - closestY;
 
     return (dx * dx + dy * dy) <= (enemySphere.radius * enemySphere.radius);
-}
+}*/

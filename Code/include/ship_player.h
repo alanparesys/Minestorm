@@ -1,4 +1,4 @@
-#ifndef SHIP_PLAYER_H
+/*#ifndef SHIP_PLAYER_H
 #define SHIP_PLAYER_H
 
 #include "Vector2D.h"
@@ -11,3 +11,4 @@ typedef struct Ship Ship; // Déclaration anticipée pour éviter boucle d'inclusio
 bool CheckCollissionShipEnemy(Rectangle2D shipBox, Sphere2D enemySphere);
 
 #endif
+*/
