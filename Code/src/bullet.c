@@ -76,6 +76,40 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             }
         }
 
+		// Collision MidBasicEnemies
+        for (int j = 0; j < maxMidBasicEnemies; j++)
+        {
+            if (midBasicEnemies[j].size.x <= 0.0f || midBasicEnemies[j].size.y <= 0.0f) continue;
+            Vector2 enemyCenter = { midBasicEnemies[j].position.x + midBasicEnemies[j].size.x * 1.0f,
+                                    midBasicEnemies[j].position.y + midBasicEnemies[j].size.y * 1.0f };
+            float enemyRadius = fmaxf(midBasicEnemies[j].size.x * 1.0f, midBasicEnemies[j].size.y * 1.0f);
+            float dx = shipBullets[i].position.x - enemyCenter.x;
+            float dy = shipBullets[i].position.y - enemyCenter.y;
+            float distance = sqrtf(dx * dx + dy * dy);
+            if (distance < shipBullets[i].radius + enemyRadius)
+            {
+                collision->midBasicEnemiesBulletCollision[j] = true;
+                shipBullets[i].active = false;
+            }
+		}
+
+		// Collision SmallBasicEnemies
+        for (int j = 0; j < maxSmallBasicEnemies; j++)
+        {
+            if (smallBasicEnemies[j].size.x <= 0.0f || smallBasicEnemies[j].size.y <= 0.0f) continue;
+            Vector2 enemyCenter = { smallBasicEnemies[j].position.x + smallBasicEnemies[j].size.x * 0.75f,
+                                    smallBasicEnemies[j].position.y + smallBasicEnemies[j].size.y * 0.75f };
+            float enemyRadius = fmaxf(smallBasicEnemies[j].size.x * 0.75f, smallBasicEnemies[j].size.y * 0.75f);
+            float dx = shipBullets[i].position.x - enemyCenter.x;
+            float dy = shipBullets[i].position.y - enemyCenter.y;
+            float distance = sqrtf(dx * dx + dy * dy);
+            if (distance < shipBullets[i].radius + enemyRadius)
+            {
+                collision->smallBasicEnemiesBulletCollision[j] = true;
+                shipBullets[i].active = false;
+            }
+		}
+
         // Collision BigShooterEnemies
         for (int j = 0; j < maxBigShooterEnemy; j++)
         {

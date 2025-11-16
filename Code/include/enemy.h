@@ -85,27 +85,62 @@ void BigBasicEnemyMovement(int i);
 void UpdateMidBasicEnemy(int i, GameAssets* assets, Collision* collision);
 void MidBasicEnemySpawn(int i, float parentX, float parentY);
 void MidBasicEnemyMovement(int i);
+void MidBasicEnemyRespawn(int i);
 
+void UpdateSmallBasicEnemy(int i, GameAssets* assets, Collision* collision);
+void SmallBasicEnemySpawn(int i, float parentX, float parentY);
+void SmallBasicEnemyMovement(int i);
+void SmallBasicEnemyRespawn(int i);
 
-
-
-
-
-
-
+// =========================== ShooterEnemy ===========================
 void UpdateShooterEnemy(int i, GameAssets* assets, Collision* collision);
+
 void UpdateBigShooterEnemy(int i, GameAssets* assets, Collision* collision);
 void BigShooterEnemySpawn(int i);
 void BigShooterEnemyMovement(int i);
 
+/*
+void UpdateMidShooterEnemy(int i, GameAssets* assets, Collision* collision);
+void MidShooterEnemySpawn(int i, float parentX, float parentY);
+void MidShooterEnemyMovement(int i);
+
+void UpdateSmallShooterEnemy(int i, GameAssets* assets, Collision* collision);
+void SmallShooterEnemySpawn(int i, float parentX, float parentY);
+void SmallShooterEnemyMovement(int i);
+*/
+
+// =========================== FollowerEnemy ===========================
 void UpdateFollowerEnemy(int i, GameAssets* assets, Collision* collision);
+
 void UpdateBigFollowerEnemy(int i, GameAssets* assets, Collision* collision);
 void BigFollowerEnemySpawn(int i);
 void BigFollowerEnemyMovement(int i);
 
+/*
+void UpdateMidFollowerEnemy(int i, GameAssets* assets, Collision* collision);
+void MidFollowerEnemySpawn(int i, float parentX, float parentY);
+void MidFollowerEnemyMovement(int i);
+
+void UpdateSmallFollowerEnemy(int i, GameAssets* assets, Collision* collision);
+void SmallFollowerEnemySpawn(int i, float parentX, float parentY);
+void SmallFollowerEnemyMovement(int i);
+*/
+
+// =========================== Follower-ShooterEnemy ===========================
 void UpdateFollowerShooterEnemy(int i, GameAssets* assets, Collision* collision);
+
 void UpdateBigFollowerShooterEnemy(int i, GameAssets* assets, Collision* collision);
 void BigFollowerShooterEnemySpawn(int i);
 void BigFollowerShooterEnemyMovement(int i);
+
+/*
+void UpdateMidFollowerShooterEnemy(int i, GameAssets* assets, Collision* collision);
+void MidFollowerShooterEnemySpawn(int i, float parentX, float parentY);
+void MidFollowerShooterEnemyMovement(int i);
+
+void UpdateSmallFollowerShooterEnemy(int i, GameAssets* assets, Collision* collision);
+void SmallFollowerShooterEnemySpawn(int i, float parentX, float parentY);
+void SmallFollowerShooterEnemyMovement(int i);
+*/
 
 #endif

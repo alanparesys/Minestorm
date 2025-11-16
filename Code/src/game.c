@@ -34,6 +34,7 @@ const float FRICTION = 0.93f;                        // friction (slowdown) = 0.
 float fireCooldown = 0.25; // 0.25 seconds of cooldown
 float timeSinceLastShot = 0.0f;
 
+char buffer[64];  // stock some text (lifes)
 int lifeNumber = 3;                          // number of lives
 
 // InitGame: initializes the basic values for physics and player position
@@ -154,7 +155,7 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
     DrawTexture(assets->background, 0, 0, WHITE);
     if (currentScreen == SOLO_GAMEPLAY)
     {
-        
+        PlayerEnemyCollision();
         BeginDrawing();
 
 
@@ -170,9 +171,30 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
         //DrawText("Solo Gameplay Screen", 160, 300, 20, WHITE);
         // <-- passes assets to the enemy manager
         UpdateControlGame();
+        
+        /*
         for (int i = 0; i < maxBigBasicEnemies; i++) {
             UpdateBasicEnemy(i, assets, collision);
         }
+        */
+
+        for (int i = 0; i < maxBigBasicEnemies; i++)
+        {
+            UpdateBigBasicEnemy(i, assets, collision);
+        }
+
+        // Update les 6 MID basic enemies
+        for (int i = 0; i < maxMidBasicEnemies; i++)
+        {
+            UpdateMidBasicEnemy(i, assets, collision);
+        }
+
+		// Update 12 SMALL basic enemies
+        for (int i = 0; i < maxSmallBasicEnemies; i++)
+        {
+            UpdateSmallBasicEnemy(i, assets, collision);
+		}
+
         for (int i = 0; i < maxBigShooterEnemy; i++) {
             UpdateShooterEnemy(i, assets, collision);
         }
@@ -274,10 +296,29 @@ void InitGame(void)
         return;
     }
     player->position = Vector2D_SetFromComponents(1300.0f / 2, 1080.0f / 2);
-    player->size = Vector2D_SetFromComponents(50, 50);                        // The player's base size is “size.”
+    player->size = Vector2D_SetFromComponents(50, 50);
     player->velocity = Vector2D_SetFromComponents(0, 0);
     player->angle = PI;
     player->color = shipColor;
+
+    
+    // Initialiser les big enemies
+    for (int i = 0; i < maxBigBasicEnemies; i++)
+    {
+        bigBasicEnemiesSpawn[i] = false;
+        bigBasicEnemies[i].size.x = 0.0f;
+        bigBasicEnemies[i].size.y = 0.0f;
+    }
+
+    // Initialiser les mid enemies
+    for (int i = 0; i < maxMidBasicEnemies; i++)
+    {
+        midBasicEnemiesSpawn[i] = false;
+        midBasicEnemies[i].size.x = 0.0f;
+        midBasicEnemies[i].size.y = 0.0f;
+    }
+
+    printf("InitGame: Big enemies initialized\n");
 }
 
 // Implementation and verification of game controls
@@ -300,8 +341,8 @@ void CheckInput(void)
     {
         Vector2D pushVector = Vector2D_SetFromComponents(
             cos(player->angle) * PUSH, sin(player->angle) * PUSH);            // calculates the thrust vector based on the angle of the spacecraft
-        Vector2D_Print(pushVector);
-        printf("\n");
+        // Vector2D_Print(pushVector);
+        // printf("\n");
         player->velocity = Vector2D_Add(player->velocity, pushVector);
     }
 
@@ -365,7 +406,7 @@ void UpdateControlGame(void) {
 void DrawHitboxes(void)
 {
     const float scale = 3.5f; // same scale as in enemy.c
-    // BigBasicEnemies (ton code existant)
+    // BigBasicEnemies 
     for (int i = 0; i < maxBigBasicEnemies; i++)
     {
         if (bigBasicEnemies[i].size.x <= 0.0f || bigBasicEnemies[i].size.y <= 0.0f) continue;
@@ -377,6 +418,31 @@ void DrawHitboxes(void)
         DrawCircleLines((int)centerX, (int)centerY, radius, RED);
     }
 
+	// MidBasicEnemies
+    for (int i = 0; i < maxMidBasicEnemies; i++)
+    {
+        if (midBasicEnemies[i].size.x <= 0.0f || midBasicEnemies[i].size.y <= 0.0f) continue;
+        float destW = midBasicEnemies[i].size.x * (scale * 2.0f / 3.5f); // scale for mid enemies
+        float destH = midBasicEnemies[i].size.y * (scale * 2.0f / 3.5f);
+        float centerX = midBasicEnemies[i].position.x + destW / 2.0f;
+        float centerY = midBasicEnemies[i].position.y + destH / 2.0f;
+        float radius = fmaxf(destW, destH) / 2.0f;
+        DrawCircleLines((int)centerX, (int)centerY, radius, ORANGE);
+	}
+
+	// SmallBasicEnemies
+    for (int i = 0; i < maxSmallBasicEnemies; i++)
+    {
+        if (smallBasicEnemies[i].size.x <= 0.0f || smallBasicEnemies[i].size.y <= 0.0f) continue;
+        float destW = smallBasicEnemies[i].size.x * (scale * 1.0f / 3.5f); // scale for small enemies
+        float destH = smallBasicEnemies[i].size.y * (scale * 1.0f / 3.5f);
+        float centerX = smallBasicEnemies[i].position.x + destW / 2.0f;
+        float centerY = smallBasicEnemies[i].position.y + destH / 2.0f;
+        float radius = fmaxf(destW, destH) / 2.0f;
+        DrawCircleLines((int)centerX, (int)centerY, radius, PURPLE);
+	}
+
+	// BigShooterEnemies
     for (int i = 0; i < maxBigShooterEnemy; i++)
     {
         if (bigShooterEnemies[i].size.x <= 0.0f || bigShooterEnemies[i].size.y <= 0.0f) continue;
@@ -388,6 +454,7 @@ void DrawHitboxes(void)
         DrawCircleLines((int)centerX, (int)centerY, radius, GREEN);
     }
 
+	// BigFollowerEnemies
     for (int i = 0; i < maxBigFollowerEnemy; i++)
     {
         if (bigFollowerEnemies[i].size.x <= 0.0f || bigFollowerEnemies[i].size.y <= 0.0f) continue;
@@ -399,6 +466,7 @@ void DrawHitboxes(void)
         DrawCircleLines((int)centerX, (int)centerY, radius, BLUE);
     }
 
+	// BigFollowerShooterEnemies
     for (int i = 0; i < maxBigFollowerShooterEnemy; i++)
     {
         if (bigFollowerShooterEnemies[i].size.x <= 0.0f || bigFollowerShooterEnemies[i].size.y <= 0.0f) continue;
@@ -414,28 +482,40 @@ void DrawHitboxes(void)
 void PlayerEnemyCollision(void)
 {
     for (int i = 0; i < maxBigBasicEnemies; i++) {
-        if (bigBasicEnemies[i].size.x <= 0 || bigBasicEnemies[i].size.y <= 0) continue;
-
-        // Rectangle de l’ennemi avec ton module
-        Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-            bigBasicEnemies[i].position,
-            bigBasicEnemies[i].size.x * 2.5f,
-            bigBasicEnemies[i].size.y * 2.5f,
-            0.0f
+        if (player->invincibilityFrames > 0) {
+            player->invincibilityFrames--;
+        }
+        player->bbox = Rectangle2D_SetFromCenterLengthWidthAngle(
+            player->position,
+            player->size.x,   // longueur
+            player->size.y,   // largeur
+            player->angle     // rotation
         );
 
-        Vector2D enemyCenter = enemyBox.center;
-        float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-        Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
+        for (int j = 0; j < maxBigBasicEnemies; j++) {
+            if (bigBasicEnemies[j].size.x <= 0 || bigBasicEnemies[j].size.y <= 0) continue;
 
-        if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-            player->invincibilityFrames = 360;
-            lifeNumber--;
-            printf("COLLISION DETECTÉE ! Vie restante : %d\n", lifeNumber);
+            // Rectangle de l’ennemi avec ton module
+            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
+                bigBasicEnemies[j].position,
+                bigBasicEnemies[j].size.x * 2.5f,
+                bigBasicEnemies[j].size.y * 2.5f,
+                0.0f
+            );
 
-            if (lifeNumber <= 0) {
-                currentScreen = GAMEOVER;
-                gameOver = true;
+            Vector2D enemyCenter = enemyBox.center;
+            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
+            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
+
+            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
+                player->invincibilityFrames = 60;
+                lifeNumber = lifeNumber--;
+                printf("COLLISION DETECTÉE ! Vie restante : %d\n", lifeNumber);
+
+                if (lifeNumber <= 0) {
+                    currentScreen = GAMEOVER;
+                    gameOver = true;
+                }
             }
         }
     }

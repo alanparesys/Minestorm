@@ -23,7 +23,7 @@ Sphere2D Sphere2D_SetFrom2Points(Vector2D p1, Vector2D p2)
 
 float Sphere2D_GetSurface(Sphere2D sph)
 {
-    return M_PI * sph.radius * sph.radius; // ?r�
+    return M_PI * sph.radius * sph.radius; // ?r
 }
 
 float Sphere2D_GetPerimeter(Sphere2D sph)
