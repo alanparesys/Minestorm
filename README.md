@@ -1,4 +1,4 @@
-#MineStorm Raylib Project - Project By Alan Paresys, Eden Mounguengui, Louis Gil Silveira for ISART DIGITAL
+# MineStorm Raylib Project - Project By Alan Paresys, Eden Mounguengui, Louis Gil Silveira for ISART DIGITAL
 
 =====================================================================================
 
