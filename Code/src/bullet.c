@@ -1,8 +1,13 @@
 #include "bullet.h"
 #include "enemy.h"
 #include "game.h"
+#include "explosion.h"
 #include <math.h>
 #include <stdio.h>
+
+#define EXPLOSION_SCALE_BIG   2.5f
+#define EXPLOSION_SCALE_MID   1.8f
+#define EXPLOSION_SCALE_SMALL 1.3f
 
 ShipBullet shipBullets[MAX_BULLETS];
 EnemyBullet enemyBullets[MAX_ENEMY_BULLETS];
@@ -44,18 +49,22 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
     for (int i = 0; i < MAX_BULLETS; i++)
     {
         if (!shipBullets[i].active) continue;
+        if (!enemiesActive) return;
+        if (motherShipSpawned) return;
 
         // Mouvement
         shipBullets[i].position.x += shipBullets[i].velocity.x;
         shipBullets[i].position.y += shipBullets[i].velocity.y;
 
-        // V�rifier si hors �cran
+        // V�rifier si hors �cran
         if (shipBullets[i].position.x < -50 || shipBullets[i].position.x > 1080 + 50 ||
             shipBullets[i].position.y < -50 || shipBullets[i].position.y > 1300 + 50)
         {
             shipBullets[i].active = false;
             continue;
         }
+
+        // Note: Les collisions bullet-bullet sont vérifiées dans CheckBulletBulletCollisions() après les updates
 
         // Affichage
         if (assets != NULL)
@@ -88,6 +97,9 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
                 collision->bigBasicEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
                 printf("Hit Big Basic Enemy %d!\n", j);
+
+                Vector2D explosionPos = { bigBasicEnemies[j].position.x, bigBasicEnemies[j].position.y };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_BIG);
                 score += 100;
                 break;
             }
@@ -112,6 +124,9 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
                 collision->midBasicEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
                 printf("Hit Mid Basic Enemy %d!\n", j);
+
+                Vector2D explosionPos = { midBasicEnemies[j].position.x, midBasicEnemies[j].position.y };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_MID);
                 score += 135;
                 break;
             }
@@ -136,6 +151,9 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
                 collision->smallBasicEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
                 printf("Hit Small Basic Enemy %d!\n", j);
+
+                Vector2D explosionPos = { smallBasicEnemies[j].position.x, smallBasicEnemies[j].position.y };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_SMALL);
                 score += 200;
                 break;
             }
@@ -159,6 +177,9 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->bigShooterEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+
+                Vector2D explosionPos = { bigShooterEnemies[j].position.x, bigShooterEnemies[j].position.y };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_BIG);
                 score += 325;
                 break;
             }
@@ -182,6 +203,9 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->midShooterEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+
+                Vector2D explosionPos = { midShooterEnemies[j].position.x, midShooterEnemies[j].position.y };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_MID);
                 score += 360;
                 break;
             }
@@ -205,6 +229,9 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->smallShooterEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+
+                Vector2D explosionPos = { smallShooterEnemies[j].position.x, smallShooterEnemies[j].position.y };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_SMALL);
                 score += 425;
                 break;
             }
@@ -228,6 +255,9 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->bigFollowerEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+
+                Vector2D explosionPos = { bigFollowerEnemies[j].position.x, bigFollowerEnemies[j].position.y };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_BIG);
                 score += 500;
                 break;
             }
@@ -251,6 +281,9 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->midFollowerEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+
+                Vector2D explosionPos = { midFollowerEnemies[j].position.x, midFollowerEnemies[j].position.y };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_MID);
                 score += 535;
                 break;
             }
@@ -274,6 +307,9 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->smallFollowerEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+
+                Vector2D explosionPos = { smallFollowerEnemies[j].position.x, smallFollowerEnemies[j].position.y };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_SMALL);
                 score += 600;
                 break;
             }
@@ -297,6 +333,9 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->bigFollowerShooterEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+
+                Vector2D explosionPos = { bigFollowerShooterEnemies[j].position.x, bigFollowerShooterEnemies[j].position.y };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_BIG);
                 score += 750;
                 break;
             }
@@ -320,6 +359,9 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->midFollowerShooterEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+
+                Vector2D explosionPos = { midFollowerShooterEnemies[j].position.x, midFollowerShooterEnemies[j].position.y };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_MID);
                 score += 785;
                 break;
             }
@@ -343,6 +385,9 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->smallFollowerShooterEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
+
+                Vector2D explosionPos = { smallFollowerShooterEnemies[j].position.x, smallFollowerShooterEnemies[j].position.y };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_SMALL);
                 score += 850;
                 break;
             }
@@ -394,6 +439,49 @@ void FireEnemyBullet(Vector2D startPos, Vector2D targetPos)
     }
 }
 
+// Fonction pour vérifier les collisions entre bullets du joueur et bullets ennemis
+void CheckBulletBulletCollisions(void)
+{
+    for (int i = 0; i < MAX_BULLETS; i++)
+    {
+        if (!shipBullets[i].active) continue;
+
+        for (int j = 0; j < MAX_ENEMY_BULLETS; j++)
+        {
+            if (!enemyBullets[j].active) continue;
+
+            // Calculer la distance entre les deux bullets
+            float dx = shipBullets[i].position.x - enemyBullets[j].position.x;
+            float dy = shipBullets[i].position.y - enemyBullets[j].position.y;
+            float distance = sqrtf(dx * dx + dy * dy);
+
+            // Rayon de collision = somme des rayons des deux bullets
+            float collisionRadius = shipBullets[i].radius + enemyBullets[j].radius;
+
+            // Si collision détectée
+            if (distance < collisionRadius)
+            {
+                // Désactiver les deux bullets
+                shipBullets[i].active = false;
+                enemyBullets[j].active = false;
+
+                // Créer une explosion à la position de collision (milieu entre les deux bullets)
+                Vector2D explosionPos = {
+                    (shipBullets[i].position.x + enemyBullets[j].position.x) / 2.0f,
+                    (shipBullets[i].position.y + enemyBullets[j].position.y) / 2.0f
+                };
+                SpawnExplosion(explosionPos, EXPLOSION_SCALE_SMALL);
+                
+                // Debug message
+                printf("*** COLLISION BULLET-BULLET DETECTEE! ***\n");
+                printf("Explosion creee a (%.1f, %.1f)\n", explosionPos.x, explosionPos.y);
+                
+                break; // Sortir de la boucle des bullets ennemis
+            }
+        }
+    }
+}
+
 void UpdateEnemyBullets(GameAssets* assets, Ship* player)
 {
     // DEBUG
@@ -411,13 +499,15 @@ void UpdateEnemyBullets(GameAssets* assets, Ship* player)
         enemyBullets[i].position.x += enemyBullets[i].velocity.x;
         enemyBullets[i].position.y += enemyBullets[i].velocity.y;
 
-        // V�rifier si hors �cran
+        // V�rifier si hors �cran
         if (enemyBullets[i].position.x < -50 || enemyBullets[i].position.x > 1080 + 50 ||
             enemyBullets[i].position.y < -50 || enemyBullets[i].position.y > 1300 + 50)
         {
             enemyBullets[i].active = false;
             continue;
         }
+
+        // Note: Les collisions bullet-bullet sont vérifiées dans UpdateBullets() pour éviter les doubles vérifications
 
         // Affichage (couleur rouge pour les distinguer)
         if (assets != NULL)
@@ -447,10 +537,8 @@ void UpdateEnemyBullets(GameAssets* assets, Ship* player)
             if (distance < enemyBullets[i].radius + playerRadius)
             {
                 enemyBullets[i].active = false;
-                lifeNumber = 0; // Le joueur meurt instantan�ment
+                lifeNumber = lifeNumber--; // Le joueur meurt instantan�ment
                 printf("Player hit by enemy bullet! GAME OVER\n");
-
-
             }
         }
     }

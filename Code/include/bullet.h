@@ -43,6 +43,9 @@ void InitEnemyBullets(void);
 void FireEnemyBullet(Vector2D startPos, Vector2D targetPos);
 void UpdateEnemyBullets(GameAssets* assets, Ship* player);
 
+// Fonction pour vérifier les collisions entre bullets
+void CheckBulletBulletCollisions(void);
+
 // Fonctions utilitaires
 bool CheckCollisionShipEnemy(Rectangle2D shipBox, Sphere2D enemySphere);
 

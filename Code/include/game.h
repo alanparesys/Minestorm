@@ -12,7 +12,7 @@ typedef enum GameScreen
     VS_GAMEPLAY,
     CONTROLS,
     HELP,
-	TITLE_PAUSE,
+    TITLE_PAUSE,
     PAUSE,
     ENDING,
     GAMEOVER,

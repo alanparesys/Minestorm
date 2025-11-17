@@ -13,7 +13,7 @@ typedef struct Ship {
     float angle;    // radiant
     Color color;
     Rectangle2D bbox;        // bounding box of the ship
-	float invincibilityFrames; // duration of invincibility after being hit
+    float invincibilityFrames; // duration of invincibility after being hit
 } Ship;
 
 // Structure Enemy
@@ -69,18 +69,18 @@ typedef struct GameAssets
 {
     Texture2D background;
     Texture2D interface;
-	Texture2D minestorm;
-	Texture2D titleText;
+    Texture2D minestorm;
+    Texture2D titleText;
     Texture2D ship;
     Texture2D bulletTexture;
     Texture2D basicEnemyTexture;
     Texture2D shooterEnemyTexture;
     Texture2D followerEnemyTexture;
-    Texture2D followerShooterEnemyTexture; 
-	Texture2D motherShipTexture;
+    Texture2D followerShooterEnemyTexture;
+    Texture2D motherShipTexture;
+    Texture2D explosionTexture;
     Font pixelFont;
-	Font magnetoFont;
+    Font magnetoFont;
 } GameAssets;
 
 #endif
-

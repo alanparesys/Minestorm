@@ -73,6 +73,20 @@ extern Enemy smallFollowerShooterEnemies[4];
 extern bool smallFollowerShooterEnemiesSpawn[4];
 //extern EnemySize currentSmallFollowerShooterEnemySize[4];
 
+// =========================== MotherShip ===========================
+extern bool motherShipSpawned;
+extern bool spawnPointsInitialized;
+extern bool motherShipActive;
+extern int maxMotherShip;
+extern Enemy motherShip[1];
+extern bool enemiesDropped;
+extern bool enemiesActive;
+
+extern int usedSpawnPoints;
+extern int currentSpawnIndex;
+extern float spawnTimer;
+extern float spawnInterval;
+
 void InitSpawnPoints();
 
 void SpawnPoints();
@@ -99,13 +113,16 @@ Sphere2D GetSmallFollowerShooterEnemyHitbox(int i);
 
 void BorderEnemyCollision(Enemy* enemy);
 
-// Fonctions
-
+// Fonctions mothership
 void MotherShipUpdate(GameAssets* assets, Collision* collision);
 void MotherShipSpawn(GameAssets* assets);
 void MotherShipMovement(GameAssets* assets, Collision* collision);
 void SpawnPointAndEnemy(int index);
 void DrawSpawnedPoints();
+void SpawnAllEnemiesFromPoints(void);
+Vector2D GetNextSpawnPoint(void);
+
+// Fonctions
 
 void UpdateEnemies(GameAssets* assets, Collision* collision);
 

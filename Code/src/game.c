@@ -9,6 +9,10 @@
 #include "bullet.h"
 #include "sphere2D.h"
 #include "ship_player.h"
+#include "explosion.h"
+#include "polygone2D.h"
+#include "collision2D.h"
+#include "aabb2D.h"
 
 GameScreen currentScreen = TITLE;
 bool title = true;
@@ -48,6 +52,54 @@ Enemy bigBasicEnemies[3];
 
 Color shipColor = { 186, 18, 186, 255 };
 
+static bool collisionDebugEnabled = false;
+
+#define SHIP_POLYGON_COUNT 2
+#define RENDER_SCALE_BIG 3.5f
+#define RENDER_SCALE_MID 2.0f
+#define RENDER_SCALE_SMALL 1.5f
+#define COLLISION_DEBUG_KEY KEY_F3  // Chang√© de KEY_H √† KEY_F3 car H est utilis√© pour les menus
+
+static const Vector2D SHIP_BODY_POINTS[] = {
+    { 25.0f, 0.0f },
+    { -10.0f, -18.0f },
+    { -30.0f, 0.0f },
+    { -10.0f, 18.0f }
+};
+static const int SHIP_BODY_POINT_COUNT = 4;
+
+static const Vector2D SHIP_THRUSTER_POINTS[] = {
+    { -30.0f, -10.0f },
+    { -42.0f, -10.0f },
+    { -42.0f, 10.0f },
+    { -30.0f, 10.0f }
+};
+static const int SHIP_THRUSTER_POINT_COUNT = 4;
+
+static const Color BROAD_PHASE_COLOR = { 0, 228, 48, 120 };
+static const Color BROAD_PHASE_HIT_COLOR = { 255, 161, 0, 200 };
+static const Color NARROW_PHASE_COLOR = { 0, 121, 241, 200 };
+static const Color NARROW_PHASE_HIT_COLOR = { 230, 41, 55, 230 };
+
+static void BuildShipCollisionPolygons(Polygone2D* outPolys, int* outCount);
+static Polygone2D BuildShipPolygonFromLocal(const Vector2D* localPoints, int pointCount, float scaleX, float scaleY);
+static void FreeShipCollisionPolygons(Polygone2D* polys, int count);
+static void HandleEnemyGroupCollision(Enemy* enemies, int count, float renderScale,
+    Sphere2D playerSphere, AABB2D playerAABB,
+    Polygone2D* shipPolys, int shipPolyCount,
+    bool* shipPolyHits, bool* playerSphereBroadHit, bool* playerAABBBroadHit);
+static void ProcessEnemyCollision(Enemy* enemy, float renderScale,
+    Sphere2D playerSphere, AABB2D playerAABB,
+    Polygone2D* shipPolys, int shipPolyCount,
+    bool* shipPolyHits, bool* playerSphereBroadHit, bool* playerAABBBroadHit);
+static void DrawPolygonOutline(Polygone2D poly, Color color);
+static void DrawAABBOutline(AABB2D box, Color color);
+static void DrawSphereOutline(Sphere2D sphere, Color color);
+static void PlayerTakeDamage(void);
+static void DrawHitboxGroup(Enemy* enemies, int count, Sphere2D(*hitboxFunc)(int), Color color);
+static void DrawBulletHitboxes(void);
+static void DrawShipVectors(void);
+static void DrawArrow(Vector2D start, Vector2D direction, float length, Color color);
 
 void CheckLifeOfPlayer()
 {
@@ -61,37 +113,36 @@ void InitAssets(GameAssets* assets)
 {
     assets->background = LoadTexture("Assets/Background1080_1300.png");
     assets->interface = LoadTexture("Assets/interface1.png");
-	assets->minestorm = LoadTexture("Assets/minestorm.png");
-	assets->titleText = LoadTexture("Assets/title_text.png");
+    assets->minestorm = LoadTexture("Assets/minestorm.png");
+    assets->titleText = LoadTexture("Assets/title_text.png");
     assets->ship = LoadTexture("Assets/Kenney/ship_sidesA.png"); // ship_K.png  // Kenney/ship_sidesA.png
     assets->bulletTexture = LoadTexture("Assets/Kenney/meteor_large.png");
     assets->basicEnemyTexture = LoadTexture("Assets/basic_enemy1.png");
     assets->shooterEnemyTexture = LoadTexture("Assets/shooter_enemy.png");
     assets->followerEnemyTexture = LoadTexture("Assets/follower_enemy.png");
-	assets->followerShooterEnemyTexture = LoadTexture("Assets/follower_shooter_enemy.png");
-	assets->motherShipTexture = LoadTexture("Assets/mother_ship.png");
+    assets->followerShooterEnemyTexture = LoadTexture("Assets/follower_shooter_enemy.png");
+    assets->motherShipTexture = LoadTexture("Assets/mother_ship.png");
     assets->pixelFont = LoadFont("Assets/pixel_police.ttf");
-	assets->magnetoFont = LoadFont("Assets/Magneto.ttf");
-
-
-
+    assets->magnetoFont = LoadFont("Assets/Magneto.ttf");
+    assets->explosionTexture = LoadTexture("Assets/explosion3.png");
 }
 
 void UnloadAssets(GameAssets* assets)
 {
     UnloadTexture(assets->background);
     UnloadTexture(assets->interface);
-	UnloadTexture(assets->minestorm);
-	UnloadTexture(assets->titleText);
+    UnloadTexture(assets->minestorm);
+    UnloadTexture(assets->titleText);
     UnloadTexture(assets->ship);
-	UnloadTexture(assets->bulletTexture);
+    UnloadTexture(assets->bulletTexture);
     UnloadTexture(assets->basicEnemyTexture);
     UnloadTexture(assets->shooterEnemyTexture);
-	UnloadTexture(assets->followerEnemyTexture);
-	UnloadTexture(assets->followerShooterEnemyTexture);
-	UnloadTexture(assets->motherShipTexture);
+    UnloadTexture(assets->followerEnemyTexture);
+    UnloadTexture(assets->followerShooterEnemyTexture);
+    UnloadTexture(assets->motherShipTexture);
+    UnloadTexture(assets->explosionTexture);
     UnloadFont(assets->pixelFont);
-	UnloadFont(assets->magnetoFont);
+    UnloadFont(assets->magnetoFont);
 }
 
 void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision)
@@ -106,13 +157,13 @@ void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision)
         break;
     case CONTROLS:
         UpdateControlsGameplay(assets);
-		break;
+        break;
     case HELP:
         UpdateHelpGameplay(assets);
         break;
     case TITLE_PAUSE:
         UpdateTitlePause(assets);
-		break;
+        break;
     case PAUSE:
         UpdatePauseMenu(assets);
         break;
@@ -141,7 +192,7 @@ void UpdateTitleScreen(GameAssets* assets)
     */
 
     DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
-	DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
+    DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
     DrawTextureEx(assets->titleText, (Vector2) { 0, -150 }, 0, 1, WHITE);
     EndDrawing();
 
@@ -157,14 +208,14 @@ void UpdateTitleScreen(GameAssets* assets)
         currentScreen = CONTROLS;
         title = false;
         controls = true;
-	}
+    }
 
     if (IsKeyPressed(KEY_P))
     {
         currentScreen = TITLE_PAUSE;
         title = false;
         titlePause = true;
-	}
+    }
 
     if (IsKeyPressed(KEY_F))
     {
@@ -176,22 +227,22 @@ void UpdateTitleScreen(GameAssets* assets)
 
 void UpdateControlsGameplay(GameAssets* assets)
 {
-	BeginDrawing();
-	ClearBackground(BLACK);
-	// Draw
-	DrawTexture(assets->background, 0, 0, WHITE);
-	DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
-	DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
-	DrawTextPro(assets->magnetoFont, "[ Z or W ] To move forward\n\n\n\n\n\n[ A or Q ] To turn left\n\n\n\n\n\n[ D ] To turn right\n\n\n\n\n\n[ Left Ctrl ] To teleport", (Vector2) { 150, 300 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
-	DrawTextPro(assets->magnetoFont, "[ H ] To return to title screen", (Vector2) { 250, 1000 }, (Vector2) { 0, 0 }, 0.0f, 30, 2, WHITE);
+    BeginDrawing();
+    ClearBackground(BLACK);
+    // Draw
+    DrawTexture(assets->background, 0, 0, WHITE);
+    DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
+    DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
+    DrawTextPro(assets->magnetoFont, "[ Z or W ] To move forward\n\n\n\n\n\n[ A or Q ] To turn left\n\n\n\n\n\n[ D ] To turn right\n\n\n\n\n\n[ Left Ctrl ] To teleport", (Vector2) { 150, 300 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
+    DrawTextPro(assets->magnetoFont, "[ H ] To return to title screen", (Vector2) { 250, 1000 }, (Vector2) { 0, 0 }, 0.0f, 30, 2, WHITE);
 
-	EndDrawing();
+    EndDrawing();
     if (IsKeyPressed(KEY_C))
     {
         currentScreen = TITLE;
         controls = false;
         title = true;
-	}
+    }
 }
 
 void UpdateHelpGameplay(GameAssets* assets)
@@ -202,18 +253,18 @@ void UpdateHelpGameplay(GameAssets* assets)
     DrawTexture(assets->background, 0, 0, WHITE);
     DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
     DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
-	DrawTextureEx(assets->basicEnemyTexture, (Vector2) { 225, 200 }, 0, 0.75, WHITE);
-	DrawTextureEx(assets->shooterEnemyTexture, (Vector2) { 650, 205 }, 0, 1.45, WHITE);
-	DrawTextureEx(assets->followerEnemyTexture, (Vector2) { 225, 550 }, 0, 0.8, WHITE);
-	DrawTextureEx(assets->followerShooterEnemyTexture, (Vector2) { 665, 575 }, 0, 2.50, WHITE);
+    DrawTextureEx(assets->basicEnemyTexture, (Vector2) { 225, 200 }, 0, 0.75, WHITE);
+    DrawTextureEx(assets->shooterEnemyTexture, (Vector2) { 650, 205 }, 0, 1.45, WHITE);
+    DrawTextureEx(assets->followerEnemyTexture, (Vector2) { 225, 550 }, 0, 0.8, WHITE);
+    DrawTextureEx(assets->followerShooterEnemyTexture, (Vector2) { 665, 575 }, 0, 2.50, WHITE);
     // DrawText("Pause Menu Screen", 160, 300, 20, WHITE);
-	DrawTextPro(assets->magnetoFont, "   Basic Enemy\n\n\nHe always moves\n\n  straight ahead", (Vector2) { 185, 375 }, (Vector2) { 0, 0 }, 0.0f, 25, 2, WHITE);
-	DrawTextPro(assets->magnetoFont, "Shooter Enemy\n\n\n   He moves\n\nstraight ahead\n\nand shoots you", (Vector2) { 625, 375 }, (Vector2) { 0, 0 }, 0.0f, 25, 2, WHITE);
-	DrawTextPro(assets->magnetoFont, "Follower Enemy\n\n\n   He follows\n\nyou everywhere", (Vector2) { 185, 725 }, (Vector2) { 0, 0 }, 0.0f, 25, 2, WHITE);
-	DrawTextPro(assets->magnetoFont, "Follower Shooter\n\n      Enemy\n\n\n   He follows\n\nyou everywhere\n\n and shoots you", (Vector2) { 625, 725 }, (Vector2) { 0, 0 }, 0.0f, 25, 2, WHITE);
-	DrawTextPro(assets->magnetoFont, "[ H ] To return to title screen", (Vector2) { 250, 1000 }, (Vector2) { 0, 0 }, 0.0f, 30, 2, WHITE);
-	//DrawText("Basic Enemy\nHe always moves\n straight ahead", 130, 320, 20, WHITE);
-    
+    DrawTextPro(assets->magnetoFont, "   Basic Enemy\n\n\nHe always moves\n\n  straight ahead", (Vector2) { 185, 375 }, (Vector2) { 0, 0 }, 0.0f, 25, 2, WHITE);
+    DrawTextPro(assets->magnetoFont, "Shooter Enemy\n\n\n   He moves\n\nstraight ahead\n\nand shoots you", (Vector2) { 625, 375 }, (Vector2) { 0, 0 }, 0.0f, 25, 2, WHITE);
+    DrawTextPro(assets->magnetoFont, "Follower Enemy\n\n\n   He follows\n\nyou everywhere", (Vector2) { 185, 725 }, (Vector2) { 0, 0 }, 0.0f, 25, 2, WHITE);
+    DrawTextPro(assets->magnetoFont, "Follower Shooter\n\n      Enemy\n\n\n   He follows\n\nyou everywhere\n\n and shoots you", (Vector2) { 625, 725 }, (Vector2) { 0, 0 }, 0.0f, 25, 2, WHITE);
+    DrawTextPro(assets->magnetoFont, "[ H ] To return to title screen", (Vector2) { 250, 1000 }, (Vector2) { 0, 0 }, 0.0f, 30, 2, WHITE);
+    //DrawText("Basic Enemy\nHe always moves\n straight ahead", 130, 320, 20, WHITE);
+
     EndDrawing();
     if (IsKeyPressed(KEY_H))
     {
@@ -232,7 +283,7 @@ void UpdateTitlePause(GameAssets* assets)
     DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
     DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
     DrawTextPro(assets->magnetoFont, "You need to click on [ P ] in game\n\n\n\n\n\n\n            not in the title  :(", (Vector2) { 70, 450 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
-    
+
     EndDrawing();
     if (IsKeyPressed(KEY_P))
     {
@@ -244,8 +295,14 @@ void UpdateTitlePause(GameAssets* assets)
 
 void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
 {
+    // V√©rifier la touche de debug AVANT BeginDrawing
+    // Utiliser IsKeyPressed pour d√©tecter un appui unique
+    if (IsKeyPressed(COLLISION_DEBUG_KEY))
+    {
+        collisionDebugEnabled = !collisionDebugEnabled;
+        printf("Debug mode: %s (F3 key pressed)\n", collisionDebugEnabled ? "ON" : "OFF");
+    }
 
-    ClearBackground(BLACK);
     player->bbox = Rectangle2D_SetFromCenterLengthWidthAngle(
         player->position,
         player->size.x,   // longueur
@@ -253,13 +310,16 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
         player->angle     // rotation
     );
 
-    // Draw
+    LevelProgress();
+
+    // Draw - TOUT doit √™tre apr√®s BeginDrawing
+    BeginDrawing();
+    ClearBackground(BLACK);
     DrawTexture(assets->background, 0, 0, WHITE);
+    
     if (currentScreen == SOLO_GAMEPLAY)
     {
-        LevelProgress();
         PlayerEnemyCollision();
-        BeginDrawing();
 
 
         // Ship display
@@ -279,29 +339,45 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
 
 
 
-       
+
 
         // --- Updating and drawing bullets ---
         UpdateBullets(assets, collision);
         UpdateEnemyBullets(assets, player);
-
-        DrawHitboxes();
+        
+        // V√©rifier les collisions entre bullets du joueur et bullets ennemis
+        CheckBulletBulletCollisions();
+        
+        // Mettre √† jour et dessiner les explosions
+        UpdateExplosions();
 
         DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
+        
+        // Dessiner les explosions APR√àS l'interface pour qu'elles soient visibles
+        DrawExplosions(assets->explosionTexture);
+
+        // Toujours afficher les vecteurs de vitesse et d'orientation
+        DrawShipVectors();
+
+        if (collisionDebugEnabled)
+        {
+            DrawHitboxes();
+            DrawBulletHitboxes();
+        }
         DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
-		// DrawTextureEx(assets->motherShipTexture, (Vector2) { 200, 200 }, 0, 1, WHITE);
-       
+        // DrawTextureEx(assets->motherShipTexture, (Vector2) { 200, 200 }, 0, 1, WHITE);
+
         if (score > bestScore)
         {
             bestScore = score;
-		}
+        }
 
         DrawTextPro(assets->pixelFont, TextFormat("Lives:%d", lifeNumber), (Vector2) { 75, 55 }, (Vector2) { 0, 0 }, -6.0, 20, 2, WHITE);
         DrawTextPro(assets->pixelFont, TextFormat("Level:%d", actualLevel), (Vector2) { 85, 100 }, (Vector2) { 0, 0 }, -6.0, 20, 2, WHITE);
 
-        
-		DrawTextPro(assets->pixelFont, TextFormat("Score:%d", score), (Vector2) { 850, 40 }, (Vector2) { 0, 0 }, 5.5f, 20, 2, WHITE);
-		DrawTextPro(assets->pixelFont, TextFormat("Best Score:%d", bestScore), (Vector2) { 850, 85 }, (Vector2) { 0, 0 }, 5.5f, 20, 2, WHITE);
+
+        DrawTextPro(assets->pixelFont, TextFormat("Score:%d", score), (Vector2) { 850, 40 }, (Vector2) { 0, 0 }, 5.5f, 20, 2, WHITE);
+        DrawTextPro(assets->pixelFont, TextFormat("Best Score:%d", bestScore), (Vector2) { 850, 85 }, (Vector2) { 0, 0 }, 5.5f, 20, 2, WHITE);
 
         EndDrawing();
     }
@@ -317,11 +393,11 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
 void UpdatePauseMenu(GameAssets* assets)
 {
     BeginDrawing();
-	ClearBackground(BLACK);
-	// Draw
-	DrawTexture(assets->background, 0, 0, WHITE);
-	DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
-	DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
+    ClearBackground(BLACK);
+    // Draw
+    DrawTexture(assets->background, 0, 0, WHITE);
+    DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
+    DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
     DrawTextPro(assets->magnetoFont, "[ Z or W ] To move forward\n\n\n\n\n\n[ A or Q ] To turn left\n\n\n\n\n\n[ D ] To turn right\n\n\n\n\n\n[ Left Ctrl ] To teleport", (Vector2) { 150, 300 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
     DrawTextPro(assets->magnetoFont, "[ P ] To return to resume", (Vector2) { 250, 1000 }, (Vector2) { 0, 0 }, 0.0f, 30, 2, WHITE);
 
@@ -340,14 +416,14 @@ void UpdateGameOver(GameAssets* assets, Collision* collision)
     {
         BeginDrawing();
         ClearBackground(BLACK);
-		// Draw
-		DrawTexture(assets->background, 0, 0, WHITE);
-		DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
-		DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
-		DrawTextPro(assets->magnetoFont, "GAME OVER", (Vector2) { 225, 500 }, (Vector2) { 0, 0 }, 0.0f, 80, 2, RED);
-		DrawTextPro(assets->magnetoFont, TextFormat("Your Score : %d", score), (Vector2) { 275, 650 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
-		DrawTextPro(assets->magnetoFont, TextFormat("Best Score : %d", bestScore), (Vector2) { 275, 700 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
-		DrawTextPro(assets->magnetoFont, "Press [ ENTER ] to restart", (Vector2) { 220, 800 }, (Vector2) { 0, 0 }, 0.0f, 40, 2, WHITE);
+        // Draw
+        DrawTexture(assets->background, 0, 0, WHITE);
+        DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
+        DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
+        DrawTextPro(assets->magnetoFont, "GAME OVER", (Vector2) { 225, 500 }, (Vector2) { 0, 0 }, 0.0f, 80, 2, RED);
+        DrawTextPro(assets->magnetoFont, TextFormat("Your Score : %d", score), (Vector2) { 275, 650 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
+        DrawTextPro(assets->magnetoFont, TextFormat("Best Score : %d", bestScore), (Vector2) { 275, 700 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
+        DrawTextPro(assets->magnetoFont, "Press [ ENTER ] to restart", (Vector2) { 220, 800 }, (Vector2) { 0, 0 }, 0.0f, 40, 2, WHITE);
         EndDrawing();
         if (IsKeyPressed(KEY_ENTER))
         {
@@ -356,14 +432,29 @@ void UpdateGameOver(GameAssets* assets, Collision* collision)
     }
 }
 
+
 void RestartGame(GameAssets* assets, Enemy* enemy, Collision* collision)
 {
-    InitBullets();          // Existant
-    InitEnemyBullets();
+    InitGame();
+    InitBullets();
 
+    // R√©initialiser compl√®tement le syst√®me mothership
+    motherShipActive = false;
+    motherShipSpawned = false;
+    enemiesDropped = false;
+    currentSpawnIndex = 0;
+    spawnTimer = 0.0f;
+
+    // R√©initialiser la taille du mothership
+    for (int i = 0; i < maxMotherShip; i++) {
+        motherShip[i].size.x = 0.0f;
+        motherShip[i].size.y = 0.0f;
+    }
+
+    InitEnemyBullets();
     UpdateGame(assets, enemy, collision);
     gameOver = false;
-    InitGame();
+    levelSpawned = false;
     currentScreen = SOLO_GAMEPLAY;
     score = 0;
     lifeNumber = 3;
@@ -374,6 +465,7 @@ void InitGame(void)
 {
     InitBullets();
     InitEnemyBullets();
+    InitExplosions();
     player = (Ship*)malloc(sizeof(Ship));
     if (player == NULL) {
         printf("Allocation unsuccessful");
@@ -391,7 +483,7 @@ void InitGame(void)
         return;
     }
 
-    // Initialiser tous les tableaux de collision ‡ false
+    // Initialiser tous les tableaux de collision ÔøΩ false
     for (int i = 0; i < maxBigBasicEnemies; i++) {
         collision->bigBasicEnemiesBulletCollision[i] = false;
     }
@@ -518,6 +610,10 @@ void InitGame(void)
     }
 
     printf("InitGame: Big enemies initialized\n");
+    // R√©initialiser les compteurs
+    usedSpawnPoints = 0;
+
+    printf("InitGame: All systems initialized\n");
 }
 
 
@@ -546,7 +642,7 @@ void CheckInput(void)
         player->velocity = Vector2D_Add(player->velocity, pushVector);
     }
 
-    
+
 
     timeSinceLastShot = timeSinceLastShot + GetFrameTime();
 
@@ -563,10 +659,10 @@ void CheckInput(void)
 
     if (IsKeyPressed(KEY_LEFT_CONTROL))
     {
-		float randX = (float)(GetRandomValue(50, GetScreenWidth() - 50 - (int)player->size.x));
-		float randY = (float)(GetRandomValue(100, GetScreenHeight() - 50 - (int)player->size.y));
-		float randAngle = (float)(GetRandomValue(0, 360)) * (PI / 180.0f); // random angle in radians
-		player->angle = randAngle;
+        float randX = (float)(GetRandomValue(50, GetScreenWidth() - 50 - (int)player->size.x));
+        float randY = (float)(GetRandomValue(100, GetScreenHeight() - 50 - (int)player->size.y));
+        float randAngle = (float)(GetRandomValue(0, 360)) * (PI / 180.0f); // random angle in radians
+        player->angle = randAngle;
         player->position = Vector2D_SetFromComponents(randX, randY);
     }
 
@@ -599,413 +695,141 @@ void UpdateControlGame(void) {
 
 void BorderPlayerCollision(Ship* player)
 {
-    // Si sort par la gauche, rÈapparaÓt ‡ droite
+    // Si sort par la gauche, rÔøΩapparaÔøΩt ÔøΩ droite
     if (player->position.x < -50)
         player->position.x = 1080 + 50;
 
-    // Si sort par la droite, rÈapparaÓt ‡ gauche
+    // Si sort par la droite, rÔøΩapparaÔøΩt ÔøΩ gauche
     if (player->position.x > 1080 + 50)
         player->position.x = -50;
 
-    // Si sort par le haut, rÈapparaÓt en bas
+    // Si sort par le haut, rÔøΩapparaÔøΩt en bas
     if (player->position.y < 0)
         player->position.y = 1300 + 50;
 
-    // Si sort par le bas, rÈapparaÓt en haut
+    // Si sort par le bas, rÔøΩapparaÔøΩt en haut
     if (player->position.y > 1300 + 50)
         player->position.y = 0;
 }
 
 void PlayerEnemyCollision(void)
 {
-    for (int i = 0; i < maxBigBasicEnemies; i++) {
-        if (player->invincibilityFrames > 0) {
-            player->invincibilityFrames--;
-        }
-        player->bbox = Rectangle2D_SetFromCenterLengthWidthAngle(
-            player->position,
-            player->size.x,   // longueur
-            player->size.y,   // largeur
-            player->angle     // rotation
-        );
-
-        for (int j = 0; j < maxBigBasicEnemies; j++) {
-            if (bigBasicEnemies[j].size.x <= 0 || bigBasicEnemies[j].size.y <= 0) continue;
-
-            // Rectangle de líennemi avec ton module
-            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-                bigBasicEnemies[j].position,
-                bigBasicEnemies[j].size.x * 2.5f,
-                bigBasicEnemies[j].size.y * 2.5f,
-                0.0f
-            );
-
-            Vector2D enemyCenter = enemyBox.center;
-            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-
-            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-                player->invincibilityFrames = 60;
-                lifeNumber = lifeNumber--;
-                printf("COLLISION DETECT…E ! Vie restante : %d\n", lifeNumber);
-
-                void CheckLifeOfPlayer();
-            }
-        }
-
-        for (int j = 0; j < maxMidBasicEnemies; j++) {
-            if (midBasicEnemies[j].size.x <= 0 || midBasicEnemies[j].size.y <= 0) continue;
-            // Rectangle de líennemi avec ton module
-            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-                midBasicEnemies[j].position,
-                midBasicEnemies[j].size.x * 2.5f,
-                midBasicEnemies[j].size.y * 2.5f,
-                0.0f
-            );
-            Vector2D enemyCenter = enemyBox.center;
-            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-                player->invincibilityFrames = 60;
-                lifeNumber = lifeNumber--;
-                printf("COLLISION DETECT…E ! Vie restante : %d\n", lifeNumber);
-                if (lifeNumber <= 0) {
-                    currentScreen = GAMEOVER;
-                    gameOver = true;
-                }
-            }
-        }
-
-        for (int j = 0; j < maxSmallBasicEnemies; j++) {
-            if (smallBasicEnemies[j].size.x <= 0 || smallBasicEnemies[j].size.y <= 0) continue;
-            // Rectangle de líennemi avec ton module
-            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-                smallBasicEnemies[j].position,
-                smallBasicEnemies[j].size.x * 2.5f,
-                smallBasicEnemies[j].size.y * 2.5f,
-                0.0f
-            );
-            Vector2D enemyCenter = enemyBox.center;
-            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-                player->invincibilityFrames = 60;
-                lifeNumber = lifeNumber--;
-                printf("COLLISION DETECT…E ! Vie restante : %d\n", lifeNumber);
-                if (lifeNumber <= 0) {
-                    currentScreen = GAMEOVER;
-                    gameOver = true;
-                }
-            }
-        }
-
-        for (int j = 0; j < maxBigShooterEnemy; j++) {
-            if (bigShooterEnemies[j].size.x <= 0 || bigShooterEnemies[j].size.y <= 0) continue;
-            // Rectangle de líennemi avec ton module
-            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-                bigShooterEnemies[j].position,
-                bigShooterEnemies[j].size.x * 2.5f,
-                bigShooterEnemies[j].size.y * 2.5f,
-                0.0f
-            );
-            Vector2D enemyCenter = enemyBox.center;
-            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-                player->invincibilityFrames = 60;
-                lifeNumber = lifeNumber--;
-                printf("COLLISION DETECT…E ! Vie restante : %d\n", lifeNumber);
-                if (lifeNumber <= 0) {
-                    currentScreen = GAMEOVER;
-                    gameOver = true;
-                }
-            }
-        }
-
-        for (int j = 0; j < maxMidShooterEnemy; j++) {
-            if (midShooterEnemies[j].size.x <= 0 || midShooterEnemies[j].size.y <= 0) continue;
-            // Rectangle de líennemi avec ton module
-            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-                midShooterEnemies[j].position,
-                midShooterEnemies[j].size.x * 2.5f,
-                midShooterEnemies[j].size.y * 2.5f,
-                0.0f
-            );
-            Vector2D enemyCenter = enemyBox.center;
-            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-                player->invincibilityFrames = 60;
-                lifeNumber = lifeNumber--;
-                printf("COLLISION DETECT…E ! Vie restante : %d\n", lifeNumber);
-                if (lifeNumber <= 0) {
-                    currentScreen = GAMEOVER;
-                    gameOver = true;
-                }
-            }
-        }
-
-        for (int j = 0; j < maxSmallShooterEnemy; j++) {
-            if (smallShooterEnemies[j].size.x <= 0 || smallShooterEnemies[j].size.y <= 0) continue;
-            // Rectangle de líennemi avec ton module
-            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-                smallShooterEnemies[j].position,
-                smallShooterEnemies[j].size.x * 2.5f,
-                smallShooterEnemies[j].size.y * 2.5f,
-                0.0f
-            );
-            Vector2D enemyCenter = enemyBox.center;
-            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-                player->invincibilityFrames = 60;
-                lifeNumber = lifeNumber--;
-                printf("COLLISION DETECT…E ! Vie restante : %d\n", lifeNumber);
-                if (lifeNumber <= 0) {
-                    currentScreen = GAMEOVER;
-                    gameOver = true;
-                }
-            }
-        }
-
-        for (int j = 0; j < maxBigFollowerEnemy; j++) {
-            if (bigFollowerEnemies[j].size.x <= 0 || bigFollowerEnemies[j].size.y <= 0) continue;
-            // Rectangle de líennemi avec ton module
-            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-                bigFollowerEnemies[j].position,
-                bigFollowerEnemies[j].size.x * 2.5f,
-                bigFollowerEnemies[j].size.y * 2.5f,
-                0.0f
-            );
-            Vector2D enemyCenter = enemyBox.center;
-            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-                player->invincibilityFrames = 60;
-                lifeNumber = lifeNumber--;
-                printf("COLLISION DETECT…E ! Vie restante : %d\n", lifeNumber);
-                if (lifeNumber <= 0) {
-                    currentScreen = GAMEOVER;
-                    gameOver = true;
-                }
-            }
-        }
-
-        for (int j = 0; j < maxMidFollowerEnemy; j++) {
-            if (midFollowerEnemies[j].size.x <= 0 || midFollowerEnemies[j].size.y <= 0) continue;
-            // Rectangle de líennemi avec ton module
-            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-                midFollowerEnemies[j].position,
-                midFollowerEnemies[j].size.x * 2.5f,
-                midFollowerEnemies[j].size.y * 2.5f,
-                0.0f
-            );
-            Vector2D enemyCenter = enemyBox.center;
-            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-                player->invincibilityFrames = 60;
-                lifeNumber = lifeNumber--;
-                printf("COLLISION DETECT…E ! Vie restante : %d\n", lifeNumber);
-                if (lifeNumber <= 0) {
-                    currentScreen = GAMEOVER;
-                    gameOver = true;
-                }
-            }
-        }
-
-        for (int j = 0; j < maxSmallFollowerEnemy; j++) {
-            if (smallFollowerEnemies[j].size.x <= 0 || smallFollowerEnemies[j].size.y <= 0) continue;
-            // Rectangle de líennemi avec ton module
-            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-                smallFollowerEnemies[j].position,
-                smallFollowerEnemies[j].size.x * 2.5f,
-                smallFollowerEnemies[j].size.y * 2.5f,
-                0.0f
-            );
-            Vector2D enemyCenter = enemyBox.center;
-            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-                player->invincibilityFrames = 60;
-                lifeNumber = lifeNumber--;
-                printf("COLLISION DETECT…E ! Vie restante : %d\n", lifeNumber);
-                if (lifeNumber <= 0) {
-                    currentScreen = GAMEOVER;
-                    gameOver = true;
-                }
-            }
-        }
-
-        for (int j = 0; j < maxBigFollowerShooterEnemy; j++) {
-            if (bigFollowerShooterEnemies[j].size.x <= 0 || bigFollowerShooterEnemies[j].size.y <= 0) continue;
-            // Rectangle de líennemi avec ton module
-            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-                bigFollowerShooterEnemies[j].position,
-                bigFollowerShooterEnemies[j].size.x * 2.5f,
-                bigFollowerShooterEnemies[j].size.y * 2.5f,
-                0.0f
-            );
-            Vector2D enemyCenter = enemyBox.center;
-            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-                player->invincibilityFrames = 60;
-                lifeNumber = lifeNumber--;
-                printf("COLLISION DETECT…E ! Vie restante : %d\n", lifeNumber);
-                if (lifeNumber <= 0) {
-                    currentScreen = GAMEOVER;
-                    gameOver = true;
-                }
-            }
-        }
-
-        for (int j = 0; j < maxMidFollowerShooterEnemy; j++) {
-            if (midFollowerShooterEnemies[j].size.x <= 0 || midFollowerShooterEnemies[j].size.y <= 0) continue;
-            // Rectangle de líennemi avec ton module
-            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-                midFollowerShooterEnemies[j].position,
-                midFollowerShooterEnemies[j].size.x * 2.5f,
-                midFollowerShooterEnemies[j].size.y * 2.5f,
-                0.0f
-            );
-            Vector2D enemyCenter = enemyBox.center;
-            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-                player->invincibilityFrames = 60;
-                lifeNumber = lifeNumber--;
-                printf("COLLISION DETECT…E ! Vie restante : %d\n", lifeNumber);
-                if (lifeNumber <= 0) {
-                    currentScreen = GAMEOVER;
-                    gameOver = true;
-                }
-            }
-        }
-
-        for (int j = 0; j < maxSmallFollowerShooterEnemy; j++) {
-            if (smallFollowerShooterEnemies[j].size.x <= 0 || smallFollowerShooterEnemies[j].size.y <= 0) continue;
-            // Rectangle de líennemi avec ton module
-            Rectangle2D enemyBox = Rectangle2D_SetFromCenterLengthWidthAngle(
-                smallFollowerShooterEnemies[j].position,
-                smallFollowerShooterEnemies[j].size.x * 2.5f,
-                smallFollowerShooterEnemies[j].size.y * 2.5f,
-                0.0f
-            );
-            Vector2D enemyCenter = enemyBox.center;
-            float enemyRadius = fmax(enemyBox.length, enemyBox.width) / 2.0f;
-            Sphere2D hitbox = Sphere2D_SetFromCenterRadius(enemyCenter, enemyRadius);
-            if (player->invincibilityFrames <= 0 && CheckCollisionShipEnemy(player->bbox, hitbox)) {
-                player->invincibilityFrames = 60;
-                lifeNumber = lifeNumber--;
-                printf("COLLISION DETECT…E ! Vie restante : %d\n", lifeNumber);
-                if (lifeNumber <= 0) {
-                    currentScreen = GAMEOVER;
-                    gameOver = true;
-                }
-            }
-        }
+    if (player == NULL)
+    {
+        return;
     }
+
+    if (player->invincibilityFrames > 0)
+    {
+        player->invincibilityFrames--;
+    }
+
+    player->bbox = Rectangle2D_SetFromCenterLengthWidthAngle(
+        player->position,
+        player->size.x,
+        player->size.y,
+        player->angle
+    );
+
+    Sphere2D playerSphere = Sphere2D_SetFromCenterRadius(
+        player->position,
+        fmaxf(player->size.x, player->size.y) * 0.6f
+    );
+
+    AABB2D playerAABB = AABB2D_FromRectangle(player->bbox);
+
+    Polygone2D shipPolys[SHIP_POLYGON_COUNT];
+    bool shipPolyHits[SHIP_POLYGON_COUNT] = { false };
+    int shipPolyCount = 0;
+    BuildShipCollisionPolygons(shipPolys, &shipPolyCount);
+
+    bool playerSphereBroadHit = false;
+    bool playerAABBBroadHit = false;
+
+    HandleEnemyGroupCollision(bigBasicEnemies, maxBigBasicEnemies, RENDER_SCALE_BIG,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(midBasicEnemies, maxMidBasicEnemies, RENDER_SCALE_MID,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(smallBasicEnemies, maxSmallBasicEnemies, RENDER_SCALE_SMALL,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(bigShooterEnemies, maxBigShooterEnemy, RENDER_SCALE_BIG,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(midShooterEnemies, maxMidShooterEnemy, RENDER_SCALE_MID,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(smallShooterEnemies, maxSmallShooterEnemy, RENDER_SCALE_SMALL,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(bigFollowerEnemies, maxBigFollowerEnemy, RENDER_SCALE_BIG,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(midFollowerEnemies, maxMidFollowerEnemy, RENDER_SCALE_MID,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(smallFollowerEnemies, maxSmallFollowerEnemy, RENDER_SCALE_SMALL,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(bigFollowerShooterEnemies, maxBigFollowerShooterEnemy, RENDER_SCALE_BIG,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(midFollowerShooterEnemies, maxMidFollowerShooterEnemy, RENDER_SCALE_MID,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(smallFollowerShooterEnemies, maxSmallFollowerShooterEnemy, RENDER_SCALE_SMALL,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    if (collisionDebugEnabled)
+    {
+        DrawSphereOutline(playerSphere, playerSphereBroadHit ? BROAD_PHASE_HIT_COLOR : BROAD_PHASE_COLOR);
+        DrawAABBOutline(playerAABB, playerAABBBroadHit ? BROAD_PHASE_HIT_COLOR : BROAD_PHASE_COLOR);
+
+        for (int i = 0; i < shipPolyCount; ++i)
+        {
+            Color color = shipPolyHits[i] ? NARROW_PHASE_HIT_COLOR : NARROW_PHASE_COLOR;
+            DrawPolygonOutline(shipPolys[i], color);
+        }
+        
+        // Les vecteurs seront dessin√©s apr√®s l'interface pour √™tre visibles
+    }
+
+    FreeShipCollisionPolygons(shipPolys, shipPolyCount);
 }
 
 
 void DrawHitboxes(void)
 {
-    // BigBasicEnemies 
-    for (int i = 0; i < maxBigBasicEnemies; i++)
-    {
-        if (bigBasicEnemies[i].size.x <= 0.0f) continue;
-        Sphere2D hitbox = GetBigBasicEnemyHitbox(i);
-        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, RED);
-    }
+    if (motherShipSpawned) return;
+    DrawHitboxGroup(bigBasicEnemies, maxBigBasicEnemies, GetBigBasicEnemyHitbox, RED);
+    DrawHitboxGroup(midBasicEnemies, maxMidBasicEnemies, GetMidBasicEnemyHitbox, ORANGE);
+    DrawHitboxGroup(smallBasicEnemies, maxSmallBasicEnemies, GetSmallBasicEnemyHitbox, PURPLE);
 
-    // MidBasicEnemies
-    for (int i = 0; i < maxMidBasicEnemies; i++)
-    {
-        if (midBasicEnemies[i].size.x <= 0.0f) continue;
-        Sphere2D hitbox = GetMidBasicEnemyHitbox(i);
-        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, ORANGE);
-    }
+    DrawHitboxGroup(bigShooterEnemies, maxBigShooterEnemy, GetBigShooterEnemyHitbox, GREEN);
+    DrawHitboxGroup(midShooterEnemies, maxMidShooterEnemy, GetMidShooterEnemyHitbox, SKYBLUE);
+    DrawHitboxGroup(smallShooterEnemies, maxSmallShooterEnemy, GetSmallShooterEnemyHitbox, DARKGREEN);
 
-    // SmallBasicEnemies
-    for (int i = 0; i < maxSmallBasicEnemies; i++)
-    {
-        if (smallBasicEnemies[i].size.x <= 0.0f) continue;
-        Sphere2D hitbox = GetSmallBasicEnemyHitbox(i);
-        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, PURPLE);
-    }
+    DrawHitboxGroup(bigFollowerEnemies, maxBigFollowerEnemy, GetBigFollowerEnemyHitbox, BLUE);
+    DrawHitboxGroup(midFollowerEnemies, maxMidFollowerEnemy, GetMidFollowerEnemyHitbox, DARKBLUE);
+    DrawHitboxGroup(smallFollowerEnemies, maxSmallFollowerEnemy, GetSmallFollowerEnemyHitbox, SKYBLUE);
 
-    // BigShooterEnemies
-    for (int i = 0; i < maxBigShooterEnemy; i++)
-    {
-        if (bigShooterEnemies[i].size.x <= 0.0f) continue;
-        Sphere2D hitbox = GetBigShooterEnemyHitbox(i);
-        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, GREEN);
-    }
-
-	// MidShooterEnemies
-    for (int i = 0; i < maxMidShooterEnemy; i++)
-    {
-        if (midShooterEnemies[i].size.x <= 0.0f) continue;
-        Sphere2D hitbox = GetMidShooterEnemyHitbox(i);
-        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, SKYBLUE);
-	}
-
-	// smallShooterEnemies
-    for (int i = 0; i < maxSmallShooterEnemy; i++)
-    {
-        if (smallShooterEnemies[i].size.x <= 0.0f) continue;
-        Sphere2D hitbox = GetSmallShooterEnemyHitbox(i);
-        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, DARKGREEN);
-    }
-
-    // BigFollowerEnemies
-    for (int i = 0; i < maxBigFollowerEnemy; i++)
-    {
-        if (bigFollowerEnemies[i].size.x <= 0.0f) continue;
-        Sphere2D hitbox = GetBigFollowerEnemyHitbox(i);
-        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, BLUE);
-    }
-
-	// MidFollowerEnemies
-    for (int i = 0; i < maxMidFollowerEnemy; i++)
-    {
-        if (midFollowerEnemies[i].size.x <= 0.0f) continue;
-        Sphere2D hitbox = GetMidFollowerEnemyHitbox(i);
-        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, DARKBLUE);
-	}
-
-	// SmallFollowerEnemies
-    for (int i = 0; i < maxSmallFollowerEnemy; i++)
-    {
-        if (smallFollowerEnemies[i].size.x <= 0.0f) continue;
-        Sphere2D hitbox = GetSmallFollowerEnemyHitbox(i);
-        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, SKYBLUE);
-    }
-
-    // BigFollowerShooterEnemies
-    for (int i = 0; i < maxBigFollowerShooterEnemy; i++)
-    {
-        if (bigFollowerShooterEnemies[i].size.x <= 0.0f) continue;
-        Sphere2D hitbox = GetBigFollowerShooterEnemyHitbox(i);
-        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, YELLOW);
-    }
-
-	// MidFollowerShooterEnemies
-    for (int i = 0; i < maxMidFollowerShooterEnemy; i++)
-    {
-        if (midFollowerShooterEnemies[i].size.x <= 0.0f) continue;
-        Sphere2D hitbox = GetMidFollowerShooterEnemyHitbox(i);
-        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, GOLD);
-	}
-
-	// SmallFollowerShooterEnemies
-    for (int i = 0; i < maxSmallFollowerShooterEnemy; i++)
-    {
-        if (smallFollowerShooterEnemies[i].size.x <= 0.0f) continue;
-        Sphere2D hitbox = GetSmallFollowerShooterEnemyHitbox(i);
-        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, ORANGE);
-	}
+    DrawHitboxGroup(bigFollowerShooterEnemies, maxBigFollowerShooterEnemy, GetBigFollowerShooterEnemyHitbox, YELLOW);
+    DrawHitboxGroup(midFollowerShooterEnemies, maxMidFollowerShooterEnemy, GetMidFollowerShooterEnemyHitbox, GOLD);
+    DrawHitboxGroup(smallFollowerShooterEnemies, maxSmallFollowerShooterEnemy, GetSmallFollowerShooterEnemyHitbox, ORANGE);
 }
 
 
@@ -1031,7 +855,7 @@ void LevelProgress(void)
             }
         }
 
-        // Niveau 2 : spawn deux fois plus díennemis
+        // Niveau 2 : spawn deux fois plus dÔøΩennemis
         else if (actualLevel == 2)
         {
             lifeNumber = 3;
@@ -1150,11 +974,325 @@ void LevelProgress(void)
         return;
     }
 
-    // VÈrifie si tous les ennemis spawnÈs sont morts
+    // VÔøΩrifie si tous les ennemis spawnÔøΩs sont morts
     if (AllEnemiesDead())
     {
         actualLevel++;
-        printf("Tous les ennemis dÈtruits ! Passage au niveau %d\n", actualLevel);
-        levelSpawned = false; // dÈclenche le spawn du prochain niveau
+        printf("Tous les ennemis dÔøΩtruits ! Passage au niveau %d\n", actualLevel);
+        levelSpawned = false; // dÔøΩclenche le spawn du prochain niveau
     }
+}
+
+static void BuildShipCollisionPolygons(Polygone2D* outPolys, int* outCount)
+{
+    if (outPolys == NULL || outCount == NULL || player == NULL)
+    {
+        if (outCount) *outCount = 0;
+        return;
+    }
+
+    float scaleX = player->size.x / 50.0f;
+    float scaleY = player->size.y / 50.0f;
+
+    outPolys[0] = BuildShipPolygonFromLocal(SHIP_BODY_POINTS, SHIP_BODY_POINT_COUNT, scaleX, scaleY);
+    outPolys[1] = BuildShipPolygonFromLocal(SHIP_THRUSTER_POINTS, SHIP_THRUSTER_POINT_COUNT, scaleX, scaleY);
+
+    *outCount = SHIP_POLYGON_COUNT;
+}
+
+static Polygone2D BuildShipPolygonFromLocal(const Vector2D* localPoints, int pointCount, float scaleX, float scaleY)
+{
+    Points* first = NULL;
+    Points* prev = NULL;
+
+    for (int i = 0; i < pointCount; ++i)
+    {
+        Points* node = malloc(sizeof(Points));
+        if (node == NULL)
+        {
+            Points_Free(first);
+            Polygone2D empty = { 0 };
+            empty.point = NULL;
+            return empty;
+        }
+
+        Vector2D scaled = Vector2D_SetFromComponents(localPoints[i].x * scaleX, localPoints[i].y * scaleY);
+        Vector2D rotated = Vector2D_Rotate(scaled, player->angle, Vector2D_SetFromComponents(0.0f, 0.0f));
+        node->coordinate = Vector2D_Add(rotated, player->position);
+        node->next = NULL;
+        node->prev = prev;
+
+        if (first == NULL)
+        {
+            first = node;
+        }
+        else
+        {
+            prev->next = node;
+        }
+
+        prev = node;
+    }
+
+    return Polygone2D_SetFromPoints(-1, first);
+}
+
+static void FreeShipCollisionPolygons(Polygone2D* polys, int count)
+{
+    if (polys == NULL) return;
+    for (int i = 0; i < count; ++i)
+    {
+        if (polys[i].point != NULL)
+        {
+            Points_Free(polys[i].point);
+            polys[i].point = NULL;
+        }
+    }
+}
+
+static void HandleEnemyGroupCollision(Enemy* enemies, int count, float renderScale,
+    Sphere2D playerSphere, AABB2D playerAABB,
+    Polygone2D* shipPolys, int shipPolyCount,
+    bool* shipPolyHits, bool* playerSphereBroadHit, bool* playerAABBBroadHit)
+{
+    for (int i = 0; i < count; ++i)
+    {
+        ProcessEnemyCollision(&enemies[i], renderScale, playerSphere, playerAABB,
+            shipPolys, shipPolyCount, shipPolyHits, playerSphereBroadHit, playerAABBBroadHit);
+    }
+}
+
+static void ProcessEnemyCollision(Enemy* enemy, float renderScale,
+    Sphere2D playerSphere, AABB2D playerAABB,
+    Polygone2D* shipPolys, int shipPolyCount,
+    bool* shipPolyHits, bool* playerSphereBroadHit, bool* playerAABBBroadHit)
+{
+    if (enemy->size.x <= 0.0f || enemy->size.y <= 0.0f)
+    {
+        return;
+    }
+
+    float halfWidth = (enemy->size.x * renderScale) * 0.5f;
+    float halfHeight = (enemy->size.y * renderScale) * 0.5f;
+
+    Sphere2D enemySphere = Sphere2D_SetFromCenterRadius(
+        enemy->position,
+        fmaxf(halfWidth, halfHeight)
+    );
+
+    Vector2D halfSize = Vector2D_SetFromComponents(halfWidth, halfHeight);
+    AABB2D enemyAABB = AABB2D_FromCenterHalfSize(enemy->position, halfSize);
+
+    bool sphereOverlap = Collision_CircleCircle(playerSphere, enemySphere);
+    bool aabbOverlap = Collision_AABBAABB(playerAABB, enemyAABB);
+
+    if (sphereOverlap && playerSphereBroadHit != NULL)
+    {
+        *playerSphereBroadHit = true;
+    }
+    if (aabbOverlap && playerAABBBroadHit != NULL)
+    {
+        *playerAABBBroadHit = true;
+    }
+
+    if (collisionDebugEnabled)
+    {
+        DrawSphereOutline(enemySphere, sphereOverlap ? BROAD_PHASE_HIT_COLOR : BROAD_PHASE_COLOR);
+        DrawAABBOutline(enemyAABB, aabbOverlap ? BROAD_PHASE_HIT_COLOR : BROAD_PHASE_COLOR);
+    }
+
+    if (!(sphereOverlap && aabbOverlap))
+    {
+        return;
+    }
+
+    bool enemyTouched = false;
+    for (int i = 0; i < shipPolyCount; ++i)
+    {
+        if (shipPolys[i].point == NULL) continue;
+        bool hit = Collision_CirclePolygon(enemySphere, shipPolys[i]);
+        if (hit)
+        {
+            enemyTouched = true;
+            if (shipPolyHits != NULL)
+            {
+                shipPolyHits[i] = true;
+            }
+        }
+    }
+
+    if (enemyTouched && player->invincibilityFrames <= 0)
+    {
+        player->invincibilityFrames = 60;
+        PlayerTakeDamage();
+    }
+}
+
+static void DrawPolygonOutline(Polygone2D poly, Color color)
+{
+    if (poly.point == NULL) return;
+
+    Points* current = poly.point;
+    Points* first = poly.point;
+
+    while (current->next != NULL)
+    {
+        DrawLine((int)current->coordinate.x, (int)current->coordinate.y,
+            (int)current->next->coordinate.x, (int)current->next->coordinate.y, color);
+        current = current->next;
+    }
+
+    DrawLine((int)current->coordinate.x, (int)current->coordinate.y,
+        (int)first->coordinate.x, (int)first->coordinate.y, color);
+}
+
+static void DrawAABBOutline(AABB2D box, Color color)
+{
+    DrawRectangleLines(
+        (int)box.min.x,
+        (int)box.min.y,
+        (int)(box.max.x - box.min.x),
+        (int)(box.max.y - box.min.y),
+        color);
+}
+
+static void DrawSphereOutline(Sphere2D sphere, Color color)
+{
+    DrawCircleLines((int)sphere.center.x, (int)sphere.center.y, (int)sphere.radius, color);
+}
+
+static void PlayerTakeDamage(void)
+{
+    if (lifeNumber > 0)
+    {
+        lifeNumber--;
+        printf("COLLISION DETECTEE ! Vie restante : %d\n", lifeNumber);
+    }
+    CheckLifeOfPlayer();
+}
+
+static void DrawHitboxGroup(Enemy* enemies, int count, Sphere2D(*hitboxFunc)(int), Color color)
+{
+    if (enemies == NULL || hitboxFunc == NULL) return;
+
+    for (int i = 0; i < count; ++i)
+    {
+        if (enemies[i].size.x <= 0.0f || enemies[i].size.y <= 0.0f) continue;
+        Sphere2D hitbox = hitboxFunc(i);
+        DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, color);
+    }
+}
+
+static void DrawBulletHitboxes(void)
+{
+    // Dessiner les hitboxes des bullets du joueur (JAUNE)
+    for (int i = 0; i < MAX_BULLETS; i++)
+    {
+        if (shipBullets[i].active)
+        {
+            // Cercle rempli semi-transparent
+            DrawCircle((int)shipBullets[i].position.x, (int)shipBullets[i].position.y, 
+                (int)shipBullets[i].radius, (Color){255, 255, 0, 100}); // Jaune semi-transparent
+            // Contour du cercle
+            DrawCircleLines((int)shipBullets[i].position.x, (int)shipBullets[i].position.y, 
+                (int)shipBullets[i].radius, YELLOW);
+        }
+    }
+
+    // Dessiner les hitboxes des bullets des ennemis (ROUGE)
+    for (int i = 0; i < MAX_ENEMY_BULLETS; i++)
+    {
+        if (enemyBullets[i].active)
+        {
+            // Cercle rempli semi-transparent
+            DrawCircle((int)enemyBullets[i].position.x, (int)enemyBullets[i].position.y, 
+                (int)enemyBullets[i].radius, (Color){255, 0, 0, 100}); // Rouge semi-transparent
+            // Contour du cercle
+            DrawCircleLines((int)enemyBullets[i].position.x, (int)enemyBullets[i].position.y, 
+                (int)enemyBullets[i].radius, RED);
+        }
+    }
+}
+
+static void DrawArrow(Vector2D start, Vector2D direction, float length, Color color)
+{
+    // Normaliser la direction
+    float dirNorm = Vector2D_Norm(direction);
+    if (dirNorm < 0.0001f) return;
+    
+    float nx = direction.x / dirNorm;
+    float ny = direction.y / dirNorm;
+    
+    // Point de fin
+    float endX = start.x + nx * length;
+    float endY = start.y + ny * length;
+    
+    // Dessiner la ligne principale - TR√àS √âPAISSE
+    DrawLineEx((Vector2){start.x, start.y}, (Vector2){endX, endY}, 5.0f, color);
+    
+    // Dessiner un cercle √† la fin pour la pointe
+    DrawCircle((int)endX, (int)endY, 8, color);
+    DrawCircleLines((int)endX, (int)endY, 8, BLACK);
+}
+
+static void DrawShipVectors(void)
+{
+    if (player == NULL) return;
+
+    // Centre du vaisseau
+    float centerX = player->position.x + player->size.x / 2.0f;
+    float centerY = player->position.y + player->size.y / 2.0f;
+    
+    // Cercle blanc au centre pour v√©rifier
+    DrawCircle((int)centerX, (int)centerY, 8, WHITE);
+    DrawCircleLines((int)centerX, (int)centerY, 8, BLACK);
+
+    // VECTEUR VITESSE (VERT)
+    float velNorm = Vector2D_Norm(player->velocity);
+    if (velNorm > 0.001f)
+    {
+        float velLength = velNorm * 40.0f;
+        if (velLength < 20.0f) velLength = 20.0f;
+        
+        float velX = player->velocity.x / velNorm;
+        float velY = player->velocity.y / velNorm;
+        
+        float endX = centerX + velX * velLength;
+        float endY = centerY + velY * velLength;
+        
+        // Ligne verte √©paisse
+        DrawLineEx((Vector2){centerX, centerY}, (Vector2){endX, endY}, 6.0f, GREEN);
+        // Cercle √† la fin
+        DrawCircle((int)endX, (int)endY, 10, GREEN);
+        DrawCircleLines((int)endX, (int)endY, 10, BLACK);
+    }
+
+    // VECTEUR DIRECTION (MAGENTA)
+    float dirX = cosf(player->angle);
+    float dirY = sinf(player->angle);
+    float dirLength = 80.0f;
+    
+    float dirEndX = centerX + dirX * dirLength;
+    float dirEndY = centerY + dirY * dirLength;
+    
+    // Ligne magenta √©paisse
+    DrawLineEx((Vector2){centerX, centerY}, (Vector2){dirEndX, dirEndY}, 6.0f, MAGENTA);
+    // Cercle √† la fin
+    DrawCircle((int)dirEndX, (int)dirEndY, 10, MAGENTA);
+    DrawCircleLines((int)dirEndX, (int)dirEndY, 10, BLACK);
+    
+    // Affichage fixe des valeurs en haut √† gauche de l'√©cran
+    float angleDegrees = player->angle * (180.0f / PI);
+    char velText[128];
+    char dirText[128];
+    
+    // Vitesse
+    snprintf(velText, sizeof(velText), "Vitesse: (%.2f, %.2f) | Norme: %.2f", 
+             player->velocity.x, player->velocity.y, velNorm);
+    DrawText(velText, 10, 130, 18, GREEN);
+    
+    // Orientation
+    snprintf(dirText, sizeof(dirText), "Orientation: %.2f deg | Direction: (%.2f, %.2f)", 
+             angleDegrees, dirX, dirY);
+    DrawText(dirText, 10, 155, 18, MAGENTA);
 }

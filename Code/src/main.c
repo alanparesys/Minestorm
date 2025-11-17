@@ -1,4 +1,4 @@
-#include <raylib.h>
+﻿#include <raylib.h>
 #include "game.h"
 #include "enemy.h"
 
@@ -11,14 +11,14 @@ int main(void)
     SetTargetFPS(60);
 
     GameAssets assets;
-    Enemy Enemy = { 0 };
+    Enemy basicEnemy = { 0 };
     Collision collision = { 0 };
     InitAssets(&assets);
     InitGame();
 
     while (!WindowShouldClose())
     {
-        UpdateGame(&assets, &Enemy, &collision);
+        UpdateGame(&assets, &basicEnemy, &collision);
     }
 
     UnloadAssets(&assets);
