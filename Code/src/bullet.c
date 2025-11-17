@@ -1,16 +1,17 @@
 #include "bullet.h"
 #include "enemy.h"
 #include "game.h"
-//#include "sphere2D.h"
 #include <math.h>
 #include <stdio.h>
 
 ShipBullet shipBullets[MAX_BULLETS];
+EnemyBullet enemyBullets[MAX_ENEMY_BULLETS];
 
 int score = 0;
-int actualLevel = 1;
-int lifeNumber = 3;                          // number of lives
+int actualLevel = 7;
+int lifeNumber = 3;
 
+// ======================== BULLETS DU JOUEUR ========================
 
 void InitBullets(void)
 {
@@ -37,6 +38,7 @@ void FireBullet(Vector2D startPos, float angle)
         }
     }
 }
+
 void UpdateBullets(GameAssets* assets, Collision* collision)
 {
     for (int i = 0; i < MAX_BULLETS; i++)
@@ -68,15 +70,14 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             DrawCircle((int)shipBullets[i].position.x, (int)shipBullets[i].position.y, shipBullets[i].radius, WHITE);
         }
 
-        
+
         // ===== Collision BigBasicEnemies =====
         for (int j = 0; j < maxBigBasicEnemies; j++)
         {
             if (bigBasicEnemies[j].size.x <= 0.0f || bigBasicEnemies[j].size.y <= 0.0f) continue;
 
-            // Le centre est la position de l'ennemi (car DrawTexturePro utilise origin au centre)
             Vector2 enemyCenter = { bigBasicEnemies[j].position.x, bigBasicEnemies[j].position.y };
-            float enemyRadius = (bigBasicEnemies[j].size.x * 3.5f) / 2.0f; // scale de 3.5f
+            float enemyRadius = (bigBasicEnemies[j].size.x * 3.5f) / 2.0f;
 
             float dx = shipBullets[i].position.x - enemyCenter.x;
             float dy = shipBullets[i].position.y - enemyCenter.y;
@@ -86,19 +87,13 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->bigBasicEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
-                printf("Hit Big Basic Enemy %d!\n", j); // Debug
+                printf("Hit Big Basic Enemy %d!\n", j);
                 score += 100;
                 break;
             }
         }
-        
-        // Désactiver si hors écran
-        if (shipBullets[i].position.x < -50 || shipBullets[i].position.x > 1130 ||
-            shipBullets[i].position.y < -50 || shipBullets[i].position.y > 1350)
-        {
-            shipBullets[i].active = false;
-            continue;
-        }
+
+        if (!shipBullets[i].active) continue;
 
         // ===== Collision MidBasicEnemies =====
         for (int j = 0; j < maxMidBasicEnemies; j++)
@@ -106,7 +101,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             if (midBasicEnemies[j].size.x <= 0.0f || midBasicEnemies[j].size.y <= 0.0f) continue;
 
             Vector2 enemyCenter = { midBasicEnemies[j].position.x, midBasicEnemies[j].position.y };
-            float enemyRadius = (midBasicEnemies[j].size.x * 2.0f) / 2.0f; // scale de 2.0f
+            float enemyRadius = (midBasicEnemies[j].size.x * 2.0f) / 2.0f;
 
             float dx = shipBullets[i].position.x - enemyCenter.x;
             float dy = shipBullets[i].position.y - enemyCenter.y;
@@ -116,11 +111,13 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->midBasicEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
-                printf("Hit Mid Basic Enemy %d!\n", j); // Debug
+                printf("Hit Mid Basic Enemy %d!\n", j);
                 score += 135;
                 break;
             }
         }
+
+        if (!shipBullets[i].active) continue;
 
         // ===== Collision SmallBasicEnemies =====
         for (int j = 0; j < maxSmallBasicEnemies; j++)
@@ -128,7 +125,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             if (smallBasicEnemies[j].size.x <= 0.0f || smallBasicEnemies[j].size.y <= 0.0f) continue;
 
             Vector2 enemyCenter = { smallBasicEnemies[j].position.x, smallBasicEnemies[j].position.y };
-            float enemyRadius = (smallBasicEnemies[j].size.x * 1.5f) / 2.0f; // scale de 1.5f
+            float enemyRadius = (smallBasicEnemies[j].size.x * 1.5f) / 2.0f;
 
             float dx = shipBullets[i].position.x - enemyCenter.x;
             float dy = shipBullets[i].position.y - enemyCenter.y;
@@ -138,11 +135,13 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             {
                 collision->smallBasicEnemiesBulletCollision[j] = true;
                 shipBullets[i].active = false;
-                printf("Hit Small Basic Enemy %d!\n", j); // Debug
+                printf("Hit Small Basic Enemy %d!\n", j);
                 score += 200;
                 break;
             }
         }
+
+        if (!shipBullets[i].active) continue;
 
         // ===== Collision BigShooterEnemies =====
         for (int j = 0; j < maxBigShooterEnemy; j++)
@@ -165,6 +164,8 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             }
         }
 
+        if (!shipBullets[i].active) continue;
+
         // ===== Collision MidShooterEnemies =====
         for (int j = 0; j < maxMidShooterEnemy; j++)
         {
@@ -185,6 +186,8 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
                 break;
             }
         }
+
+        if (!shipBullets[i].active) continue;
 
         // ===== Collision SmallShooterEnemies =====
         for (int j = 0; j < maxSmallShooterEnemy; j++)
@@ -207,6 +210,8 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             }
         }
 
+        if (!shipBullets[i].active) continue;
+
         // ===== Collision BigFollowerEnemies =====
         for (int j = 0; j < maxBigFollowerEnemy; j++)
         {
@@ -227,6 +232,8 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
                 break;
             }
         }
+
+        if (!shipBullets[i].active) continue;
 
         // ===== Collision MidFollowerEnemies =====
         for (int j = 0; j < maxMidFollowerEnemy; j++)
@@ -249,6 +256,8 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             }
         }
 
+        if (!shipBullets[i].active) continue;
+
         // ===== Collision SmallFollowerEnemies =====
         for (int j = 0; j < maxSmallFollowerEnemy; j++)
         {
@@ -269,6 +278,8 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
                 break;
             }
         }
+
+        if (!shipBullets[i].active) continue;
 
         // ===== Collision BigFollowerShooterEnemies =====
         for (int j = 0; j < maxBigFollowerShooterEnemy; j++)
@@ -291,6 +302,8 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             }
         }
 
+        if (!shipBullets[i].active) continue;
+
         // ===== Collision MidFollowerShooterEnemies =====
         for (int j = 0; j < maxMidFollowerShooterEnemy; j++)
         {
@@ -311,6 +324,8 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
                 break;
             }
         }
+
+        if (!shipBullets[i].active) continue;
 
         // ===== Collision SmallFollowerShooterEnemies =====
         for (int j = 0; j < maxSmallFollowerShooterEnemy; j++)
@@ -335,30 +350,132 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
     }
 }
 
+// ======================== BULLETS ENNEMIES ========================
+
+void InitEnemyBullets(void)
+{
+    for (int i = 0; i < MAX_ENEMY_BULLETS; i++)
+    {
+        enemyBullets[i].active = false;
+        enemyBullets[i].radius = BULLET_RADIUS;
+        enemyBullets[i].position = (Vector2){ 0.0f, 0.0f };
+        enemyBullets[i].velocity = (Vector2){ 0.0f, 0.0f };
+    }
+}
+
+void FireEnemyBullet(Vector2D startPos, Vector2D targetPos)
+{
+    for (int i = 0; i < MAX_ENEMY_BULLETS; i++)
+    {
+        if (!enemyBullets[i].active)
+        {
+            enemyBullets[i].active = true;
+            enemyBullets[i].position = (Vector2){ startPos.x, startPos.y };
+
+            // Calculer la direction vers la cible
+            float dirX = targetPos.x - startPos.x;
+            float dirY = targetPos.y - startPos.y;
+            float dist = sqrtf(dirX * dirX + dirY * dirY);
+
+            if (dist > 0.001f)
+            {
+                enemyBullets[i].velocity.x = (dirX / dist) * ENEMY_BULLET_SPEED;
+                enemyBullets[i].velocity.y = (dirY / dist) * ENEMY_BULLET_SPEED;
+            }
+            else
+            {
+                enemyBullets[i].velocity.x = 0.0f;
+                enemyBullets[i].velocity.y = ENEMY_BULLET_SPEED;
+            }
+
+            enemyBullets[i].radius = BULLET_RADIUS;
+            return;
+        }
+    }
+}
+
+void UpdateEnemyBullets(GameAssets* assets, Ship* player)
+{
+    // DEBUG
+    if (player == NULL) {
+        printf("ERREUR : player est NULL dans UpdateEnemyBullets !\n");
+        return;
+    }
+    printf("PlayerBullet position: (%.1f, %.1f)\n", player->position.x, player->position.y);
+
+    for (int i = 0; i < MAX_ENEMY_BULLETS; i++)
+    {
+        if (!enemyBullets[i].active) continue;
+
+        // Mouvement
+        enemyBullets[i].position.x += enemyBullets[i].velocity.x;
+        enemyBullets[i].position.y += enemyBullets[i].velocity.y;
+
+        // Vérifier si hors écran
+        if (enemyBullets[i].position.x < -50 || enemyBullets[i].position.x > 1080 + 50 ||
+            enemyBullets[i].position.y < -50 || enemyBullets[i].position.y > 1300 + 50)
+        {
+            enemyBullets[i].active = false;
+            continue;
+        }
+
+        // Affichage (couleur rouge pour les distinguer)
+        if (assets != NULL)
+        {
+            Rectangle src = { 0, 0, (float)assets->bulletTexture.width, (float)assets->bulletTexture.height };
+            Rectangle dst = { enemyBullets[i].position.x, enemyBullets[i].position.y,
+                            enemyBullets[i].radius * 2.0f, enemyBullets[i].radius * 2.0f };
+            Vector2 origin = { enemyBullets[i].radius, enemyBullets[i].radius };
+            DrawTexturePro(assets->bulletTexture, src, dst, origin, 0.0f, RED);
+        }
+        else
+        {
+            DrawCircle((int)enemyBullets[i].position.x, (int)enemyBullets[i].position.y,
+                enemyBullets[i].radius, RED);
+        }
+
+        // Collision avec le joueur
+        if (player != NULL)
+        {
+            // Calculer la hitbox du joueur (approximation circulaire)
+            float playerRadius = (player->size.x < player->size.y ? player->size.x : player->size.y) / 2.0f;
+
+            float dx = enemyBullets[i].position.x - player->position.x;
+            float dy = enemyBullets[i].position.y - player->position.y;
+            float distance = sqrtf(dx * dx + dy * dy);
+
+            if (distance < enemyBullets[i].radius + playerRadius)
+            {
+                enemyBullets[i].active = false;
+                lifeNumber = 0; // Le joueur meurt instantanément
+                printf("Player hit by enemy bullet! GAME OVER\n");
+
+
+            }
+        }
+    }
+}
+
+// ======================== UTILITAIRES ========================
 
 bool CheckCollisionShipEnemy(Rectangle2D shipBox, Sphere2D enemySphere)
 {
     // Find the closest point of the rectangle to the center of the sphere
-    float closestX = fmaxf(fminf(enemySphere.center.x,                                  // selected coordonates of the center on x
-        fmaxf(shipBox.p1.x, fmaxf(shipBox.p2.x, fmaxf(shipBox.p3.x, shipBox.p4.x)))),   // find the closest points of the rectangle on x to the center
-        fminf(shipBox.p1.x, fminf(shipBox.p2.x, fminf(shipBox.p3.x, shipBox.p4.x))));   // find the farthest points of the rectangle on x to the center
-    float closestY = fmaxf(fminf(enemySphere.center.y,                                  // selected coordonates of the center on y
-        fmaxf(shipBox.p1.y, fmaxf(shipBox.p2.y, fmaxf(shipBox.p3.y, shipBox.p4.y)))),   // find the closest points of the rectangle on x to the center
-        fminf(shipBox.p1.y, fminf(shipBox.p2.y, fminf(shipBox.p3.y, shipBox.p4.y))));   // find the farthest points of the rectangle on x to the center
+    float closestX = fmaxf(
+        fminf(enemySphere.center.x,                                                         // selected coordonates of the center on x
+            fmaxf(shipBox.p1.x, fmaxf(shipBox.p2.x, fmaxf(shipBox.p3.x, shipBox.p4.x)))),   // find the closest points of the rectangle on x to the center
+        fminf(shipBox.p1.x, fminf(shipBox.p2.x, fminf(shipBox.p3.x, shipBox.p4.x)))         // find the farthest points of the rectangle on x to the center
+    );
+
+    float closestY = fmaxf(
+        fminf(enemySphere.center.y,
+            fmaxf(shipBox.p1.y, fmaxf(shipBox.p2.y, fmaxf(shipBox.p3.y, shipBox.p4.y)))),
+        fminf(shipBox.p1.y, fminf(shipBox.p2.y, fminf(shipBox.p3.y, shipBox.p4.y)))
+    );
 
     // Distance beetween this point and the center of the sphere
     float dx = enemySphere.center.x - closestX;
     float dy = enemySphere.center.y - closestY;
 
     return (dx * dx + dy * dy) <= (enemySphere.radius * enemySphere.radius);
-}
-
-void LevelProgress(void)
-{
-    if (score >= 5000) {
-        actualLevel = actualLevel++;
-        score = 0;
-        lifeNumber = 3;
-    }
-
 }

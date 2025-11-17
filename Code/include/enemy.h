@@ -73,6 +73,11 @@ extern Enemy smallFollowerShooterEnemies[4];
 extern bool smallFollowerShooterEnemiesSpawn[4];
 //extern EnemySize currentSmallFollowerShooterEnemySize[4];
 
+void InitSpawnPoints();
+
+void SpawnPoints();
+
+bool AllEnemiesDead(void);
 // ============================ Hitboxes ===========================
 
 Sphere2D GetBigBasicEnemyHitbox(int i);
@@ -91,7 +96,18 @@ Sphere2D GetBigFollowerShooterEnemyHitbox(int i);
 Sphere2D GetMidFollowerShooterEnemyHitbox(int i);
 Sphere2D GetSmallFollowerShooterEnemyHitbox(int i);
 
+
+void BorderEnemyCollision(Enemy* enemy);
+
 // Fonctions
+
+void MotherShipUpdate(GameAssets* assets, Collision* collision);
+void MotherShipSpawn(GameAssets* assets);
+void MotherShipMovement(GameAssets* assets, Collision* collision);
+void SpawnPointAndEnemy(int index);
+void DrawSpawnedPoints();
+
+void UpdateEnemies(GameAssets* assets, Collision* collision);
 
 // =========================== BasicEnemy ===========================
 void UpdateBasicEnemy(int i, GameAssets* assets, Collision* collision);

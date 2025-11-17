@@ -11,14 +11,14 @@ int main(void)
     SetTargetFPS(60);
 
     GameAssets assets;
-    Enemy basicEnemy = { 0 };
+    Enemy Enemy = { 0 };
     Collision collision = { 0 };
     InitAssets(&assets);
     InitGame();
 
     while (!WindowShouldClose())
     {
-        UpdateGame(&assets, &basicEnemy, &collision);
+        UpdateGame(&assets, &Enemy, &collision);
     }
 
     UnloadAssets(&assets);

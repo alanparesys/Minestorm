@@ -28,6 +28,17 @@ typedef struct Enemy
     float speed;
 } Enemy;
 
+typedef struct MotherShip
+{
+    Vector2D position;
+    Vector2D size;
+    Vector2D velocity;
+    float angle;
+    float rotationSpeed;
+    float speed;
+    int health;
+} MotherShip;
+
 // Enum EnemySize
 typedef enum EnemySize
 {
@@ -58,13 +69,18 @@ typedef struct GameAssets
 {
     Texture2D background;
     Texture2D interface;
+	Texture2D minestorm;
+	Texture2D titleText;
     Texture2D ship;
     Texture2D bulletTexture;
     Texture2D basicEnemyTexture;
     Texture2D shooterEnemyTexture;
     Texture2D followerEnemyTexture;
-    Texture2D followerShooterEnemyTexture;
-    Font font;
+    Texture2D followerShooterEnemyTexture; 
+	Texture2D motherShipTexture;
+    Font pixelFont;
+	Font magnetoFont;
 } GameAssets;
 
 #endif
+

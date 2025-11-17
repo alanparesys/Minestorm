@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "enemy.h"
 #include "game.h"
+#include "bullet.h"
 
 
 const int screenWidth = 1080;
@@ -16,7 +17,20 @@ extern Ship* player;
 #define MID_SCALE 2.0f
 #define SMALL_SCALE 1.5f
 
-// --- Variables globales ---
+// --- Variables globales --- 
+
+// Cooldowns pour les tirs
+static float bigShooterCooldowns[2] = { 0.0f, 0.0f };
+static float midShooterCooldowns[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+static float smallShooterCooldowns[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+static float bigFollowerShooterCooldowns[1] = { 0.0f };
+static float midFollowerShooterCooldowns[2] = { 0.0f, 0.0f };
+static float smallFollowerShooterCooldowns[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+#define BIG_SHOOTER_FIRE_RATE 120.0f
+#define MID_SHOOTER_FIRE_RATE 90.0f
+#define SMALL_SHOOTER_FIRE_RATE 60.0f
+
 // =========================== Basic Enemies ===========================
 int maxBigBasicEnemies = 3;
 Enemy bigBasicEnemies[3];
@@ -85,6 +99,7 @@ int maxSmallFollowerShooterEnemy = 4;
 Enemy smallFollowerShooterEnemies[4];
 bool smallFollowerShooterEnemiesSpawn[4] = { false };
 //EnemySize currentSmallFollowerShooterEnemySize[4] = { SMALL, SMALL, SMALL, SMALL };
+
 
 // ===================== FONCTIONS DE HITBOX UTILISANT SPHERE2D =====================
 Sphere2D GetBigBasicEnemyHitbox(int i)
@@ -220,6 +235,465 @@ Sphere2D GetSmallFollowerShooterEnemyHitbox(int i)
     return Sphere2D_SetFromCenterRadius(center, radius);
 }
 
+// ================================== Border Colision ==================================
+
+void BorderEnemyCollision(Enemy* enemy)
+{
+    // Si sort par la gauche, réapparaît à droite
+    if (enemy->position.x < -50)
+        enemy->position.x = screenWidth + 50;
+
+    // Si sort par la droite, réapparaît à gauche
+    if (enemy->position.x > screenWidth + 50)
+        enemy->position.x = -50;
+
+    // Si sort par le haut, réapparaît en bas
+    if (enemy->position.y < 0)
+        enemy->position.y = screenHeight + 50;
+
+    // Si sort par le bas, réapparaît en haut
+    if (enemy->position.y > screenHeight + 50)
+        enemy->position.y = 0;
+}
+
+// mothership variables
+Vector2D spawnPoints[56];
+bool spawnPointsInitialized = false;
+bool motherShipActive = false;
+bool motherShipSpawned = false;
+int maxMotherShip = 1;
+Enemy motherShip[1];
+bool enemiesDropped = false;
+
+int currentSpawnIndex = 0;  // Pour suivre quel point spawner
+float spawnTimer = 0.0f;    // Timer pour spawner progressivement
+float spawnInterval = 0.1f; // Intervalle entre chaque spawn (en secondes)
+
+void MotherShipUpdate(GameAssets* assets, Collision* collision)
+{
+    if (!motherShipActive)
+    {
+        motherShipActive = true;
+        MotherShipSpawn(assets);
+    }
+
+    // Déplacer le mothership dans une logique séparée
+    if (motherShipSpawned)
+    {
+        MotherShipMovement(assets, collision);
+    }
+}
+
+void MotherShipSpawn(GameAssets* assets)
+{
+    if (!motherShipSpawned)
+    {
+        motherShipSpawned = true;
+        enemiesDropped = false;
+        currentSpawnIndex = 0;  // Réinitialiser le compteur
+        spawnTimer = 0.0f;
+
+        motherShip[0].position.x = 140;
+        motherShip[0].position.y = screenHeight;
+        motherShip[0].size.x = 64.0f;
+        motherShip[0].size.y = 64.0f;
+        motherShip[0].speed = 3.0f;
+        motherShip[0].angle = 0.0f;
+    }
+}
+
+
+void MotherShipMovement(GameAssets* assets, Collision* collision)
+{
+    motherShip[0].speed = 3.0f;
+
+    if (motherShip[0].position.y > -300)
+    {
+        motherShip[0].position.y -= motherShip[0].speed;
+        DrawTextureEx(assets->motherShipTexture,
+            (Vector2) {
+            motherShip[0].position.x, motherShip[0].position.y
+        },
+            0, 1.0f, WHITE);
+
+        // Spawner progressivement les points rouges et les ennemis
+        if (currentSpawnIndex < 56)
+        {
+            spawnTimer += GetFrameTime();
+
+            if (spawnTimer >= spawnInterval)
+            {
+                spawnTimer = 0.0f;
+                SpawnPointAndEnemy(currentSpawnIndex);
+                currentSpawnIndex++;
+            }
+        }
+
+        // Dessiner tous les points rouges déjà spawnés
+        DrawSpawnedPoints();
+    }
+    else
+    {
+        motherShip[0].size.x = 0.0f;
+        motherShip[0].size.y = 0.0f;
+        motherShipSpawned = false;
+    }
+}
+
+
+// Fonction pour spawner un point rouge ET l'ennemi correspondant
+void SpawnPointAndEnemy(int index)
+{
+    // Créer le point rouge à une position aléatoire
+    spawnPoints[index].x = GetRandomValue(50, screenWidth - 50);
+    spawnPoints[index].y = GetRandomValue(50, screenHeight - 50);
+
+    // Déterminer quel type d'ennemi spawner en fonction de l'index
+    // Total: 3 + 6 + 12 + 2 + 4 + 8 + 2 + 4 + 8 + 1 + 2 + 4 = 56
+
+    if (index < 3) // Big Basic (0-2)
+    {
+        int i = index;
+        bigBasicEnemies[i].position.x = spawnPoints[index].x;
+        bigBasicEnemies[i].position.y = spawnPoints[index].y;
+        bigBasicEnemies[i].size.x = 50.0f;
+        bigBasicEnemies[i].size.y = 50.0f;
+
+        // Direction aléatoire
+        float angle = ((float)GetRandomValue(0, 360)) * M_PI / 180.0f;
+        float speed = 1.0f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.5f;
+        bigBasicEnemies[i].velocity.x = cosf(angle) * speed;
+        bigBasicEnemies[i].velocity.y = sinf(angle) * speed;
+
+        bigBasicEnemies[i].rotationSpeed = 0.02f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.03f;
+        bigBasicEnemies[i].angle = 0.0f;
+        if (GetRandomValue(0, 1) == 0) bigBasicEnemies[i].rotationSpeed *= -1;
+
+        bigBasicEnemiesSpawn[i] = true;
+    }
+    else if (index < 9) // Mid Basic (3-8)
+    {
+        int i = index - 3;
+        midBasicEnemies[i].position.x = spawnPoints[index].x;
+        midBasicEnemies[i].position.y = spawnPoints[index].y;
+        midBasicEnemies[i].size.x = 60.0f;
+        midBasicEnemies[i].size.y = 60.0f;
+
+        float angle = ((float)GetRandomValue(0, 360)) * M_PI / 180.0f;
+        float speed = 1.5f + ((float)GetRandomValue(0, 100) / 100.0f);
+        midBasicEnemies[i].velocity.x = cosf(angle) * speed;
+        midBasicEnemies[i].velocity.y = sinf(angle) * speed;
+
+        midBasicEnemies[i].rotationSpeed = 0.03f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.05f;
+        midBasicEnemies[i].angle = 0.0f;
+        if (GetRandomValue(0, 1) == 0) midBasicEnemies[i].rotationSpeed *= -1;
+
+        midBasicEnemiesSpawn[i] = true;
+    }
+    else if (index < 21) // Small Basic (9-20)
+    {
+        int i = index - 9;
+        smallBasicEnemies[i].position.x = spawnPoints[index].x;
+        smallBasicEnemies[i].position.y = spawnPoints[index].y;
+        smallBasicEnemies[i].size.x = 50.0f;
+        smallBasicEnemies[i].size.y = 50.0f;
+
+        float angle = ((float)GetRandomValue(0, 360)) * M_PI / 180.0f;
+        float speed = 2.0f + ((float)GetRandomValue(0, 100) / 100.0f);
+        smallBasicEnemies[i].velocity.x = cosf(angle) * speed;
+        smallBasicEnemies[i].velocity.y = sinf(angle) * speed;
+
+        smallBasicEnemies[i].rotationSpeed = 0.04f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.06f;
+        smallBasicEnemies[i].angle = 0.0f;
+        if (GetRandomValue(0, 1) == 0) smallBasicEnemies[i].rotationSpeed *= -1;
+
+        smallBasicEnemiesSpawn[i] = true;
+    }
+    else if (index < 23) // Big Shooter (21-22)
+    {
+        int i = index - 21;
+        bigShooterEnemies[i].position.x = spawnPoints[index].x;
+        bigShooterEnemies[i].position.y = spawnPoints[index].y;
+        bigShooterEnemies[i].size.x = 50.0f;
+        bigShooterEnemies[i].size.y = 50.0f;
+
+        float angle = ((float)GetRandomValue(0, 360)) * M_PI / 180.0f;
+        float speed = 1.0f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.5f;
+        bigShooterEnemies[i].velocity.x = cosf(angle) * speed;
+        bigShooterEnemies[i].velocity.y = sinf(angle) * speed;
+
+        bigShooterEnemies[i].rotationSpeed = 0.02f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.03f;
+        bigShooterEnemies[i].angle = 0.0f;
+        if (GetRandomValue(0, 1) == 0) bigShooterEnemies[i].rotationSpeed *= -1;
+
+        bigShooterEnemiesSpawn[i] = true;
+    }
+    else if (index < 27) // Mid Shooter (23-26)
+    {
+        int i = index - 23;
+        midShooterEnemies[i].position.x = spawnPoints[index].x;
+        midShooterEnemies[i].position.y = spawnPoints[index].y;
+        midShooterEnemies[i].size.x = 60.0f;
+        midShooterEnemies[i].size.y = 60.0f;
+
+        float angle = ((float)GetRandomValue(0, 360)) * M_PI / 180.0f;
+        float speed = 1.5f + ((float)GetRandomValue(0, 100) / 100.0f);
+        midShooterEnemies[i].velocity.x = cosf(angle) * speed;
+        midShooterEnemies[i].velocity.y = sinf(angle) * speed;
+
+        midShooterEnemies[i].rotationSpeed = 0.03f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.05f;
+        midShooterEnemies[i].angle = 0.0f;
+        if (GetRandomValue(0, 1) == 0) midShooterEnemies[i].rotationSpeed *= -1;
+
+        midShooterEnemiesSpawn[i] = true;
+    }
+    else if (index < 35) // Small Shooter (27-34)
+    {
+        int i = index - 27;
+        smallShooterEnemies[i].position.x = spawnPoints[index].x;
+        smallShooterEnemies[i].position.y = spawnPoints[index].y;
+        smallShooterEnemies[i].size.x = 50.0f;
+        smallShooterEnemies[i].size.y = 50.0f;
+
+        float angle = ((float)GetRandomValue(0, 360)) * M_PI / 180.0f;
+        float speed = 2.0f + ((float)GetRandomValue(0, 100) / 100.0f);
+        smallShooterEnemies[i].velocity.x = cosf(angle) * speed;
+        smallShooterEnemies[i].velocity.y = sinf(angle) * speed;
+
+        smallShooterEnemies[i].rotationSpeed = 0.04f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.06f;
+        smallShooterEnemies[i].angle = 0.0f;
+        if (GetRandomValue(0, 1) == 0) smallShooterEnemies[i].rotationSpeed *= -1;
+
+        smallShooterEnemiesSpawn[i] = true;
+    }
+    else if (index < 37) // Big Follower (35-36)
+    {
+        int i = index - 35;
+        bigFollowerEnemies[i].position.x = spawnPoints[index].x;
+        bigFollowerEnemies[i].position.y = spawnPoints[index].y;
+        bigFollowerEnemies[i].size.x = 50.0f;
+        bigFollowerEnemies[i].size.y = 50.0f;
+        bigFollowerEnemies[i].speed = 1.5f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.5f;
+
+        bigFollowerEnemies[i].rotationSpeed = 0.02f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.03f;
+        bigFollowerEnemies[i].angle = 0.0f;
+        if (GetRandomValue(0, 1) == 0) bigFollowerEnemies[i].rotationSpeed *= -1;
+
+        bigFollowerEnemiesSpawn[i] = true;
+    }
+    else if (index < 41) // Mid Follower (37-40)
+    {
+        int i = index - 37;
+        midFollowerEnemies[i].position.x = spawnPoints[index].x;
+        midFollowerEnemies[i].position.y = spawnPoints[index].y;
+        midFollowerEnemies[i].size.x = 60.0f;
+        midFollowerEnemies[i].size.y = 60.0f;
+
+        float angle = ((float)GetRandomValue(0, 360)) * M_PI / 180.0f;
+        float speed = 1.5f + ((float)GetRandomValue(0, 100) / 100.0f);
+        midFollowerEnemies[i].velocity.x = cosf(angle) * speed;
+        midFollowerEnemies[i].velocity.y = sinf(angle) * speed;
+
+        midFollowerEnemies[i].rotationSpeed = 0.03f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.05f;
+        midFollowerEnemies[i].angle = 0.0f;
+        if (GetRandomValue(0, 1) == 0) midFollowerEnemies[i].rotationSpeed *= -1;
+
+        midFollowerEnemiesSpawn[i] = true;
+    }
+    else if (index < 49) // Small Follower (41-48)
+    {
+        int i = index - 41;
+        smallFollowerEnemies[i].position.x = spawnPoints[index].x;
+        smallFollowerEnemies[i].position.y = spawnPoints[index].y;
+        smallFollowerEnemies[i].size.x = 50.0f;
+        smallFollowerEnemies[i].size.y = 50.0f;
+
+        float angle = ((float)GetRandomValue(0, 360)) * M_PI / 180.0f;
+        float speed = 2.0f + ((float)GetRandomValue(0, 100) / 100.0f);
+        smallFollowerEnemies[i].velocity.x = cosf(angle) * speed;
+        smallFollowerEnemies[i].velocity.y = sinf(angle) * speed;
+
+        smallFollowerEnemies[i].rotationSpeed = 0.04f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.06f;
+        smallFollowerEnemies[i].angle = 0.0f;
+        if (GetRandomValue(0, 1) == 0) smallFollowerEnemies[i].rotationSpeed *= -1;
+
+        smallFollowerEnemiesSpawn[i] = true;
+    }
+    else if (index < 50) // Big Follower-Shooter (49)
+    {
+        int i = index - 49;
+        bigFollowerShooterEnemies[i].position.x = spawnPoints[index].x;
+        bigFollowerShooterEnemies[i].position.y = spawnPoints[index].y;
+        bigFollowerShooterEnemies[i].size.x = 50.0f;
+        bigFollowerShooterEnemies[i].size.y = 50.0f;
+        bigFollowerShooterEnemies[i].speed = 1.0f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.5f;
+
+        bigFollowerShooterEnemies[i].rotationSpeed = 0.02f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.03f;
+        bigFollowerShooterEnemies[i].angle = 0.0f;
+        if (GetRandomValue(0, 1) == 0) bigFollowerShooterEnemies[i].rotationSpeed *= -1;
+
+        bigFollowerShooterEnemiesSpawn[i] = true;
+    }
+    else if (index < 52) // Mid Follower-Shooter (50-51)
+    {
+        int i = index - 50;
+        midFollowerShooterEnemies[i].position.x = spawnPoints[index].x;
+        midFollowerShooterEnemies[i].position.y = spawnPoints[index].y;
+        midFollowerShooterEnemies[i].size.x = 60.0f;
+        midFollowerShooterEnemies[i].size.y = 60.0f;
+
+        float angle = ((float)GetRandomValue(0, 360)) * M_PI / 180.0f;
+        float speed = 1.5f + ((float)GetRandomValue(0, 100) / 100.0f);
+        midFollowerShooterEnemies[i].velocity.x = cosf(angle) * speed;
+        midFollowerShooterEnemies[i].velocity.y = sinf(angle) * speed;
+
+        midFollowerShooterEnemies[i].rotationSpeed = 0.03f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.05f;
+        midFollowerShooterEnemies[i].angle = 0.0f;
+        if (GetRandomValue(0, 1) == 0) midFollowerShooterEnemies[i].rotationSpeed *= -1;
+
+        midFollowerShooterEnemiesSpawn[i] = true;
+    }
+    else if (index < 56) // Small Follower-Shooter (52-55)
+    {
+        int i = index - 52;
+        smallFollowerShooterEnemies[i].position.x = spawnPoints[index].x;
+        smallFollowerShooterEnemies[i].position.y = spawnPoints[index].y;
+        smallFollowerShooterEnemies[i].size.x = 50.0f;
+        smallFollowerShooterEnemies[i].size.y = 50.0f;
+
+        float angle = ((float)GetRandomValue(0, 360)) * M_PI / 180.0f;
+        float speed = 2.0f + ((float)GetRandomValue(0, 100) / 100.0f);
+        smallFollowerShooterEnemies[i].velocity.x = cosf(angle) * speed;
+        smallFollowerShooterEnemies[i].velocity.y = sinf(angle) * speed;
+
+        smallFollowerShooterEnemies[i].rotationSpeed = 0.04f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.06f;
+        smallFollowerShooterEnemies[i].angle = 0.0f;
+        if (GetRandomValue(0, 1) == 0) smallFollowerShooterEnemies[i].rotationSpeed *= -1;
+
+        smallFollowerShooterEnemiesSpawn[i] = true;
+    }
+
+    //printf("Spawned point %d and enemy at (%.1f, %.1f)\n", index, spawnPoints[index].x, spawnPoints[index].y);
+}
+
+// Fonction pour dessiner tous les points rouges déjà spawnés
+void DrawSpawnedPoints()
+{
+    for (int i = 0; i < currentSpawnIndex; i++)
+    {
+        DrawCircle(spawnPoints[i].x, spawnPoints[i].y, 5, RED);
+    }
+}
+/*
+// Fonction pour initialiser les points UNE SEULE FOIS
+void InitSpawnPoints()
+{
+    for (int i = 0; i < 56; i++)
+    {
+        spawnPoints[i].x = GetRandomValue(50, screenWidth - 50);
+        spawnPoints[i].y = GetRandomValue(50, screenHeight - 50);
+    }
+    spawnPointsInitialized = true;
+    
+
+}
+
+// Nouvelle version de SpawnPoints qui DESSINE les positions sauvegardées
+void SpawnPoints()
+{
+    // Initialiser seulement au premier appel
+    if (!spawnPointsInitialized)
+    {
+        InitSpawnPoints();
+    }
+
+    // Dessiner les points sauvegardés
+    for (int i = 0; i < 56; i++)
+    {
+        DrawCircle(spawnPoints[i].x, spawnPoints[i].y, 3, RED);
+    }
+}
+
+*/
+
+void UpdateEnemies(GameAssets* assets, Collision* collision)
+{
+    if (!motherShipSpawned)
+    {
+
+        for (int i = 0; i < maxBigBasicEnemies; i++)
+        {
+            UpdateBigBasicEnemy(i, assets, collision);
+        }
+
+        // Update les 6 MID basic enemies
+        for (int i = 0; i < maxMidBasicEnemies; i++)
+        {
+            UpdateMidBasicEnemy(i, assets, collision);
+        }
+
+        // Update 12 SMALL basic enemies
+        for (int i = 0; i < maxSmallBasicEnemies; i++)
+        {
+            UpdateSmallBasicEnemy(i, assets, collision);
+        }
+
+        // Update Big Shooter Enemies
+        for (int i = 0; i < maxBigShooterEnemy; i++)
+        {
+            UpdateBigShooterEnemy(i, assets, collision);
+        }
+
+        // Update Mid Shooter Enemies
+        for (int i = 0; i < maxMidShooterEnemy; i++)
+        {
+            UpdateMidShooterEnemy(i, assets, collision);
+        }
+
+        // Update Small Shooter Enemies
+        for (int i = 0; i < maxSmallShooterEnemy; i++)
+        {
+            UpdateSmallShooterEnemy(i, assets, collision);
+        }
+
+        // Update Big Follower Enemies
+        for (int i = 0; i < maxBigFollowerEnemy; i++)
+        {
+            UpdateBigFollowerEnemy(i, assets, collision);
+        }
+
+        // Update Mid Follower Enemies
+        for (int i = 0; i < maxMidFollowerEnemy; i++)
+        {
+            UpdateMidFollowerEnemy(i, assets, collision);
+        }
+
+        //Update Small Follower Enemies
+        for (int i = 0; i < maxSmallFollowerEnemy; i++)
+        {
+            UpdateSmallFollowerEnemy(i, assets, collision);
+        }
+
+        // Update Big Follower-Shooter Enemies
+        for (int i = 0; i < maxBigFollowerShooterEnemy; i++)
+        {
+            UpdateBigFollowerShooterEnemy(i, assets, collision);
+        }
+
+        // Update Mid Follower-Shooter Enemies
+        for (int i = 0; i < maxMidFollowerShooterEnemy; i++)
+        {
+            UpdateMidFollowerShooterEnemy(i, assets, collision);
+        }
+
+        // Update Small Follower-Shooter Enemies
+        for (int i = 0; i < maxSmallFollowerShooterEnemy; i++)
+        {
+            UpdateSmallFollowerShooterEnemy(i, assets, collision);
+        }
+    }
+}
+
 // ================================== BasicEnemy ==================================
 
 void UpdateBigBasicEnemy(int i, GameAssets* assets, Collision* collision)
@@ -300,21 +774,7 @@ void BigBasicEnemyMovement(int i)
     if (bigBasicEnemies[i].angle > 2 * M_PI) bigBasicEnemies[i].angle -= 2 * M_PI;
     if (bigBasicEnemies[i].angle < 0) bigBasicEnemies[i].angle += 2 * M_PI;
 
-    int spawnMargin = 150;
-    if (bigBasicEnemies[i].position.x < -spawnMargin || bigBasicEnemies[i].position.x > screenWidth + spawnMargin ||
-        bigBasicEnemies[i].position.y < -spawnMargin || bigBasicEnemies[i].position.y > screenHeight + spawnMargin)
-    {
-        // Ne respawn que si l'ennemi est encore actif (pas détruit par collision)
-        if (bigBasicEnemies[i].size.x > 0.0f && bigBasicEnemies[i].size.y > 0.0f)
-        {
-            BigBasicEnemySpawn(i);
-        }
-        else
-        {
-            // L'ennemi a été détruit, ne pas respawn
-            bigBasicEnemiesSpawn[i] = false;
-        }
-    }
+    BorderEnemyCollision(&bigBasicEnemies[i]);
 }
 
 // === Mid Enemy ===
@@ -389,12 +849,7 @@ void MidBasicEnemyMovement(int i)
     if (midBasicEnemies[i].angle > 2 * M_PI) midBasicEnemies[i].angle -= 2 * M_PI;
     if (midBasicEnemies[i].angle < 0) midBasicEnemies[i].angle += 2 * M_PI;
 
-    int spawnMargin = 150;
-    if (midBasicEnemies[i].position.x < -spawnMargin || midBasicEnemies[i].position.x > screenWidth + spawnMargin ||
-        midBasicEnemies[i].position.y < -spawnMargin || midBasicEnemies[i].position.y > screenHeight + spawnMargin)
-    {
-        MidBasicEnemyRespawn(i);
-    }
+    BorderEnemyCollision(&midBasicEnemies[i]);
 }
 
 void MidBasicEnemyRespawn(int i)
@@ -477,12 +932,7 @@ void SmallBasicEnemyMovement(int i)
     if (smallBasicEnemies[i].angle > 2 * M_PI) smallBasicEnemies[i].angle -= 2 * M_PI;
     if (smallBasicEnemies[i].angle < 0) smallBasicEnemies[i].angle += 2 * M_PI;
 
-    int spawnMargin = 150;
-    if (smallBasicEnemies[i].position.x < -spawnMargin || smallBasicEnemies[i].position.x > screenWidth + spawnMargin ||
-        smallBasicEnemies[i].position.y < -spawnMargin || smallBasicEnemies[i].position.y > screenHeight + spawnMargin)
-    {
-        SmallBasicEnemyRespawn(i);
-    }
+    BorderEnemyCollision(&smallBasicEnemies[i]);
 }
 
 void SmallBasicEnemyRespawn(int i)
@@ -518,7 +968,21 @@ void UpdateBigShooterEnemy(int i, GameAssets* assets, Collision* collision)
     //if (!bigShooterEnemiesSpawn[i]) return;
     if (bigShooterEnemies[i].size.x <= 0.0f) return;
     BigShooterEnemyMovement(i);
-    // Affichage
+    
+    // Logique de tir vers le joueur
+    if (player != NULL && bigShooterCooldowns[i] <= 0.0f)
+    {
+        Vector2D enemyPos = { bigShooterEnemies[i].position.x, bigShooterEnemies[i].position.y };
+        Vector2D playerPos = { player->position.x, player->position.y };
+
+        FireEnemyBullet(enemyPos, playerPos);
+        bigShooterCooldowns[i] = BIG_SHOOTER_FIRE_RATE;
+    }
+
+    if (bigShooterCooldowns[i] > 0.0f)
+    {
+        bigShooterCooldowns[i] -= 1.0f;
+    }
     Rectangle sourceRec = { 0, 0, assets->shooterEnemyTexture.width, assets->shooterEnemyTexture.height };
     Rectangle destRec = { bigShooterEnemies[i].position.x, bigShooterEnemies[i].position.y,
                           bigShooterEnemies[i].size.x * 3.5f, bigShooterEnemies[i].size.y * 3.5f };
@@ -539,6 +1003,7 @@ void UpdateBigShooterEnemy(int i, GameAssets* assets, Collision* collision)
         MidShooterEnemySpawn(i * 2, x, y);
         MidShooterEnemySpawn(i * 2 + 1, x, y);
         collision->bigShooterEnemiesBulletCollision[i] = false;
+        bigShooterCooldowns[i] = 0.0f;
     }
 }
 
@@ -577,21 +1042,7 @@ void BigShooterEnemyMovement(int i)
     if (bigShooterEnemies[i].angle > 2 * M_PI) bigShooterEnemies[i].angle -= 2 * M_PI;
     if (bigShooterEnemies[i].angle < 0) bigShooterEnemies[i].angle += 2 * M_PI;
 
-    int spawnMargin = 150;
-    if (bigShooterEnemies[i].position.x < -spawnMargin || bigShooterEnemies[i].position.x > screenWidth + spawnMargin ||
-        bigShooterEnemies[i].position.y < -spawnMargin || bigShooterEnemies[i].position.y > screenHeight + spawnMargin)
-    {
-        // Ne respawn que si l'ennemi est encore actif (pas détruit par collision)
-        if (bigShooterEnemies[i].size.x > 0.0f && bigShooterEnemies[i].size.y > 0.0f)
-        {
-            BigShooterEnemySpawn(i);
-        }
-        else
-        {
-            // L'ennemi a été détruit, ne pas respawn
-            bigShooterEnemiesSpawn[i] = false;
-        }
-    }
+    BorderEnemyCollision(&bigShooterEnemies[i]);
 }
 
 // === Mid Enemy ===
@@ -602,6 +1053,23 @@ void UpdateMidShooterEnemy(int i, GameAssets* assets, Collision* collision)
     //if (!midShooterEnemiesSpawn[i]) return;
     if (midShooterEnemies[i].size.x <= 0.0f) return;
     MidShooterEnemyMovement(i);
+
+
+    // Logique de tir vers le joueur
+    if (player != NULL && midShooterCooldowns[i] <= 0.0f)
+    {
+        Vector2D enemyPos = { midShooterEnemies[i].position.x, midShooterEnemies[i].position.y };
+        Vector2D playerPos = { player->position.x, player->position.y };
+
+        FireEnemyBullet(enemyPos, playerPos);
+        midShooterCooldowns[i] = MID_SHOOTER_FIRE_RATE;
+    }
+
+    if (midShooterCooldowns[i] > 0.0f)
+    {
+        midShooterCooldowns[i] -= 1.0f;
+    }
+
     // Affichage (même structure que BIG mais avec scale réduit)
     const float scale = 2.0f;  // Moitié de 3.5f
     Rectangle sourceRec = { 0, 0, assets->shooterEnemyTexture.width, assets->shooterEnemyTexture.height };
@@ -623,6 +1091,8 @@ void UpdateMidShooterEnemy(int i, GameAssets* assets, Collision* collision)
         SmallShooterEnemySpawn(i * 2, x, y);
         SmallShooterEnemySpawn(i * 2 + 1, x, y);
         collision->midShooterEnemiesBulletCollision[i] = false;
+        midShooterCooldowns[i] = 0.0f;
+
     }
 }
 
@@ -653,13 +1123,9 @@ void MidShooterEnemyMovement(int i)
     midShooterEnemies[i].angle += midShooterEnemies[i].rotationSpeed;
     if (midShooterEnemies[i].angle > 2 * M_PI) midShooterEnemies[i].angle -= 2 * M_PI;
     if (midShooterEnemies[i].angle < 0) midShooterEnemies[i].angle += 2 * M_PI;
-    int spawnMargin = 150;
-    if (midShooterEnemies[i].position.x < -spawnMargin || midShooterEnemies[i].position.x > screenWidth + spawnMargin ||
-        midShooterEnemies[i].position.y < -spawnMargin || midShooterEnemies[i].position.y > screenHeight + spawnMargin)
-    {
-        MidShooterEnemyRespawn(i);
-        midShooterEnemiesSpawn[i] = false;
-    }
+    
+    BorderEnemyCollision(&midShooterEnemies[i]);
+
 }
 
 void MidShooterEnemyRespawn(int i)
@@ -687,6 +1153,22 @@ void UpdateSmallShooterEnemy(int i, GameAssets* assets, Collision* collision)
     //if (!smallShooterEnemiesSpawn[i]) return;
     if (smallShooterEnemies[i].size.x <= 0.0f) return;
     SmallShooterEnemyMovement(i);
+
+    // Logique de tir vers le joueur
+    if (player != NULL && smallShooterCooldowns[i] <= 0.0f)
+    {
+        Vector2D enemyPos = { smallShooterEnemies[i].position.x, smallShooterEnemies[i].position.y };
+        Vector2D playerPos = { player->position.x, player->position.y };
+
+        FireEnemyBullet(enemyPos, playerPos);
+        smallShooterCooldowns[i] = SMALL_SHOOTER_FIRE_RATE;
+    }
+
+    if (smallShooterCooldowns[i] > 0.0f)
+    {
+        smallShooterCooldowns[i] -= 1.0f;
+    }
+
     // Affichage (même structure que BIG mais avec scale réduit)
     const float scale = 1.5f;  // Moitié de 2.0f
     Rectangle sourceRec = { 0, 0, assets->shooterEnemyTexture.width, assets->shooterEnemyTexture.height };
@@ -703,6 +1185,8 @@ void UpdateSmallShooterEnemy(int i, GameAssets* assets, Collision* collision)
 		//smallShooterEnemiesSpawn[i] = false;
 
         collision->smallShooterEnemiesBulletCollision[i] = false;
+        smallShooterCooldowns[i] = 0.0f;
+
     }
 }
 
@@ -733,13 +1217,9 @@ void SmallShooterEnemyMovement(int i)
     smallShooterEnemies[i].angle += smallShooterEnemies[i].rotationSpeed;
     if (smallShooterEnemies[i].angle > 2 * M_PI) smallShooterEnemies[i].angle -= 2 * M_PI;
     if (smallShooterEnemies[i].angle < 0) smallShooterEnemies[i].angle += 2 * M_PI;
-    int spawnMargin = 150;
-    if (smallShooterEnemies[i].position.x < -spawnMargin || smallShooterEnemies[i].position.x > screenWidth + spawnMargin ||
-        smallShooterEnemies[i].position.y < -spawnMargin || smallShooterEnemies[i].position.y > screenHeight + spawnMargin)
-    {
-        SmallShooterEnemyRespawn(i);
-        smallShooterEnemiesSpawn[i] = false;
-    }
+    
+    BorderEnemyCollision(&smallShooterEnemies[i]);
+
 }
 
 void SmallShooterEnemyRespawn(int i)
@@ -838,21 +1318,8 @@ void BigFollowerEnemyMovement(int i)
     if (bigFollowerEnemies[i].angle > 2 * M_PI) bigFollowerEnemies[i].angle -= 2 * M_PI;
     if (bigFollowerEnemies[i].angle < 0) bigFollowerEnemies[i].angle += 2 * M_PI;
 
-    int spawnMargin = 150;
-    if (bigFollowerEnemies[i].position.x < -spawnMargin || bigFollowerEnemies[i].position.x > screenWidth + spawnMargin ||
-        bigFollowerEnemies[i].position.y < -spawnMargin || bigFollowerEnemies[i].position.y > screenHeight + spawnMargin)
-    {
-        // Ne respawn que si l'ennemi est encore actif (pas détruit par collision)
-        if (bigFollowerEnemies[i].size.x > 0.0f && bigFollowerEnemies[i].size.y > 0.0f)
-        {
-            BigFollowerEnemySpawn(i);
-        }
-        else
-        {
-            // L'ennemi a été détruit, ne pas respawn
-            bigFollowerEnemiesSpawn[i] = false;
-        }
-    }
+    BorderEnemyCollision(&bigFollowerEnemies[i]);
+
 }
 
 // === Mid Enemy ===
@@ -914,13 +1381,9 @@ void MidFollowerEnemyMovement(int i)
     midFollowerEnemies[i].angle += midFollowerEnemies[i].rotationSpeed;
     if (midFollowerEnemies[i].angle > 2 * M_PI) midFollowerEnemies[i].angle -= 2 * M_PI;
     if (midFollowerEnemies[i].angle < 0) midFollowerEnemies[i].angle += 2 * M_PI;
-    int spawnMargin = 150;
-    if (midFollowerEnemies[i].position.x < -spawnMargin || midFollowerEnemies[i].position.x > screenWidth + spawnMargin ||
-        midFollowerEnemies[i].position.y < -spawnMargin || midFollowerEnemies[i].position.y > screenHeight + spawnMargin)
-    {
-        MidFollowerEnemyRespawn(i);
-        midFollowerEnemiesSpawn[i] = false;
-    }
+    
+    BorderEnemyCollision(&midFollowerEnemies[i]);
+
 }
 
 void MidFollowerEnemyRespawn(int i)
@@ -994,13 +1457,9 @@ void SmallFollowerEnemyMovement(int i)
     smallFollowerEnemies[i].angle += smallFollowerEnemies[i].rotationSpeed;
     if (smallFollowerEnemies[i].angle > 2 * M_PI) smallFollowerEnemies[i].angle -= 2 * M_PI;
     if (smallFollowerEnemies[i].angle < 0) smallFollowerEnemies[i].angle += 2 * M_PI;
-    int spawnMargin = 150;
-    if (smallFollowerEnemies[i].position.x < -spawnMargin || smallFollowerEnemies[i].position.x > screenWidth + spawnMargin ||
-        smallFollowerEnemies[i].position.y < -spawnMargin || smallFollowerEnemies[i].position.y > screenHeight + spawnMargin)
-    {
-        SmallFollowerEnemyRespawn(i);
-        smallFollowerEnemiesSpawn[i] = false;
-    }
+    
+    BorderEnemyCollision(&smallFollowerEnemies[i]);
+
 }
 
 void SmallFollowerEnemyRespawn(int i)
@@ -1034,6 +1493,22 @@ void UpdateBigFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
     //if (!bigFollowerShooterEnemiesSpawn[i]) return;
     if (bigFollowerShooterEnemies[i].size.x <= 0.0f) return;
     BigFollowerShooterEnemyMovement(i);
+
+    // Logique de tir vers le joueur
+    if (player != NULL && bigFollowerShooterCooldowns[i] <= 0.0f)
+    {
+        Vector2D enemyPos = { bigFollowerShooterEnemies[i].position.x, bigFollowerShooterEnemies[i].position.y };
+        Vector2D playerPos = { player->position.x, player->position.y };
+
+        FireEnemyBullet(enemyPos, playerPos);
+        bigFollowerShooterCooldowns[i] = BIG_SHOOTER_FIRE_RATE;
+    }
+
+    if (bigFollowerShooterCooldowns[i] > 0.0f)
+    {
+        bigFollowerShooterCooldowns[i] -= 1.0f;
+    }
+
     // Affichage
     Rectangle sourceRec = { 0, 0, assets->followerShooterEnemyTexture.width, assets->followerShooterEnemyTexture.height };
     Rectangle destRec = { bigFollowerShooterEnemies[i].position.x, bigFollowerShooterEnemies[i].position.y,
@@ -1054,6 +1529,8 @@ void UpdateBigFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
         MidFollowerShooterEnemySpawn(i * 2, x, y);
         MidFollowerShooterEnemySpawn(i * 2 + 1, x, y);
         collision->bigFollowerShooterEnemiesBulletCollision[i] = false;
+        bigFollowerShooterCooldowns[i] = 0.0f;
+
     }
 }
 
@@ -1098,21 +1575,8 @@ void BigFollowerShooterEnemyMovement(int i)
     if (bigFollowerShooterEnemies[i].angle > 2 * M_PI) bigFollowerShooterEnemies[i].angle -= 2 * M_PI;
     if (bigFollowerShooterEnemies[i].angle < 0) bigFollowerShooterEnemies[i].angle += 2 * M_PI;
 
-    int spawnMargin = 150;
-    if (bigFollowerShooterEnemies[i].position.x < -spawnMargin || bigFollowerShooterEnemies[i].position.x > screenWidth + spawnMargin ||
-        bigFollowerShooterEnemies[i].position.y < -spawnMargin || bigFollowerShooterEnemies[i].position.y > screenHeight + spawnMargin)
-    {
-        // Ne respawn que si l'ennemi est encore actif (pas détruit par collision)
-        if (bigFollowerShooterEnemies[i].size.x > 0.0f && bigFollowerShooterEnemies[i].size.y > 0.0f)
-        {
-            BigFollowerShooterEnemySpawn(i);
-        }
-        else
-        {
-            // L'ennemi a été détruit, ne pas respawn
-            bigFollowerShooterEnemiesSpawn[i] = false;
-        }
-    }
+    BorderEnemyCollision(&bigFollowerShooterEnemies[i]);
+
 }
 
 // === Mid Enemy ===
@@ -1123,6 +1587,22 @@ void UpdateMidFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
     //if (!midFollowerShooterEnemiesSpawn[i]) return;
     if (midFollowerShooterEnemies[i].size.x <= 0.0f) return;
     MidFollowerShooterEnemyMovement(i);
+
+    // Logique de tir vers le joueur
+    if (player != NULL && midFollowerShooterCooldowns[i] <= 0.0f)
+    {
+        Vector2D enemyPos = { midFollowerShooterEnemies[i].position.x, midFollowerShooterEnemies[i].position.y };
+        Vector2D playerPos = { player->position.x, player->position.y };
+
+        FireEnemyBullet(enemyPos, playerPos);
+        midFollowerShooterCooldowns[i] = MID_SHOOTER_FIRE_RATE;
+    }
+
+    if (midFollowerShooterCooldowns[i] > 0.0f)
+    {
+        midFollowerShooterCooldowns[i] -= 1.0f;
+    }
+
     // Affichage (même structure que BIG mais avec scale réduit)
     const float scale = 2.0f;  // Moitié de 3.5f
     Rectangle sourceRec = { 0, 0, assets->followerShooterEnemyTexture.width, assets->followerShooterEnemyTexture.height };
@@ -1174,13 +1654,9 @@ void MidFollowerShooterEnemyMovement(int i)
     midFollowerShooterEnemies[i].angle += midFollowerShooterEnemies[i].rotationSpeed;
     if (midFollowerShooterEnemies[i].angle > 2 * M_PI) midFollowerShooterEnemies[i].angle -= 2 * M_PI;
     if (midFollowerShooterEnemies[i].angle < 0) midFollowerShooterEnemies[i].angle += 2 * M_PI;
-    int spawnMargin = 150;
-    if (midFollowerShooterEnemies[i].position.x < -spawnMargin || midFollowerShooterEnemies[i].position.x > screenWidth + spawnMargin ||
-        midFollowerShooterEnemies[i].position.y < -spawnMargin || midFollowerShooterEnemies[i].position.y > screenHeight + spawnMargin)
-    {
-        MidFollowerShooterEnemyRespawn(i);
-        midFollowerShooterEnemiesSpawn[i] = false;
-    }
+    
+    BorderEnemyCollision(&midFollowerShooterEnemies[i]);
+
 }
 
 void MidFollowerShooterEnemyRespawn(int i)
@@ -1208,6 +1684,22 @@ void UpdateSmallFollowerShooterEnemy(int i, GameAssets* assets, Collision* colli
     //if (!smallFollowerShooterEnemiesSpawn[i]) return;
     if (smallFollowerShooterEnemies[i].size.x <= 0.0f) return;
     SmallFollowerShooterEnemyMovement(i);
+
+    // Logique de tir vers le joueur
+    if (player != NULL && smallFollowerShooterCooldowns[i] <= 0.0f)
+    {
+        Vector2D enemyPos = { smallFollowerShooterEnemies[i].position.x, smallFollowerShooterEnemies[i].position.y };
+        Vector2D playerPos = { player->position.x, player->position.y };
+
+        FireEnemyBullet(enemyPos, playerPos);
+        smallFollowerShooterCooldowns[i] = SMALL_SHOOTER_FIRE_RATE;
+    }
+
+    if (smallFollowerShooterCooldowns[i] > 0.0f)
+    {
+        smallFollowerShooterCooldowns[i] -= 1.0f;
+    }
+
     // Affichage (même structure que BIG mais avec scale réduit)
     const float scale = 1.5f;  // Moitié de 2.0f
     Rectangle sourceRec = { 0, 0, assets->followerShooterEnemyTexture.width, assets->followerShooterEnemyTexture.height };
@@ -1224,6 +1716,8 @@ void UpdateSmallFollowerShooterEnemy(int i, GameAssets* assets, Collision* colli
 		//smallFollowerShooterEnemiesSpawn[i] = false;
 
         collision->smallFollowerShooterEnemiesBulletCollision[i] = false;
+        smallFollowerShooterCooldowns[i] = 0.0f;
+
     }
 }
 
@@ -1254,13 +1748,9 @@ void SmallFollowerShooterEnemyMovement(int i)
     smallFollowerShooterEnemies[i].angle += smallFollowerShooterEnemies[i].rotationSpeed;
     if (smallFollowerShooterEnemies[i].angle > 2 * M_PI) smallFollowerShooterEnemies[i].angle -= 2 * M_PI;
     if (smallFollowerShooterEnemies[i].angle < 0) smallFollowerShooterEnemies[i].angle += 2 * M_PI;
-    int spawnMargin = 150;
-    if (smallFollowerShooterEnemies[i].position.x < -spawnMargin || smallFollowerShooterEnemies[i].position.x > screenWidth + spawnMargin ||
-        smallFollowerShooterEnemies[i].position.y < -spawnMargin || smallFollowerShooterEnemies[i].position.y > screenHeight + spawnMargin)
-    {
-        SmallFollowerShooterEnemyRespawn(i);
-        smallFollowerShooterEnemiesSpawn[i] = false;
-    }
+    
+    BorderEnemyCollision(&smallFollowerShooterEnemies[i]);
+
 }
 
 void SmallFollowerShooterEnemyRespawn(int i)
@@ -1278,4 +1768,58 @@ void SmallFollowerShooterEnemyRespawn(int i)
     float speed = 1.5f + ((float)GetRandomValue(0, 100) / 100.0f) * (2.5f - 1.5f);
     smallFollowerShooterEnemies[i].velocity.x = dirX / dist * speed;
     smallFollowerShooterEnemies[i].velocity.y = dirY / dist * speed;
+}
+
+
+bool AllEnemiesDead(void)
+{
+    for (int i = 0; i < maxBigBasicEnemies; i++)
+        if (bigBasicEnemiesSpawn[i] && bigBasicEnemies[i].size.x > 0.0f && bigBasicEnemies[i].size.y > 0.0f)
+            return false;
+
+    for (int i = 0; i < maxMidBasicEnemies; i++)
+        if (midBasicEnemiesSpawn[i] && midBasicEnemies[i].size.x > 0.0f && midBasicEnemies[i].size.y > 0.0f)
+            return false;
+
+    for (int i = 0; i < maxSmallBasicEnemies; i++)
+        if (smallBasicEnemiesSpawn[i] && smallBasicEnemies[i].size.x > 0.0f && smallBasicEnemies[i].size.y > 0.0f)
+            return false;
+
+    for (int i = 0; i < maxBigShooterEnemy; i++)
+        if (bigShooterEnemiesSpawn[i] && bigShooterEnemies[i].size.x > 0.0f && bigShooterEnemies[i].size.y > 0.0f)
+            return false;
+
+    for (int i = 0; i < maxMidShooterEnemy; i++)
+        if (midShooterEnemiesSpawn[i] && midShooterEnemies[i].size.x > 0.0f && midShooterEnemies[i].size.y > 0.0f)
+            return false;
+
+    for (int i = 0; i < maxSmallShooterEnemy; i++)
+        if (smallShooterEnemiesSpawn[i] && smallShooterEnemies[i].size.x > 0.0f && smallShooterEnemies[i].size.y > 0.0f)
+            return false;
+
+    for (int i = 0; i < maxBigFollowerEnemy; i++)
+        if (bigFollowerEnemiesSpawn[i] && bigFollowerEnemies[i].size.x > 0.0f && bigFollowerEnemies[i].size.y > 0.0f)
+            return false;
+
+    for (int i = 0; i < maxMidFollowerEnemy; i++)
+        if (midFollowerEnemiesSpawn[i] && midFollowerEnemies[i].size.x > 0.0f && midFollowerEnemies[i].size.y > 0.0f)
+            return false;
+
+    for (int i = 0; i < maxSmallFollowerEnemy; i++)
+        if (smallFollowerEnemiesSpawn[i] && smallFollowerEnemies[i].size.x > 0.0f && smallFollowerEnemies[i].size.y > 0.0f)
+            return false;
+
+    for (int i = 0; i < maxBigFollowerShooterEnemy; i++)
+        if (bigFollowerShooterEnemiesSpawn[i] && bigFollowerShooterEnemies[i].size.x > 0.0f && bigFollowerShooterEnemies[i].size.y > 0.0f)
+            return false;
+
+    for (int i = 0; i < maxMidFollowerShooterEnemy; i++)
+        if (midFollowerShooterEnemiesSpawn[i] && midFollowerShooterEnemies[i].size.x > 0.0f && midFollowerShooterEnemies[i].size.y > 0.0f)
+            return false;
+
+    for (int i = 0; i < maxSmallFollowerShooterEnemy; i++)
+        if (smallFollowerShooterEnemiesSpawn[i] && smallFollowerShooterEnemies[i].size.x > 0.0f && smallFollowerShooterEnemies[i].size.y > 0.0f)
+            return false;
+
+    return true; // Tous les ennemis spawnés sont morts
 }

@@ -13,11 +13,14 @@
 GameScreen currentScreen = TITLE;
 bool title = true;
 bool help = false;
+bool controls = false;
 bool solo = false;
+bool titlePause = false;
 bool pause = false;
 
 bool allowMove = false;
 bool gameOver = false;
+bool levelSpawned = false;
 
 Ship* player = NULL;
 Collision* collision;
@@ -34,11 +37,10 @@ const float FRICTION = 0.93f;                        // friction (slowdown) = 0.
 float fireCooldown = 0.25; // 0.25 seconds of cooldown
 float timeSinceLastShot = 0.0f;
 
-char buffer[64];  // stock some text (lifes)
 
-char buffer[64];
-char buffer2[100];
-char buffer3[32];
+
+int bestScore = 0;
+
 
 // InitGame: initializes the basic values for physics and player position
 Enemy* basicEnemy;
@@ -46,30 +48,50 @@ Enemy bigBasicEnemies[3];
 
 Color shipColor = { 186, 18, 186, 255 };
 
+
+void CheckLifeOfPlayer()
+{
+    if (lifeNumber <= 0) {
+        currentScreen = GAMEOVER;
+        gameOver = true;
+    }
+}
+
 void InitAssets(GameAssets* assets)
 {
     assets->background = LoadTexture("Assets/Background1080_1300.png");
     assets->interface = LoadTexture("Assets/interface1.png");
+	assets->minestorm = LoadTexture("Assets/minestorm.png");
+	assets->titleText = LoadTexture("Assets/title_text.png");
     assets->ship = LoadTexture("Assets/Kenney/ship_sidesA.png"); // ship_K.png  // Kenney/ship_sidesA.png
     assets->bulletTexture = LoadTexture("Assets/Kenney/meteor_large.png");
     assets->basicEnemyTexture = LoadTexture("Assets/basic_enemy1.png");
     assets->shooterEnemyTexture = LoadTexture("Assets/shooter_enemy.png");
     assets->followerEnemyTexture = LoadTexture("Assets/follower_enemy.png");
 	assets->followerShooterEnemyTexture = LoadTexture("Assets/follower_shooter_enemy.png");
-    assets->font = LoadFont("Assets/pixel_police.ttf");
+	assets->motherShipTexture = LoadTexture("Assets/mother_ship.png");
+    assets->pixelFont = LoadFont("Assets/pixel_police.ttf");
+	assets->magnetoFont = LoadFont("Assets/Magneto.ttf");
+
+
+
 }
 
 void UnloadAssets(GameAssets* assets)
 {
     UnloadTexture(assets->background);
     UnloadTexture(assets->interface);
+	UnloadTexture(assets->minestorm);
+	UnloadTexture(assets->titleText);
     UnloadTexture(assets->ship);
 	UnloadTexture(assets->bulletTexture);
     UnloadTexture(assets->basicEnemyTexture);
     UnloadTexture(assets->shooterEnemyTexture);
 	UnloadTexture(assets->followerEnemyTexture);
 	UnloadTexture(assets->followerShooterEnemyTexture);
-    UnloadFont(assets->font);
+	UnloadTexture(assets->motherShipTexture);
+    UnloadFont(assets->pixelFont);
+	UnloadFont(assets->magnetoFont);
 }
 
 void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision)
@@ -79,12 +101,18 @@ void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision)
     case TITLE:
         UpdateTitleScreen(assets);
         break;
-    case HELP:
-        UpdateHelpGameplay(assets);
-        break;
     case SOLO_GAMEPLAY:
         UpdateSoloGameplay(assets, enemy, collision);
         break;
+    case CONTROLS:
+        UpdateControlsGameplay(assets);
+		break;
+    case HELP:
+        UpdateHelpGameplay(assets);
+        break;
+    case TITLE_PAUSE:
+        UpdateTitlePause(assets);
+		break;
     case PAUSE:
         UpdatePauseMenu(assets);
         break;
@@ -97,19 +125,24 @@ void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision)
 
 void UpdateTitleScreen(GameAssets* assets)
 {
+
     BeginDrawing();
     ClearBackground(BLACK);
 
     // Draw
     DrawTexture(assets->background, 0, 0, WHITE);
-
+    /*
     //Text
     DrawText("(F) : Launch Solo Game", 375, 450, 20, WHITE);
     DrawText("(K) : Launch Duo Game", 375, 500, 20, WHITE);
     DrawText("(H) : Help", 375, 550, 20, WHITE);
     DrawText("(P) : Pause Menu", 375, 600, 20, WHITE);
     DrawText("(Esc) : Quit Game", 375, 650, 20, WHITE);
+    */
 
+    DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
+	DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
+    DrawTextureEx(assets->titleText, (Vector2) { 0, -150 }, 0, 1, WHITE);
     EndDrawing();
 
     if (IsKeyPressed(KEY_H))
@@ -118,6 +151,21 @@ void UpdateTitleScreen(GameAssets* assets)
         title = false;
         help = true;
     }
+
+    if (IsKeyPressed(KEY_C))
+    {
+        currentScreen = CONTROLS;
+        title = false;
+        controls = true;
+	}
+
+    if (IsKeyPressed(KEY_P))
+    {
+        currentScreen = TITLE_PAUSE;
+        title = false;
+        titlePause = true;
+	}
+
     if (IsKeyPressed(KEY_F))
     {
         currentScreen = SOLO_GAMEPLAY;
@@ -126,20 +174,71 @@ void UpdateTitleScreen(GameAssets* assets)
     }
 }
 
+void UpdateControlsGameplay(GameAssets* assets)
+{
+	BeginDrawing();
+	ClearBackground(BLACK);
+	// Draw
+	DrawTexture(assets->background, 0, 0, WHITE);
+	DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
+	DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
+	DrawTextPro(assets->magnetoFont, "[ Z or W ] To move forward\n\n\n\n\n\n[ A or Q ] To turn left\n\n\n\n\n\n[ D ] To turn right\n\n\n\n\n\n[ Left Ctrl ] To teleport", (Vector2) { 150, 300 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
+	DrawTextPro(assets->magnetoFont, "[ H ] To return to title screen", (Vector2) { 250, 1000 }, (Vector2) { 0, 0 }, 0.0f, 30, 2, WHITE);
+
+	EndDrawing();
+    if (IsKeyPressed(KEY_C))
+    {
+        currentScreen = TITLE;
+        controls = false;
+        title = true;
+	}
+}
+
 void UpdateHelpGameplay(GameAssets* assets)
 {
     BeginDrawing();
     ClearBackground(BLACK);
     // Draw
     DrawTexture(assets->background, 0, 0, WHITE);
-    DrawText("Pause Menu Screen", 160, 300, 20, WHITE);
-    DrawText("(H) to return", 160, 350, 20, WHITE);
+    DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
+    DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
+	DrawTextureEx(assets->basicEnemyTexture, (Vector2) { 225, 200 }, 0, 0.75, WHITE);
+	DrawTextureEx(assets->shooterEnemyTexture, (Vector2) { 650, 205 }, 0, 1.45, WHITE);
+	DrawTextureEx(assets->followerEnemyTexture, (Vector2) { 225, 550 }, 0, 0.8, WHITE);
+	DrawTextureEx(assets->followerShooterEnemyTexture, (Vector2) { 665, 575 }, 0, 2.50, WHITE);
+    // DrawText("Pause Menu Screen", 160, 300, 20, WHITE);
+	DrawTextPro(assets->magnetoFont, "   Basic Enemy\n\n\nHe always moves\n\n  straight ahead", (Vector2) { 185, 375 }, (Vector2) { 0, 0 }, 0.0f, 25, 2, WHITE);
+	DrawTextPro(assets->magnetoFont, "Shooter Enemy\n\n\n   He moves\n\nstraight ahead\n\nand shoots you", (Vector2) { 625, 375 }, (Vector2) { 0, 0 }, 0.0f, 25, 2, WHITE);
+	DrawTextPro(assets->magnetoFont, "Follower Enemy\n\n\n   He follows\n\nyou everywhere", (Vector2) { 185, 725 }, (Vector2) { 0, 0 }, 0.0f, 25, 2, WHITE);
+	DrawTextPro(assets->magnetoFont, "Follower Shooter\n\n      Enemy\n\n\n   He follows\n\nyou everywhere\n\n and shoots you", (Vector2) { 625, 725 }, (Vector2) { 0, 0 }, 0.0f, 25, 2, WHITE);
+	DrawTextPro(assets->magnetoFont, "[ H ] To return to title screen", (Vector2) { 250, 1000 }, (Vector2) { 0, 0 }, 0.0f, 30, 2, WHITE);
+	//DrawText("Basic Enemy\nHe always moves\n straight ahead", 130, 320, 20, WHITE);
+    
     EndDrawing();
     if (IsKeyPressed(KEY_H))
     {
         currentScreen = TITLE;
         help = false;
         title = true;
+    }
+}
+
+void UpdateTitlePause(GameAssets* assets)
+{
+    BeginDrawing();
+    ClearBackground(BLACK);
+    // Draw
+    DrawTexture(assets->background, 0, 0, WHITE);
+    DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
+    DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
+    DrawTextPro(assets->magnetoFont, "You need to click on [ P ] in game\n\n\n\n\n\n\n            not in the title  :(", (Vector2) { 70, 450 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
+    
+    EndDrawing();
+    if (IsKeyPressed(KEY_P))
+    {
+        currentScreen = TITLE;
+        titlePause = false;
+        solo = true;
     }
 }
 
@@ -175,55 +274,35 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
         //DrawText("Solo Gameplay Screen", 160, 300, 20, WHITE);
         // <-- passes assets to the enemy manager
         UpdateControlGame();
+        MotherShipUpdate(assets, collision);
         UpdateEnemies(assets, collision);
 
 
-        Vector2 interfacePos = { 0, 0 };
-        
+
        
 
         // --- Updating and drawing bullets ---
         UpdateBullets(assets, collision);
+        UpdateEnemyBullets(assets, player);
 
         DrawHitboxes();
 
-
-        // Help Text
-        Vector2 controlPos = { 15, 61 };
-        float fontSize = 15;
-        float spacing = 2;
-        Vector2 controlPosrot = { 0, 0 };
-        float rotation = -6.0f;
-        // Texte séparé en lignes
-        const char* lines[] = {
-            "Use Z or W to move",
-            "A or Q to turn left",
-            "D to turn right",
-            "Ctrl to teleport"
-        };
-
-        for (int i = 0; i < 4; i++)
+        DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
+        DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
+		// DrawTextureEx(assets->motherShipTexture, (Vector2) { 200, 200 }, 0, 1, WHITE);
+       
+        if (score > bestScore)
         {
-            DrawTextPro(assets->font, lines[i],
-                (Vector2) {
-                controlPos.x, controlPos.y + i * (fontSize + 5)
-            },
-                controlPosrot, rotation,
-                fontSize, spacing, WHITE);
-        }
-        sprintf_s(buffer, sizeof(buffer), "number of life = %d", lifeNumber);
-        DrawText(buffer, GetScreenWidth() / 2 - MeasureText(buffer, 20) / 2,
-            GetScreenHeight() / 2 - 100, 20, ORANGE);
+            bestScore = score;
+		}
 
-        sprintf_s(buffer2, sizeof(buffer2), "Score = %d", score);
-        DrawText(buffer2, GetScreenWidth() / 2 - MeasureText(buffer2, 20) / 2,
-            GetScreenHeight() / 2 - 60, 20, ORANGE);
+        DrawTextPro(assets->pixelFont, TextFormat("Lives:%d", lifeNumber), (Vector2) { 75, 55 }, (Vector2) { 0, 0 }, -6.0, 20, 2, WHITE);
+        DrawTextPro(assets->pixelFont, TextFormat("Level:%d", actualLevel), (Vector2) { 85, 100 }, (Vector2) { 0, 0 }, -6.0, 20, 2, WHITE);
 
-        sprintf_s(buffer3, sizeof(buffer3), "level %d", actualLevel);
-        DrawText(buffer3, GetScreenWidth() / 2 - MeasureText(buffer3, 20) / 2,
-            GetScreenHeight() / 2 - 30, 20, ORANGE);
         
-        DrawTextureEx(assets->interface, interfacePos, 0, 1, WHITE);
+		DrawTextPro(assets->pixelFont, TextFormat("Score:%d", score), (Vector2) { 850, 40 }, (Vector2) { 0, 0 }, 5.5f, 20, 2, WHITE);
+		DrawTextPro(assets->pixelFont, TextFormat("Best Score:%d", bestScore), (Vector2) { 850, 85 }, (Vector2) { 0, 0 }, 5.5f, 20, 2, WHITE);
+
         EndDrawing();
     }
 
@@ -238,10 +317,14 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
 void UpdatePauseMenu(GameAssets* assets)
 {
     BeginDrawing();
-    ClearBackground(BLACK);
-    // Draw
-    DrawTexture(assets->background, 0, 0, WHITE);
-    DrawText("Pause Menu Screen", 160, 300, 20, WHITE);
+	ClearBackground(BLACK);
+	// Draw
+	DrawTexture(assets->background, 0, 0, WHITE);
+	DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
+	DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
+    DrawTextPro(assets->magnetoFont, "[ Z or W ] To move forward\n\n\n\n\n\n[ A or Q ] To turn left\n\n\n\n\n\n[ D ] To turn right\n\n\n\n\n\n[ Left Ctrl ] To teleport", (Vector2) { 150, 300 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
+    DrawTextPro(assets->magnetoFont, "[ P ] To return to resume", (Vector2) { 250, 1000 }, (Vector2) { 0, 0 }, 0.0f, 30, 2, WHITE);
+
     EndDrawing();
     if (IsKeyPressed(KEY_P))
     {
@@ -257,26 +340,40 @@ void UpdateGameOver(GameAssets* assets, Collision* collision)
     {
         BeginDrawing();
         ClearBackground(BLACK);
-        // I just wanted to center the text.
-        DrawText("YOU LOSE !\n        PRESS [ESC] TO RETURN IN THE MENU",
-            GetScreenWidth() / 2 - MeasureText("YOU LOSE !", 20) / 2,
-            GetScreenHeight() / 2 - 50, 20, RED);
-    }
-    EndDrawing();
-    if (IsKeyPressed(KEY_ENTER))
-    {
-        RestartGame(assets, basicEnemy, collision);
+		// Draw
+		DrawTexture(assets->background, 0, 0, WHITE);
+		DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
+		DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
+		DrawTextPro(assets->magnetoFont, "GAME OVER", (Vector2) { 225, 500 }, (Vector2) { 0, 0 }, 0.0f, 80, 2, RED);
+		DrawTextPro(assets->magnetoFont, TextFormat("Your Score : %d", score), (Vector2) { 275, 650 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
+		DrawTextPro(assets->magnetoFont, TextFormat("Best Score : %d", bestScore), (Vector2) { 275, 700 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
+		DrawTextPro(assets->magnetoFont, "Press [ ENTER ] to restart", (Vector2) { 220, 800 }, (Vector2) { 0, 0 }, 0.0f, 40, 2, WHITE);
+        EndDrawing();
+        if (IsKeyPressed(KEY_ENTER))
+        {
+            RestartGame(assets, basicEnemy, collision);
+        }
     }
 }
 
 void RestartGame(GameAssets* assets, Enemy* enemy, Collision* collision)
 {
+    InitBullets();          // Existant
+    InitEnemyBullets();
+
     UpdateGame(assets, enemy, collision);
     gameOver = false;
+    InitGame();
+    currentScreen = SOLO_GAMEPLAY;
+    score = 0;
+    lifeNumber = 3;
+    actualLevel = 1;
 }
 
 void InitGame(void)
 {
+    InitBullets();
+    InitEnemyBullets();
     player = (Ship*)malloc(sizeof(Ship));
     if (player == NULL) {
         printf("Allocation unsuccessful");
@@ -423,79 +520,6 @@ void InitGame(void)
     printf("InitGame: Big enemies initialized\n");
 }
 
-void UpdateEnemies(GameAssets* assets, Collision* collision)
-{
-    for (int i = 0; i < maxBigBasicEnemies; i++)
-    {
-        UpdateBigBasicEnemy(i, assets, collision);
-    }
-
-    // Update les 6 MID basic enemies
-    for (int i = 0; i < maxMidBasicEnemies; i++)
-    {
-        UpdateMidBasicEnemy(i, assets, collision);
-    }
-
-    // Update 12 SMALL basic enemies
-    for (int i = 0; i < maxSmallBasicEnemies; i++)
-    {
-        UpdateSmallBasicEnemy(i, assets, collision);
-    }
-
-    // Update Big Shooter Enemies
-    for (int i = 0; i < maxBigShooterEnemy; i++)
-    {
-        UpdateBigShooterEnemy(i, assets, collision);
-    }
-
-    // Update Mid Shooter Enemies
-    for (int i = 0; i < maxMidShooterEnemy; i++)
-    {
-        UpdateMidShooterEnemy(i, assets, collision);
-    }
-
-    // Update Small Shooter Enemies
-    for (int i = 0; i < maxSmallShooterEnemy; i++)
-    {
-        UpdateSmallShooterEnemy(i, assets, collision);
-    }
-
-    // Update Big Follower Enemies
-    for (int i = 0; i < maxBigFollowerEnemy; i++)
-    {
-        UpdateBigFollowerEnemy(i, assets, collision);
-    }
-
-    // Update Mid Follower Enemies
-    for (int i = 0; i < maxMidFollowerEnemy; i++)
-    {
-        UpdateMidFollowerEnemy(i, assets, collision);
-    }
-
-    //Update Small Follower Enemies
-    for (int i = 0; i < maxSmallFollowerEnemy; i++)
-    {
-        UpdateSmallFollowerEnemy(i, assets, collision);
-    }
-
-    // Update Big Follower-Shooter Enemies
-    for (int i = 0; i < maxBigFollowerShooterEnemy; i++)
-    {
-        UpdateBigFollowerShooterEnemy(i, assets, collision);
-    }
-
-    // Update Mid Follower-Shooter Enemies
-    for (int i = 0; i < maxMidFollowerShooterEnemy; i++)
-    {
-        UpdateMidFollowerShooterEnemy(i, assets, collision);
-    }
-
-    // Update Small Follower-Shooter Enemies
-    for (int i = 0; i < maxSmallFollowerShooterEnemy; i++)
-    {
-        UpdateSmallFollowerShooterEnemy(i, assets, collision);
-    }
-}
 
 // Implementation and verification of game controls
 void CheckInput(void)
@@ -546,7 +570,7 @@ void CheckInput(void)
         player->position = Vector2D_SetFromComponents(randX, randY);
     }
 
-    if (IsKeyDown('H'))
+    if (IsKeyDown('C'))
     {
         BoundingBoxPlayer();
     }
@@ -560,6 +584,8 @@ void BoundingBoxPlayer(void) {
 }
 
 void UpdateControlGame(void) {
+    BorderEnemyCollision(player);
+
     if (allowMove == true || gameOver == false) {
         CheckInput();
 
@@ -569,6 +595,25 @@ void UpdateControlGame(void) {
         // friction is applied: velocity = velocity x friction
         player->velocity = Vector2D_Scale(player->velocity, FRICTION, Vector2D_SetFromComponents(0, 0));
     }
+}
+
+void BorderPlayerCollision(Ship* player)
+{
+    // Si sort par la gauche, réapparaît à droite
+    if (player->position.x < -50)
+        player->position.x = 1080 + 50;
+
+    // Si sort par la droite, réapparaît à gauche
+    if (player->position.x > 1080 + 50)
+        player->position.x = -50;
+
+    // Si sort par le haut, réapparaît en bas
+    if (player->position.y < 0)
+        player->position.y = 1300 + 50;
+
+    // Si sort par le bas, réapparaît en haut
+    if (player->position.y > 1300 + 50)
+        player->position.y = 0;
 }
 
 void PlayerEnemyCollision(void)
@@ -604,10 +649,7 @@ void PlayerEnemyCollision(void)
                 lifeNumber = lifeNumber--;
                 printf("COLLISION DETECTÉE ! Vie restante : %d\n", lifeNumber);
 
-                if (lifeNumber <= 0) {
-                    currentScreen = GAMEOVER;
-                    gameOver = true;
-                }
+                void CheckLifeOfPlayer();
             }
         }
 
@@ -632,7 +674,7 @@ void PlayerEnemyCollision(void)
                     gameOver = true;
                 }
             }
-		}
+        }
 
         for (int j = 0; j < maxSmallBasicEnemies; j++) {
             if (smallBasicEnemies[j].size.x <= 0 || smallBasicEnemies[j].size.y <= 0) continue;
@@ -655,7 +697,7 @@ void PlayerEnemyCollision(void)
                     gameOver = true;
                 }
             }
-		}
+        }
 
         for (int j = 0; j < maxBigShooterEnemy; j++) {
             if (bigShooterEnemies[j].size.x <= 0 || bigShooterEnemies[j].size.y <= 0) continue;
@@ -701,7 +743,7 @@ void PlayerEnemyCollision(void)
                     gameOver = true;
                 }
             }
-		}
+        }
 
         for (int j = 0; j < maxSmallShooterEnemy; j++) {
             if (smallShooterEnemies[j].size.x <= 0 || smallShooterEnemies[j].size.y <= 0) continue;
@@ -793,7 +835,7 @@ void PlayerEnemyCollision(void)
                     gameOver = true;
                 }
             }
-		}
+        }
 
         for (int j = 0; j < maxBigFollowerShooterEnemy; j++) {
             if (bigFollowerShooterEnemies[j].size.x <= 0 || bigFollowerShooterEnemies[j].size.y <= 0) continue;
@@ -816,7 +858,7 @@ void PlayerEnemyCollision(void)
                     gameOver = true;
                 }
             }
-		}
+        }
 
         for (int j = 0; j < maxMidFollowerShooterEnemy; j++) {
             if (midFollowerShooterEnemies[j].size.x <= 0 || midFollowerShooterEnemies[j].size.y <= 0) continue;
@@ -862,7 +904,7 @@ void PlayerEnemyCollision(void)
                     gameOver = true;
                 }
             }
-		}
+        }
     }
 }
 
@@ -964,4 +1006,155 @@ void DrawHitboxes(void)
         Sphere2D hitbox = GetSmallFollowerShooterEnemyHitbox(i);
         DrawCircleLines((int)hitbox.center.x, (int)hitbox.center.y, (int)hitbox.radius, ORANGE);
 	}
+}
+
+
+void LevelProgress(void)
+{
+
+    if (score >= 5000) {
+        actualLevel = actualLevel++;
+        score = 0;
+        lifeNumber = 3;
+    }
+
+    CheckLifeOfPlayer();
+
+    if (!levelSpawned)
+    {
+        // Niveau 1 : spawn normal
+        if (actualLevel == 1)
+        {
+            for (int i = 0; i < maxBigBasicEnemies; i++) {
+                BigBasicEnemySpawn(i);
+                bigBasicEnemiesSpawn[i] = true;
+            }
+        }
+
+        // Niveau 2 : spawn deux fois plus d’ennemis
+        else if (actualLevel == 2)
+        {
+            lifeNumber = 3;
+            for (int i = 0; i < maxBigBasicEnemies; i++) {
+                BigBasicEnemySpawn(i);
+                bigBasicEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxMidBasicEnemies; i++) {
+                MidBasicEnemySpawn(i, 100.0f, 100.0f);
+                midBasicEnemiesSpawn[i] = true;
+            }
+        }
+
+        // Niveau 3 et plus : spawn tout le monde
+        else if (actualLevel == 3)
+        {
+            lifeNumber = 3;
+            for (int i = 0; i < maxBigBasicEnemies; i++) {
+                BigBasicEnemySpawn(i);
+                bigBasicEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxMidBasicEnemies; i++) {
+                MidBasicEnemySpawn(i, 200.0f, 200.0f);
+                midBasicEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxSmallBasicEnemies; i++) {
+                SmallBasicEnemySpawn(i, 300.0f, 300.0f);
+                smallBasicEnemiesSpawn[i] = true;
+            }
+            // etc. pour shooters, followers, etc.
+        }
+        else if (actualLevel == 4) {
+            // Exemple : spawn des ennemis qui suivent
+            for (int i = 0; i < maxBigFollowerEnemy; i++) {
+                BigFollowerEnemySpawn(i);
+                bigFollowerEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxBigBasicEnemies; i++) {
+                BigBasicEnemySpawn(i);
+                bigBasicEnemiesSpawn[i] = true;
+            }
+        }
+        else if (actualLevel == 5) {
+            lifeNumber = 3;
+            // Exemple : spawn des ennemis qui suivent
+            for (int i = 0; i < maxBigFollowerEnemy; i++) {
+                BigFollowerEnemySpawn(i);
+                bigFollowerEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxBigBasicEnemies; i++) {
+                BigBasicEnemySpawn(i);
+                bigBasicEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxMidBasicEnemies; i++) {
+                MidBasicEnemySpawn(i, 100.0f, 100.0f);
+                midBasicEnemiesSpawn[i] = true;
+            }
+        }
+        else if (actualLevel == 6) {
+            lifeNumber = 3;
+            // Exemple : spawn des ennemis qui suivent
+            for (int i = 0; i < maxBigFollowerEnemy; i++) {
+                BigFollowerEnemySpawn(i);
+                bigFollowerEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxBigBasicEnemies; i++) {
+                BigBasicEnemySpawn(i);
+                bigBasicEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxMidBasicEnemies; i++) {
+                MidBasicEnemySpawn(i, 100.0f, 100.0f);
+                midBasicEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxSmallBasicEnemies; i++) {
+                SmallBasicEnemySpawn(i, 300.0f, 300.0f);
+                smallBasicEnemiesSpawn[i] = true;
+            }
+        }
+        else if (actualLevel == 7) {
+            lifeNumber = 3;
+            // Exemple : spawn des ennemis qui suivent
+            for (int i = 0; i < maxBigFollowerEnemy; i++) {
+                BigFollowerEnemySpawn(i);
+                bigFollowerEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxBigBasicEnemies; i++) {
+                BigBasicEnemySpawn(i);
+                bigBasicEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxBigShooterEnemy; i++) {
+                BigShooterEnemySpawn(i);
+                bigShooterEnemiesSpawn[i] = true;
+            }
+        }
+        else if (actualLevel == 8) {
+            lifeNumber = 3;
+            // Exemple : spawn des ennemis qui suivent
+            for (int i = 0; i < maxBigFollowerEnemy; i++) {
+                BigFollowerEnemySpawn(i);
+                bigFollowerEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxMidBasicEnemies; i++) {
+                MidBasicEnemySpawn(i, 200.0f, 200.0f);
+                midBasicEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxSmallBasicEnemies; i++) {
+                SmallBasicEnemySpawn(i, 300.0f, 300.0f);
+                smallBasicEnemiesSpawn[i] = true;
+            }
+            for (int i = 0; i < maxBigShooterEnemy; i++) {
+                BigShooterEnemySpawn(i);
+                bigShooterEnemiesSpawn[i] = true;
+            }
+        }
+        levelSpawned = true;
+        return;
+    }
+
+    // Vérifie si tous les ennemis spawnés sont morts
+    if (AllEnemiesDead())
+    {
+        actualLevel++;
+        printf("Tous les ennemis détruits ! Passage au niveau %d\n", actualLevel);
+        levelSpawned = false; // déclenche le spawn du prochain niveau
+    }
 }
