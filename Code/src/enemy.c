@@ -1114,9 +1114,20 @@ void UpdateBigFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
     // Tirer vers le joueur
     if (player != NULL && bigFollowerShooterCooldowns[i] <= 0.0f)
     {
-        Vector2D enemyPos = { bigFollowerShooterEnemies[i].position.x, bigFollowerShooterEnemies[i].position.y };
+        // Calculer la position du canon (en haut de l'image, mais avec rotation de 180° le canon est maintenant en bas)
+        const float scale = 3.5f;
+        float enemyHeight = bigFollowerShooterEnemies[i].size.y * scale;
+        float offsetDistance = enemyHeight / 2.0f; // Distance du centre au canon
+        
+        // Avec la rotation de 180°, le canon est maintenant en bas, donc offset vers le bas (angle +90° par rapport à l'angle de l'ennemi)
+        float canonAngle = bigFollowerShooterEnemies[i].angle + M_PI / 2.0f;
+        Vector2D canonPos = {
+            bigFollowerShooterEnemies[i].position.x + cosf(canonAngle) * offsetDistance,
+            bigFollowerShooterEnemies[i].position.y + sinf(canonAngle) * offsetDistance
+        };
+        
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(enemyPos, playerPos);
+        FireEnemyBullet(canonPos, playerPos);
         bigFollowerShooterCooldowns[i] = BIG_FOLLOWER_SHOOTER_FIRE_RATE;
     }
 
@@ -1129,8 +1140,10 @@ void UpdateBigFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
     Rectangle destRec = { bigFollowerShooterEnemies[i].position.x, bigFollowerShooterEnemies[i].position.y,
                           bigFollowerShooterEnemies[i].size.x * 3.5f, bigFollowerShooterEnemies[i].size.y * 3.5f };
     Vector2 origin = { destRec.width / 2.0f, destRec.height / 2.0f };
-    DrawTexturePro(assets->followerShooterEnemyTexture, sourceRec, destRec, origin,
-        bigFollowerShooterEnemies[i].angle * 180.0f / M_PI, WHITE);
+    // L'angle pointe vers le joueur, mais le canon est en haut de l'image, donc on ajuste de -90°
+    // Rotation supplémentaire de 180° pour la tête de l'ennemi
+    float rotationAngle = (bigFollowerShooterEnemies[i].angle - M_PI / 2.0f) * 180.0f / M_PI + 180.0f;
+    DrawTexturePro(assets->followerShooterEnemyTexture, sourceRec, destRec, origin, rotationAngle, WHITE);
 
     if (collision->bigFollowerShooterEnemiesBulletCollision[i])
     {
@@ -1166,9 +1179,8 @@ void BigFollowerShooterEnemyMovement(int i)
     bigFollowerShooterEnemies[i].position.x += bigFollowerShooterEnemies[i].velocity.x;
     bigFollowerShooterEnemies[i].position.y += bigFollowerShooterEnemies[i].velocity.y;
 
-    bigFollowerShooterEnemies[i].angle += bigFollowerShooterEnemies[i].rotationSpeed;
-    if (bigFollowerShooterEnemies[i].angle > 2 * M_PI) bigFollowerShooterEnemies[i].angle -= 2 * M_PI;
-    if (bigFollowerShooterEnemies[i].angle < 0) bigFollowerShooterEnemies[i].angle += 2 * M_PI;
+    // Calculer l'angle vers le joueur
+    bigFollowerShooterEnemies[i].angle = atan2f(dirY, dirX);
 
     BorderEnemyCollision(&bigFollowerShooterEnemies[i]);
 }
@@ -1184,9 +1196,20 @@ void UpdateMidFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
 
     if (player != NULL && midFollowerShooterCooldowns[i] <= 0.0f)
     {
-        Vector2D enemyPos = { midFollowerShooterEnemies[i].position.x, midFollowerShooterEnemies[i].position.y };
+        // Calculer la position du canon (en haut de l'image, mais avec rotation de 180° le canon est maintenant en bas)
+        const float scale = 2.0f;
+        float enemyHeight = midFollowerShooterEnemies[i].size.y * scale;
+        float offsetDistance = enemyHeight / 2.0f; // Distance du centre au canon
+        
+        // Avec la rotation de 180°, le canon est maintenant en bas, donc offset vers le bas (angle +90° par rapport à l'angle de l'ennemi)
+        float canonAngle = midFollowerShooterEnemies[i].angle + M_PI / 2.0f;
+        Vector2D canonPos = {
+            midFollowerShooterEnemies[i].position.x + cosf(canonAngle) * offsetDistance,
+            midFollowerShooterEnemies[i].position.y + sinf(canonAngle) * offsetDistance
+        };
+        
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(enemyPos, playerPos);
+        FireEnemyBullet(canonPos, playerPos);
         midFollowerShooterCooldowns[i] = MID_FOLLOWER_SHOOTER_FIRE_RATE;
     }
 
@@ -1200,8 +1223,10 @@ void UpdateMidFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
     Rectangle destRec = { midFollowerShooterEnemies[i].position.x, midFollowerShooterEnemies[i].position.y,
                           midFollowerShooterEnemies[i].size.x * scale, midFollowerShooterEnemies[i].size.y * scale };
     Vector2 origin = { (midFollowerShooterEnemies[i].size.x * scale) / 2.0f, (midFollowerShooterEnemies[i].size.y * scale) / 2.0f };
-    DrawTexturePro(assets->followerShooterEnemyTexture, sourceRec, destRec, origin,
-        midFollowerShooterEnemies[i].angle * 180.0f / M_PI, WHITE);
+    // L'angle pointe vers le joueur, mais le canon est en haut de l'image, donc on ajuste de -90°
+    // Rotation supplémentaire de 180° pour la tête de l'ennemi
+    float rotationAngle = (midFollowerShooterEnemies[i].angle - M_PI / 2.0f) * 180.0f / M_PI + 180.0f;
+    DrawTexturePro(assets->followerShooterEnemyTexture, sourceRec, destRec, origin, rotationAngle, WHITE);
 
     if (collision->midFollowerShooterEnemiesBulletCollision[i])
     {
@@ -1251,9 +1276,8 @@ void MidFollowerShooterEnemyMovement(int i)
     midFollowerShooterEnemies[i].position.x += midFollowerShooterEnemies[i].velocity.x;
     midFollowerShooterEnemies[i].position.y += midFollowerShooterEnemies[i].velocity.y;
 
-    midFollowerShooterEnemies[i].angle += midFollowerShooterEnemies[i].rotationSpeed;
-    if (midFollowerShooterEnemies[i].angle > 2 * M_PI) midFollowerShooterEnemies[i].angle -= 2 * M_PI;
-    if (midFollowerShooterEnemies[i].angle < 0) midFollowerShooterEnemies[i].angle += 2 * M_PI;
+    // Calculer l'angle vers le joueur
+    midFollowerShooterEnemies[i].angle = atan2f(dirY, dirX);
 
     BorderEnemyCollision(&midFollowerShooterEnemies[i]);
 }
@@ -1269,9 +1293,20 @@ void UpdateSmallFollowerShooterEnemy(int i, GameAssets* assets, Collision* colli
 
     if (player != NULL && smallFollowerShooterCooldowns[i] <= 0.0f)
     {
-        Vector2D enemyPos = { smallFollowerShooterEnemies[i].position.x, smallFollowerShooterEnemies[i].position.y };
+        // Calculer la position du canon (en haut de l'image, mais avec rotation de 180° le canon est maintenant en bas)
+        const float scale = 1.5f;
+        float enemyHeight = smallFollowerShooterEnemies[i].size.y * scale;
+        float offsetDistance = enemyHeight / 2.0f; // Distance du centre au canon
+        
+        // Avec la rotation de 180°, le canon est maintenant en bas, donc offset vers le bas (angle +90° par rapport à l'angle de l'ennemi)
+        float canonAngle = smallFollowerShooterEnemies[i].angle + M_PI / 2.0f;
+        Vector2D canonPos = {
+            smallFollowerShooterEnemies[i].position.x + cosf(canonAngle) * offsetDistance,
+            smallFollowerShooterEnemies[i].position.y + sinf(canonAngle) * offsetDistance
+        };
+        
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(enemyPos, playerPos);
+        FireEnemyBullet(canonPos, playerPos);
         smallFollowerShooterCooldowns[i] = SMALL_FOLLOWER_SHOOTER_FIRE_RATE;
     }
 
@@ -1285,8 +1320,10 @@ void UpdateSmallFollowerShooterEnemy(int i, GameAssets* assets, Collision* colli
     Rectangle destRec = { smallFollowerShooterEnemies[i].position.x, smallFollowerShooterEnemies[i].position.y,
                           smallFollowerShooterEnemies[i].size.x * scale, smallFollowerShooterEnemies[i].size.y * scale };
     Vector2 origin = { (smallFollowerShooterEnemies[i].size.x * scale) / 2.0f, (smallFollowerShooterEnemies[i].size.y * scale) / 2.0f };
-    DrawTexturePro(assets->followerShooterEnemyTexture, sourceRec, destRec, origin,
-        smallFollowerShooterEnemies[i].angle * 180.0f / M_PI, WHITE);
+    // L'angle pointe vers le joueur, mais le canon est en haut de l'image, donc on ajuste de -90°
+    // Rotation supplémentaire de 180° pour la tête de l'ennemi
+    float rotationAngle = (smallFollowerShooterEnemies[i].angle - M_PI / 2.0f) * 180.0f / M_PI + 180.0f;
+    DrawTexturePro(assets->followerShooterEnemyTexture, sourceRec, destRec, origin, rotationAngle, WHITE);
 
     if (collision->smallFollowerShooterEnemiesBulletCollision[i])
     {
@@ -1329,9 +1366,8 @@ void SmallFollowerShooterEnemyMovement(int i)
     smallFollowerShooterEnemies[i].position.x += smallFollowerShooterEnemies[i].velocity.x;
     smallFollowerShooterEnemies[i].position.y += smallFollowerShooterEnemies[i].velocity.y;
 
-    smallFollowerShooterEnemies[i].angle += smallFollowerShooterEnemies[i].rotationSpeed;
-    if (smallFollowerShooterEnemies[i].angle > 2 * M_PI) smallFollowerShooterEnemies[i].angle -= 2 * M_PI;
-    if (smallFollowerShooterEnemies[i].angle < 0) smallFollowerShooterEnemies[i].angle += 2 * M_PI;
+    // Calculer l'angle vers le joueur
+    smallFollowerShooterEnemies[i].angle = atan2f(dirY, dirX);
 
     BorderEnemyCollision(&smallFollowerShooterEnemies[i]);
 }
