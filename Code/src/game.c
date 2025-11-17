@@ -413,23 +413,6 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
         DrawTextPro(assets->pixelFont, TextFormat("Score:%d", score), (Vector2) { 850, 40 }, (Vector2) { 0, 0 }, 5.5f, 20, 2, WHITE);
         DrawTextPro(assets->pixelFont, TextFormat("Best Score:%d", bestScore), (Vector2) { 850, 85 }, (Vector2) { 0, 0 }, 5.5f, 20, 2, WHITE);
 
-        // Afficher le compte à rebours au centre de l'écran
-        if (countdownActive && countdownTimer > 0.0f)
-        {
-            // Afficher le temps restant exact (arrondi vers le haut pour afficher 3.0, 2.0, 1.0)
-            int countdownValue = (int)ceilf(countdownTimer);
-            if (countdownValue > 0)
-            {
-                const char* countdownText = TextFormat("%d", countdownValue);
-                Vector2 textSize = MeasureTextEx(assets->magnetoFont, countdownText, 150, 5);
-                Vector2 textPos = { (GetScreenWidth() - textSize.x) / 2.0f, (GetScreenHeight() - textSize.y) / 2.0f };
-                
-                // Dessiner le texte du compte à rebours avec un effet de pulsation
-                float scale = 1.0f + sinf(countdownTimer * 10.0f) * 0.1f; // Légère pulsation
-                DrawTextEx(assets->magnetoFont, countdownText, textPos, 150 * scale, 5, YELLOW);
-            }
-        }
-
         EndDrawing();
     }
 
