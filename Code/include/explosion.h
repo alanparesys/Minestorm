@@ -21,6 +21,7 @@ typedef struct Explosion {
 extern Explosion explosions[MAX_EXPLOSIONS];
 
 void InitExplosions(void);
+void SetExplosionSound(Sound sound);
 void SpawnExplosion(Vector2D position, float scale);
 void UpdateExplosions(void);
 void DrawExplosions(Texture2D explosionTexture);    

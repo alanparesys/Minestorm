@@ -81,6 +81,8 @@ typedef struct GameAssets
     Texture2D explosionTexture;
     Font pixelFont;
     Font magnetoFont;
+    Sound explosionSound;
+    Music backgroundMusic;
 } GameAssets;
 
 #endif

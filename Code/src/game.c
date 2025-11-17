@@ -125,6 +125,16 @@ void InitAssets(GameAssets* assets)
     assets->pixelFont = LoadFont("Assets/pixel_police.ttf");
     assets->magnetoFont = LoadFont("Assets/Magneto.ttf");
     assets->explosionTexture = LoadTexture("Assets/explosion3.png");
+    
+    // Charger les sons et la musique
+    assets->explosionSound = LoadSound("Assets/explosion.mp3");
+    // Note: Vous devrez ajouter un fichier musique dans Assets/ (ex: background_music.mp3 ou .ogg)
+    // Pour l'instant, on essaie de charger, mais si le fichier n'existe pas, le jeu continuera sans musique
+    assets->backgroundMusic = LoadMusicStream("Assets/background_music.mp3");
+    if (assets->backgroundMusic.frameCount > 0)
+    {
+        SetMusicVolume(assets->backgroundMusic, 0.5f); // Volume à 50%
+    }
 }
 
 void UnloadAssets(GameAssets* assets)
@@ -143,6 +153,10 @@ void UnloadAssets(GameAssets* assets)
     UnloadTexture(assets->explosionTexture);
     UnloadFont(assets->pixelFont);
     UnloadFont(assets->magnetoFont);
+    
+    // Décharger les sons et la musique
+    UnloadSound(assets->explosionSound);
+    UnloadMusicStream(assets->backgroundMusic);
 }
 
 void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision)

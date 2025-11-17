@@ -1,6 +1,7 @@
 #include "explosion.h"
 
 Explosion explosions[MAX_EXPLOSIONS];
+static Sound explosionSound = { 0 }; // Son d'explosion (initialisé à 0)
 
 void InitExplosions(void)
 {
@@ -15,6 +16,11 @@ void InitExplosions(void)
     }
 }
 
+void SetExplosionSound(Sound sound)
+{
+    explosionSound = sound;
+}
+
 void SpawnExplosion(Vector2D position, float scale)
 {
     // Trouver un slot libre
@@ -27,6 +33,13 @@ void SpawnExplosion(Vector2D position, float scale)
             explosions[i].scale = scale;
             explosions[i].currentFrame = 0;
             explosions[i].frameCounter = 0;
+            
+            // Jouer le son d'explosion si disponible
+            if (explosionSound.frameCount > 0)
+            {
+                PlaySound(explosionSound);
+            }
+            
             return;
         }
     }
