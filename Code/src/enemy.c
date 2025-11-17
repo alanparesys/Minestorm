@@ -655,9 +655,20 @@ void UpdateBigShooterEnemy(int i, GameAssets* assets, Collision* collision)
 
     if (player != NULL && bigShooterCooldowns[i] <= 0.0f)
     {
-        Vector2D enemyPos = { bigShooterEnemies[i].position.x, bigShooterEnemies[i].position.y };
+        // Calculer la position du canon (en haut de l'image, mais avec rotation de 180° le canon est maintenant en bas)
+        const float scale = 3.5f;
+        float enemyHeight = bigShooterEnemies[i].size.y * scale;
+        float offsetDistance = enemyHeight / 2.0f; // Distance du centre au canon
+        
+        // Avec la rotation de 180°, le canon est maintenant en bas, donc offset vers le bas (angle +90° par rapport à l'angle de l'ennemi)
+        float canonAngle = bigShooterEnemies[i].angle + M_PI / 2.0f;
+        Vector2D canonPos = {
+            bigShooterEnemies[i].position.x + cosf(canonAngle) * offsetDistance,
+            bigShooterEnemies[i].position.y + sinf(canonAngle) * offsetDistance
+        };
+        
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(enemyPos, playerPos);
+        FireEnemyBullet(canonPos, playerPos);
         bigShooterCooldowns[i] = BIG_SHOOTER_FIRE_RATE;
     }
 
@@ -670,8 +681,10 @@ void UpdateBigShooterEnemy(int i, GameAssets* assets, Collision* collision)
     Rectangle destRec = { bigShooterEnemies[i].position.x, bigShooterEnemies[i].position.y,
                           bigShooterEnemies[i].size.x * 3.5f, bigShooterEnemies[i].size.y * 3.5f };
     Vector2 origin = { destRec.width / 2.0f, destRec.height / 2.0f };
-    DrawTexturePro(assets->shooterEnemyTexture, sourceRec, destRec, origin,
-        bigShooterEnemies[i].angle * 180.0f / M_PI, WHITE);
+    // L'angle pointe vers le joueur, mais le canon est en haut de l'image, donc on ajuste de -90°
+    // Rotation supplémentaire de 180° pour la tête de l'ennemi
+    float rotationAngle = (bigShooterEnemies[i].angle - M_PI / 2.0f) * 180.0f / M_PI + 180.0f;
+    DrawTexturePro(assets->shooterEnemyTexture, sourceRec, destRec, origin, rotationAngle, WHITE);
 
     if (collision->bigShooterEnemiesBulletCollision[i])
     {
@@ -697,9 +710,13 @@ void BigShooterEnemyMovement(int i)
     bigShooterEnemies[i].position.x += bigShooterEnemies[i].velocity.x;
     bigShooterEnemies[i].position.y += bigShooterEnemies[i].velocity.y;
 
-    bigShooterEnemies[i].angle += bigShooterEnemies[i].rotationSpeed;
-    if (bigShooterEnemies[i].angle > 2 * M_PI) bigShooterEnemies[i].angle -= 2 * M_PI;
-    if (bigShooterEnemies[i].angle < 0) bigShooterEnemies[i].angle += 2 * M_PI;
+    // Calculer l'angle vers le joueur
+    if (player != NULL)
+    {
+        float dirX = player->position.x - bigShooterEnemies[i].position.x;
+        float dirY = player->position.y - bigShooterEnemies[i].position.y;
+        bigShooterEnemies[i].angle = atan2f(dirY, dirX);
+    }
 
     BorderEnemyCollision(&bigShooterEnemies[i]);
 }
@@ -715,9 +732,20 @@ void UpdateMidShooterEnemy(int i, GameAssets* assets, Collision* collision)
 
     if (player != NULL && midShooterCooldowns[i] <= 0.0f)
     {
-        Vector2D enemyPos = { midShooterEnemies[i].position.x, midShooterEnemies[i].position.y };
+        // Calculer la position du canon (en haut de l'image, mais avec rotation de 180° le canon est maintenant en bas)
+        const float scale = 2.0f;
+        float enemyHeight = midShooterEnemies[i].size.y * scale;
+        float offsetDistance = enemyHeight / 2.0f; // Distance du centre au canon
+        
+        // Avec la rotation de 180°, le canon est maintenant en bas, donc offset vers le bas (angle +90° par rapport à l'angle de l'ennemi)
+        float canonAngle = midShooterEnemies[i].angle + M_PI / 2.0f;
+        Vector2D canonPos = {
+            midShooterEnemies[i].position.x + cosf(canonAngle) * offsetDistance,
+            midShooterEnemies[i].position.y + sinf(canonAngle) * offsetDistance
+        };
+        
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(enemyPos, playerPos);
+        FireEnemyBullet(canonPos, playerPos);
         midShooterCooldowns[i] = MID_SHOOTER_FIRE_RATE;
     }
 
@@ -731,8 +759,10 @@ void UpdateMidShooterEnemy(int i, GameAssets* assets, Collision* collision)
     Rectangle destRec = { midShooterEnemies[i].position.x, midShooterEnemies[i].position.y,
                           midShooterEnemies[i].size.x * scale, midShooterEnemies[i].size.y * scale };
     Vector2 origin = { (midShooterEnemies[i].size.x * scale) / 2.0f, (midShooterEnemies[i].size.y * scale) / 2.0f };
-    DrawTexturePro(assets->shooterEnemyTexture, sourceRec, destRec, origin,
-        midShooterEnemies[i].angle * 180.0f / M_PI, WHITE);
+    // L'angle pointe vers le joueur, mais le canon est en haut de l'image, donc on ajuste de -90°
+    // Rotation supplémentaire de 180° pour la tête de l'ennemi
+    float rotationAngle = (midShooterEnemies[i].angle - M_PI / 2.0f) * 180.0f / M_PI + 180.0f;
+    DrawTexturePro(assets->shooterEnemyTexture, sourceRec, destRec, origin, rotationAngle, WHITE);
 
     if (collision->midShooterEnemiesBulletCollision[i])
     {
@@ -775,9 +805,14 @@ void MidShooterEnemyMovement(int i)
 {
     midShooterEnemies[i].position.x += midShooterEnemies[i].velocity.x;
     midShooterEnemies[i].position.y += midShooterEnemies[i].velocity.y;
-    midShooterEnemies[i].angle += midShooterEnemies[i].rotationSpeed;
-    if (midShooterEnemies[i].angle > 2 * M_PI) midShooterEnemies[i].angle -= 2 * M_PI;
-    if (midShooterEnemies[i].angle < 0) midShooterEnemies[i].angle += 2 * M_PI;
+    
+    // Calculer l'angle vers le joueur
+    if (player != NULL)
+    {
+        float dirX = player->position.x - midShooterEnemies[i].position.x;
+        float dirY = player->position.y - midShooterEnemies[i].position.y;
+        midShooterEnemies[i].angle = atan2f(dirY, dirX);
+    }
 
     BorderEnemyCollision(&midShooterEnemies[i]);
 }
@@ -793,9 +828,20 @@ void UpdateSmallShooterEnemy(int i, GameAssets* assets, Collision* collision)
 
     if (player != NULL && smallShooterCooldowns[i] <= 0.0f)
     {
-        Vector2D enemyPos = { smallShooterEnemies[i].position.x, smallShooterEnemies[i].position.y };
+        // Calculer la position du canon (en haut de l'image, mais avec rotation de 180° le canon est maintenant en bas)
+        const float scale = 1.5f;
+        float enemyHeight = smallShooterEnemies[i].size.y * scale;
+        float offsetDistance = enemyHeight / 2.0f; // Distance du centre au canon
+        
+        // Avec la rotation de 180°, le canon est maintenant en bas, donc offset vers le bas (angle +90° par rapport à l'angle de l'ennemi)
+        float canonAngle = smallShooterEnemies[i].angle + M_PI / 2.0f;
+        Vector2D canonPos = {
+            smallShooterEnemies[i].position.x + cosf(canonAngle) * offsetDistance,
+            smallShooterEnemies[i].position.y + sinf(canonAngle) * offsetDistance
+        };
+        
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(enemyPos, playerPos);
+        FireEnemyBullet(canonPos, playerPos);
         smallShooterCooldowns[i] = SMALL_SHOOTER_FIRE_RATE;
     }
 
@@ -809,8 +855,10 @@ void UpdateSmallShooterEnemy(int i, GameAssets* assets, Collision* collision)
     Rectangle destRec = { smallShooterEnemies[i].position.x, smallShooterEnemies[i].position.y,
                           smallShooterEnemies[i].size.x * scale, smallShooterEnemies[i].size.y * scale };
     Vector2 origin = { (smallShooterEnemies[i].size.x * scale) / 2.0f, (smallShooterEnemies[i].size.y * scale) / 2.0f };
-    DrawTexturePro(assets->shooterEnemyTexture, sourceRec, destRec, origin,
-        smallShooterEnemies[i].angle * 180.0f / M_PI, WHITE);
+    // L'angle pointe vers le joueur, mais le canon est en haut de l'image, donc on ajuste de -90°
+    // Rotation supplémentaire de 180° pour la tête de l'ennemi
+    float rotationAngle = (smallShooterEnemies[i].angle - M_PI / 2.0f) * 180.0f / M_PI + 180.0f;
+    DrawTexturePro(assets->shooterEnemyTexture, sourceRec, destRec, origin, rotationAngle, WHITE);
 
     if (collision->smallShooterEnemiesBulletCollision[i])
     {
@@ -843,9 +891,14 @@ void SmallShooterEnemyMovement(int i)
 {
     smallShooterEnemies[i].position.x += smallShooterEnemies[i].velocity.x;
     smallShooterEnemies[i].position.y += smallShooterEnemies[i].velocity.y;
-    smallShooterEnemies[i].angle += smallShooterEnemies[i].rotationSpeed;
-    if (smallShooterEnemies[i].angle > 2 * M_PI) smallShooterEnemies[i].angle -= 2 * M_PI;
-    if (smallShooterEnemies[i].angle < 0) smallShooterEnemies[i].angle += 2 * M_PI;
+    
+    // Calculer l'angle vers le joueur
+    if (player != NULL)
+    {
+        float dirX = player->position.x - smallShooterEnemies[i].position.x;
+        float dirY = player->position.y - smallShooterEnemies[i].position.y;
+        smallShooterEnemies[i].angle = atan2f(dirY, dirX);
+    }
 
     BorderEnemyCollision(&smallShooterEnemies[i]);
 }
