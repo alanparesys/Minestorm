@@ -18,6 +18,8 @@ typedef enum GameScreen
     GAMEOVER,
 } GameScreen;
 
+extern bool motherShipSpawned;
+
 extern Ship* player;
 
 void InitAssets(GameAssets* assets);

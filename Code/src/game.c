@@ -351,10 +351,17 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
     ClearBackground(BLACK);
     DrawTexture(assets->background, 0, 0, WHITE);
     
+
     if (currentScreen == SOLO_GAMEPLAY)
     {
         PlayerEnemyCollision();
+        UpdateControlGame();
 
+        DrawSpawnedPoints();
+
+        UpdateBullets(assets, collision);
+        UpdateEnemyBullets(assets, player);
+        CheckBulletBulletCollisions();
 
         // Ship display
         DrawTexturePro(assets->ship, (Rectangle) { 0, 0, assets->ship.width, assets->ship.height },
@@ -367,28 +374,26 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
 
         //DrawText("Solo Gameplay Screen", 160, 300, 20, WHITE);
         // <-- passes assets to the enemy manager
-        UpdateControlGame();
+
         MotherShipUpdate(assets, collision);
         UpdateEnemies(assets, collision);
 
-
-
-
-
+        /*
         // --- Updating and drawing bullets ---
         UpdateBullets(assets, collision);
         UpdateEnemyBullets(assets, player);
-        
+
         // Vérifier les collisions entre bullets du joueur et bullets ennemis
         CheckBulletBulletCollisions();
-        
+        */
         // Mettre à jour et dessiner les explosions
         UpdateExplosions();
+        // Dessiner les explosions APRÈS l'interface pour qu'elles soient visibles .NON C DERIERE
+        DrawExplosions(assets->explosionTexture);
+
 
         DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
-        
-        // Dessiner les explosions APRÈS l'interface pour qu'elles soient visibles
-        DrawExplosions(assets->explosionTexture);
+        DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
 
         // Toujours afficher les vecteurs de vitesse et d'orientation
         DrawShipVectors();
@@ -398,7 +403,7 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
             DrawHitboxes();
             DrawBulletHitboxes();
         }
-        DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
+
         // DrawTextureEx(assets->motherShipTexture, (Vector2) { 200, 200 }, 0, 1, WHITE);
 
         if (score > bestScore)
@@ -685,10 +690,20 @@ void CheckInput(void)
 
     timeSinceLastShot = timeSinceLastShot + GetFrameTime();
 
+    // BLOQUER LE TIR SI LE MOTHERSHIP EST PRÉSENT
     if (IsKeyDown(KEY_SPACE) && timeSinceLastShot >= fireCooldown)
     {
-        // Tir depuis le centre du sprite du vaisseau (utilise le centre de la bounding box)
-        Vector2D firePos = player->bbox.center;
+        // Vérifier si le mothership est présent
+        if (motherShipSpawned)
+        {
+            // Ne rien faire - le tir est bloqué
+            // printf("Tir bloqué : mothership présent\n");
+            return;
+        }
+
+        // Tir autorisé uniquement si le mothership n'est pas présent
+        Vector2D firePos = Vector2D_SetFromComponents(player->position.x + player->size.x * 0.5f,
+            player->position.y + player->size.y * 0.5f);
         FireBullet(firePos, player->angle);
 
         timeSinceLastShot = 0.0f; // reset of the timer
@@ -764,6 +779,18 @@ void BorderPlayerCollision(Ship* player)
 void PlayerEnemyCollision(void)
 {
     if (player == NULL)
+    {
+        return;
+    }
+
+    // BLOQUER TOUTES LES COLLISIONS SI LE MOTHERSHIP EST PRÉSENT
+    if (motherShipSpawned)
+    {
+        return; // Pas de collision du tout pendant le mothership
+    }
+
+    // Vérifier aussi si les ennemis sont actifs
+    if (!enemiesActive)
     {
         return;
     }

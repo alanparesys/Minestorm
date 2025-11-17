@@ -47,6 +47,10 @@ int currentSpawnIndex = 0;
 float spawnTimer = 0.0f;
 float spawnInterval = 0.05f;  // Réduit pour spawn plus rapide
 
+// NOUVEAU : Timer pour attendre 1 seconde
+float spawnDelayTimer = 0.0f;
+const float SPAWN_DELAY = 1.0f; // 1 seconde de délai
+
 // Compteur de points utilisés
 int usedSpawnPoints = 0;
 
@@ -228,8 +232,10 @@ void MotherShipUpdate(GameAssets* assets, Collision* collision)
     if (motherShipSpawned)
     {
         MotherShipMovement(assets, collision);
+        DrawMotherShip(assets); // Dessiner ici dans le bon ordre
     }
 }
+
 
 void MotherShipSpawn(GameAssets* assets)
 {
@@ -250,45 +256,43 @@ void MotherShipSpawn(GameAssets* assets)
     }
 }
 
+// Modifier aussi MotherShipMovement pour NE PAS dessiner le mothership ici
 void MotherShipMovement(GameAssets* assets, Collision* collision)
 {
-    motherShip[0].speed = 3.0f;
+    motherShip[0].speed = 4.0f;
 
     if (motherShip[0].position.y > -300)
     {
         motherShip[0].position.y -= motherShip[0].speed;
-        DrawTextureEx(assets->motherShipTexture,
-            (Vector2) {
-            motherShip[0].position.x, motherShip[0].position.y
-        },
-            0, 1.0f, WHITE);
 
-        // Spawner progressivement les points rouges seulement
-        if (currentSpawnIndex < 56)
+        // Incrémenter le timer de délai
+        spawnDelayTimer += GetFrameTime();
+        // Spawner SEULEMENT après 1 seconde
+        if (spawnDelayTimer >= SPAWN_DELAY && currentSpawnIndex < 56)
         {
-            spawnTimer += GetFrameTime();
 
-            if (spawnTimer >= spawnInterval)
+            // Spawner progressivement les points rouges seulement
+            if (currentSpawnIndex < 56)
             {
-                spawnTimer = 0.0f;
-                // Créer juste le point, PAS l'ennemi
-                spawnPoints[currentSpawnIndex].x = GetRandomValue(50, screenWidth - 50);
-                spawnPoints[currentSpawnIndex].y = GetRandomValue(50, screenHeight - 50);
-                currentSpawnIndex++;
+                spawnTimer += GetFrameTime();
+
+                if (spawnTimer >= spawnInterval)
+                {
+                    spawnTimer = 0.0f;
+                    spawnPoints[currentSpawnIndex].x = GetRandomValue(50, screenWidth - 50);
+                    spawnPoints[currentSpawnIndex].y = GetRandomValue(50, screenHeight - 50);
+                    currentSpawnIndex++;
+                }
             }
         }
 
-        // Dessiner tous les points rouges déjà spawnés
-        DrawSpawnedPoints();
-        DrawTextureEx(assets->motherShipTexture,
-            (Vector2) {
-            motherShip[0].position.x, motherShip[0].position.y
-        },
-            0, 1.0f, WHITE);
+        // NE PAS DESSINER ICI - Le dessin est fait dans UpdateSoloGameplay
+        // DrawSpawnedPoints(); // ENLEVER
+        // DrawTextureEx(assets->motherShipTexture, ...) // ENLEVER
     }
     else
     {
-        // Le mothership a disparu, on spawn TOUS les ennemis d'un coup
+        // Le mothership a disparu
         if (!enemiesDropped)
         {
             SpawnAllEnemiesFromPoints();
@@ -301,6 +305,22 @@ void MotherShipMovement(GameAssets* assets, Collision* collision)
         motherShipSpawned = false;
     }
 }
+
+// Nouvelle fonction pour dessiner le mothership dans le bon ordre
+void DrawMotherShip(GameAssets* assets)
+{
+    if (motherShipSpawned && motherShip[0].position.y > -300)
+    {
+        DrawTextureEx(assets->motherShipTexture,
+            (Vector2) {
+            motherShip[0].position.x,
+                motherShip[0].position.y
+        },
+            0, 1.0f, WHITE);
+    }
+}
+
+
 
 // NOUVELLE FONCTION : Spawner tous les ennemis après la disparition du mothership
 void SpawnAllEnemiesFromPoints()
@@ -448,7 +468,7 @@ void SpawnPoints()
 
 void UpdateEnemies(GameAssets* assets, Collision* collision)
 {
-    DrawSpawnedPoints();
+    //DrawSpawnedPoints();
 
     // Si le mothership est encore l, ne pas update les ennemis
     if (motherShipSpawned) return;

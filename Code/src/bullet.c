@@ -49,9 +49,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
     for (int i = 0; i < MAX_BULLETS; i++)
     {
         if (!shipBullets[i].active) continue;
-        if (!enemiesActive) return;
-        if (motherShipSpawned) return;
-
+      
         // Mouvement
         shipBullets[i].position.x += shipBullets[i].velocity.x;
         shipBullets[i].position.y += shipBullets[i].velocity.y;
@@ -79,6 +77,7 @@ void UpdateBullets(GameAssets* assets, Collision* collision)
             DrawCircle((int)shipBullets[i].position.x, (int)shipBullets[i].position.y, shipBullets[i].radius, WHITE);
         }
 
+        if (!enemiesActive) continue;
 
         // ===== Collision BigBasicEnemies =====
         for (int j = 0; j < maxBigBasicEnemies; j++)

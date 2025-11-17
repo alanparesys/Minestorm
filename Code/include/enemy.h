@@ -117,6 +117,7 @@ void BorderEnemyCollision(Enemy* enemy);
 void MotherShipUpdate(GameAssets* assets, Collision* collision);
 void MotherShipSpawn(GameAssets* assets);
 void MotherShipMovement(GameAssets* assets, Collision* collision);
+void DrawMotherShip(GameAssets* assets);
 void SpawnPointAndEnemy(int index);
 void DrawSpawnedPoints();
 void SpawnAllEnemiesFromPoints(void);
