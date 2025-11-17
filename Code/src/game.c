@@ -26,6 +26,10 @@ bool allowMove = false;
 bool gameOver = false;
 bool levelSpawned = false;
 
+// Compte à rebours au lancement
+static float countdownTimer = 3.0f; // 3 secondes de compte à rebours
+static bool countdownActive = false;
+
 Ship* player = NULL;
 Collision* collision;
 
@@ -236,6 +240,10 @@ void UpdateTitleScreen(GameAssets* assets)
         currentScreen = SOLO_GAMEPLAY;
         title = false;
         solo = true;
+        // Démarrer le compte à rebours
+        countdownTimer = 3.0f;
+        countdownActive = true;
+        allowMove = false; // Désactiver les inputs pendant le compte à rebours
     }
 }
 
@@ -309,6 +317,18 @@ void UpdateTitlePause(GameAssets* assets)
 
 void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
 {
+    // Gérer le compte à rebours
+    if (countdownActive)
+    {
+        countdownTimer -= GetFrameTime();
+        if (countdownTimer <= 0.0f)
+        {
+            countdownTimer = 0.0f;
+            countdownActive = false;
+            allowMove = true; // Activer les inputs après le compte à rebours
+        }
+    }
+    
     // Vérifier la touche de debug AVANT BeginDrawing
     // Utiliser IsKeyPressed pour détecter un appui unique
     if (IsKeyPressed(COLLISION_DEBUG_KEY))
@@ -393,6 +413,23 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
         DrawTextPro(assets->pixelFont, TextFormat("Score:%d", score), (Vector2) { 850, 40 }, (Vector2) { 0, 0 }, 5.5f, 20, 2, WHITE);
         DrawTextPro(assets->pixelFont, TextFormat("Best Score:%d", bestScore), (Vector2) { 850, 85 }, (Vector2) { 0, 0 }, 5.5f, 20, 2, WHITE);
 
+        // Afficher le compte à rebours au centre de l'écran
+        if (countdownActive && countdownTimer > 0.0f)
+        {
+            // Afficher le temps restant exact (arrondi vers le haut pour afficher 3.0, 2.0, 1.0)
+            int countdownValue = (int)ceilf(countdownTimer);
+            if (countdownValue > 0)
+            {
+                const char* countdownText = TextFormat("%d", countdownValue);
+                Vector2 textSize = MeasureTextEx(assets->magnetoFont, countdownText, 150, 5);
+                Vector2 textPos = { (GetScreenWidth() - textSize.x) / 2.0f, (GetScreenHeight() - textSize.y) / 2.0f };
+                
+                // Dessiner le texte du compte à rebours avec un effet de pulsation
+                float scale = 1.0f + sinf(countdownTimer * 10.0f) * 0.1f; // Légère pulsation
+                DrawTextEx(assets->magnetoFont, countdownText, textPos, 150 * scale, 5, YELLOW);
+            }
+        }
+
         EndDrawing();
     }
 
@@ -473,6 +510,11 @@ void RestartGame(GameAssets* assets, Enemy* enemy, Collision* collision)
     score = 0;
     lifeNumber = 3;
     actualLevel = 1;
+    
+    // Redémarrer le compte à rebours
+    countdownTimer = 3.0f;
+    countdownActive = true;
+    allowMove = false;
 }
 
 void InitGame(void)
@@ -662,10 +704,8 @@ void CheckInput(void)
 
     if (IsKeyDown(KEY_SPACE) && timeSinceLastShot >= fireCooldown)
     {
-
-        // tir depuis le centre du vaisseau
-        Vector2D firePos = Vector2D_SetFromComponents(player->position.x + player->size.x * 0.5f,
-            player->position.y + player->size.y * 0.5f);
+        // Tir depuis le centre du sprite du vaisseau (utilise le centre de la bounding box)
+        Vector2D firePos = player->bbox.center;
         FireBullet(firePos, player->angle);
 
         timeSinceLastShot = 0.0f; // reset of the timer
@@ -696,7 +736,8 @@ void BoundingBoxPlayer(void) {
 void UpdateControlGame(void) {
     BorderEnemyCollision(player);
 
-    if (allowMove == true || gameOver == false) {
+    // Empêcher le mouvement du joueur pendant l'animation du mothership ou le compte à rebours
+    if (allowMove && !motherShipSpawned && !countdownActive) {
         CheckInput();
 
         // inertia is applied: position = position + velocity
@@ -704,6 +745,17 @@ void UpdateControlGame(void) {
 
         // friction is applied: velocity = velocity x friction
         player->velocity = Vector2D_Scale(player->velocity, FRICTION, Vector2D_SetFromComponents(0, 0));
+    }
+    else if (motherShipSpawned || countdownActive)
+    {
+        // Pendant l'animation du mothership ou le compte à rebours, appliquer seulement la friction pour ralentir le vaisseau
+        // mais ne pas permettre de nouveaux inputs
+        player->velocity = Vector2D_Scale(player->velocity, FRICTION, Vector2D_SetFromComponents(0, 0));
+        // Appliquer quand même la friction pour que le vaisseau ralentisse progressivement
+        if (player->velocity.x * player->velocity.x + player->velocity.y * player->velocity.y > 0.01f)
+        {
+            player->position = Vector2D_Add(player->position, player->velocity);
+        }
     }
 }
 
@@ -1253,9 +1305,9 @@ static void DrawShipVectors(void)
 {
     if (player == NULL) return;
 
-    // Centre du vaisseau
-    float centerX = player->position.x + player->size.x / 2.0f;
-    float centerY = player->position.y + player->size.y / 2.0f;
+    // Centre du vaisseau (utilise le centre de la bounding box comme pour les bullets)
+    float centerX = player->bbox.center.x;
+    float centerY = player->bbox.center.y;
     
     // Cercle blanc au centre pour vérifier
     DrawCircle((int)centerX, (int)centerY, 8, WHITE);

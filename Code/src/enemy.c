@@ -50,6 +50,56 @@ float spawnInterval = 0.05f;  // Réduit pour spawn plus rapide
 // Compteur de points utilisés
 int usedSpawnPoints = 0;
 
+// Distance minimum de spawn par rapport au joueur
+#define MIN_SPAWN_DISTANCE_FROM_PLAYER 100.0f
+
+// Fonction helper pour trouver une position valide à au moins 100 pixels du joueur
+static Vector2D GetValidSpawnPosition(float proposedX, float proposedY)
+{
+    Vector2D validPos = { proposedX, proposedY };
+    
+    if (player == NULL)
+    {
+        return validPos; // Si pas de joueur, retourner la position proposée
+    }
+    
+    // Calculer la distance entre la position proposée et le joueur
+    float dx = proposedX - player->position.x;
+    float dy = proposedY - player->position.y;
+    float distance = sqrtf(dx * dx + dy * dy);
+    
+    // Si la distance est suffisante, retourner la position proposée
+    if (distance >= MIN_SPAWN_DISTANCE_FROM_PLAYER)
+    {
+        return validPos;
+    }
+    
+    // Sinon, trouver une nouvelle position en s'éloignant du joueur
+    // On va chercher une position dans différentes directions jusqu'à trouver une valide
+    float angle = atan2f(dy, dx); // Angle actuel vers le joueur
+    float newDistance = MIN_SPAWN_DISTANCE_FROM_PLAYER + 50.0f; // Distance de sécurité
+    
+    // Essayer plusieurs angles autour de la position actuelle
+    for (int attempt = 0; attempt < 8; attempt++)
+    {
+        float testAngle = angle + (attempt * M_PI / 4.0f); // Tester 8 directions
+        float testX = player->position.x + cosf(testAngle) * newDistance;
+        float testY = player->position.y + sinf(testAngle) * newDistance;
+        
+        // Vérifier que la position est dans les limites de l'écran
+        if (testX >= 0 && testX <= screenWidth && testY >= 0 && testY <= screenHeight)
+        {
+            validPos.x = testX;
+            validPos.y = testY;
+            return validPos;
+        }
+    }
+    
+    // Si aucune position valide n'a été trouvée, utiliser la position proposée quand même
+    // (mieux que de ne pas spawner du tout)
+    return validPos;
+}
+
 // =========================== Basic Enemies ===========================
 int maxBigBasicEnemies = 3;
 Enemy bigBasicEnemies[3];
@@ -561,9 +611,12 @@ void UpdateMidBasicEnemy(int i, GameAssets* assets, Collision* collision)
 
 void MidBasicEnemySpawn(int i, float parentX, float parentY)
 {
+    // Vérifier que la position est à au moins 100 pixels du joueur
+    Vector2D validPos = GetValidSpawnPosition(parentX, parentY);
+    
     midBasicEnemiesSpawn[i] = true;
-    midBasicEnemies[i].position.x = parentX;
-    midBasicEnemies[i].position.y = parentY;
+    midBasicEnemies[i].position.x = validPos.x;
+    midBasicEnemies[i].position.y = validPos.y;
     midBasicEnemies[i].size.x = 60.0f;
     midBasicEnemies[i].size.y = 60.0f;
 
@@ -617,9 +670,12 @@ void UpdateSmallBasicEnemy(int i, GameAssets* assets, Collision* collision)
 
 void SmallBasicEnemySpawn(int i, float parentX, float parentY)
 {
+    // Vérifier que la position est à au moins 100 pixels du joueur
+    Vector2D validPos = GetValidSpawnPosition(parentX, parentY);
+    
     smallBasicEnemiesSpawn[i] = true;
-    smallBasicEnemies[i].position.x = parentX;
-    smallBasicEnemies[i].position.y = parentY;
+    smallBasicEnemies[i].position.x = validPos.x;
+    smallBasicEnemies[i].position.y = validPos.y;
     smallBasicEnemies[i].size.x = 50.0f;
     smallBasicEnemies[i].size.y = 50.0f;
 
@@ -655,20 +711,10 @@ void UpdateBigShooterEnemy(int i, GameAssets* assets, Collision* collision)
 
     if (player != NULL && bigShooterCooldowns[i] <= 0.0f)
     {
-        // Calculer la position du canon (en haut de l'image, mais avec rotation de 180° le canon est maintenant en bas)
-        const float scale = 3.5f;
-        float enemyHeight = bigShooterEnemies[i].size.y * scale;
-        float offsetDistance = enemyHeight / 2.0f; // Distance du centre au canon
-        
-        // Avec la rotation de 180°, le canon est maintenant en bas, donc offset vers le bas (angle +90° par rapport à l'angle de l'ennemi)
-        float canonAngle = bigShooterEnemies[i].angle + M_PI / 2.0f;
-        Vector2D canonPos = {
-            bigShooterEnemies[i].position.x + cosf(canonAngle) * offsetDistance,
-            bigShooterEnemies[i].position.y + sinf(canonAngle) * offsetDistance
-        };
-        
+        // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
+        Vector2D enemyCenter = bigShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(canonPos, playerPos);
+        FireEnemyBullet(enemyCenter, playerPos);
         bigShooterCooldowns[i] = BIG_SHOOTER_FIRE_RATE;
     }
 
@@ -732,20 +778,10 @@ void UpdateMidShooterEnemy(int i, GameAssets* assets, Collision* collision)
 
     if (player != NULL && midShooterCooldowns[i] <= 0.0f)
     {
-        // Calculer la position du canon (en haut de l'image, mais avec rotation de 180° le canon est maintenant en bas)
-        const float scale = 2.0f;
-        float enemyHeight = midShooterEnemies[i].size.y * scale;
-        float offsetDistance = enemyHeight / 2.0f; // Distance du centre au canon
-        
-        // Avec la rotation de 180°, le canon est maintenant en bas, donc offset vers le bas (angle +90° par rapport à l'angle de l'ennemi)
-        float canonAngle = midShooterEnemies[i].angle + M_PI / 2.0f;
-        Vector2D canonPos = {
-            midShooterEnemies[i].position.x + cosf(canonAngle) * offsetDistance,
-            midShooterEnemies[i].position.y + sinf(canonAngle) * offsetDistance
-        };
-        
+        // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
+        Vector2D enemyCenter = midShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(canonPos, playerPos);
+        FireEnemyBullet(enemyCenter, playerPos);
         midShooterCooldowns[i] = MID_SHOOTER_FIRE_RATE;
     }
 
@@ -785,9 +821,12 @@ void UpdateMidShooterEnemy(int i, GameAssets* assets, Collision* collision)
 
 void MidShooterEnemySpawn(int i, float parentX, float parentY)
 {
+    // Vérifier que la position est à au moins 100 pixels du joueur
+    Vector2D validPos = GetValidSpawnPosition(parentX, parentY);
+    
     midShooterEnemiesSpawn[i] = true;
-    midShooterEnemies[i].position.x = parentX;
-    midShooterEnemies[i].position.y = parentY;
+    midShooterEnemies[i].position.x = validPos.x;
+    midShooterEnemies[i].position.y = validPos.y;
     midShooterEnemies[i].size.x = 60.0f;
     midShooterEnemies[i].size.y = 60.0f;
 
@@ -828,20 +867,10 @@ void UpdateSmallShooterEnemy(int i, GameAssets* assets, Collision* collision)
 
     if (player != NULL && smallShooterCooldowns[i] <= 0.0f)
     {
-        // Calculer la position du canon (en haut de l'image, mais avec rotation de 180° le canon est maintenant en bas)
-        const float scale = 1.5f;
-        float enemyHeight = smallShooterEnemies[i].size.y * scale;
-        float offsetDistance = enemyHeight / 2.0f; // Distance du centre au canon
-        
-        // Avec la rotation de 180°, le canon est maintenant en bas, donc offset vers le bas (angle +90° par rapport à l'angle de l'ennemi)
-        float canonAngle = smallShooterEnemies[i].angle + M_PI / 2.0f;
-        Vector2D canonPos = {
-            smallShooterEnemies[i].position.x + cosf(canonAngle) * offsetDistance,
-            smallShooterEnemies[i].position.y + sinf(canonAngle) * offsetDistance
-        };
-        
+        // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
+        Vector2D enemyCenter = smallShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(canonPos, playerPos);
+        FireEnemyBullet(enemyCenter, playerPos);
         smallShooterCooldowns[i] = SMALL_SHOOTER_FIRE_RATE;
     }
 
@@ -871,9 +900,12 @@ void UpdateSmallShooterEnemy(int i, GameAssets* assets, Collision* collision)
 
 void SmallShooterEnemySpawn(int i, float parentX, float parentY)
 {
+    // Vérifier que la position est à au moins 100 pixels du joueur
+    Vector2D validPos = GetValidSpawnPosition(parentX, parentY);
+    
     smallShooterEnemiesSpawn[i] = true;
-    smallShooterEnemies[i].position.x = parentX;
-    smallShooterEnemies[i].position.y = parentY;
+    smallShooterEnemies[i].position.x = validPos.x;
+    smallShooterEnemies[i].position.y = validPos.y;
     smallShooterEnemies[i].size.x = 50.0f;
     smallShooterEnemies[i].size.y = 50.0f;
 
@@ -999,9 +1031,12 @@ void UpdateMidFollowerEnemy(int i, GameAssets* assets, Collision* collision)
 
 void MidFollowerEnemySpawn(int i, float parentX, float parentY)
 {
+    // Vérifier que la position est à au moins 100 pixels du joueur
+    Vector2D validPos = GetValidSpawnPosition(parentX, parentY);
+    
     midFollowerEnemiesSpawn[i] = true;
-    midFollowerEnemies[i].position.x = parentX;
-    midFollowerEnemies[i].position.y = parentY;
+    midFollowerEnemies[i].position.x = validPos.x;
+    midFollowerEnemies[i].position.y = validPos.y;
     midFollowerEnemies[i].size.x = 60.0f;
     midFollowerEnemies[i].size.y = 60.0f;
     midFollowerEnemies[i].speed = 2.0f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.5f;
@@ -1063,9 +1098,12 @@ void UpdateSmallFollowerEnemy(int i, GameAssets* assets, Collision* collision)
 
 void SmallFollowerEnemySpawn(int i, float parentX, float parentY)
 {
+    // Vérifier que la position est à au moins 100 pixels du joueur
+    Vector2D validPos = GetValidSpawnPosition(parentX, parentY);
+    
     smallFollowerEnemiesSpawn[i] = true;
-    smallFollowerEnemies[i].position.x = parentX;
-    smallFollowerEnemies[i].position.y = parentY;
+    smallFollowerEnemies[i].position.x = validPos.x;
+    smallFollowerEnemies[i].position.y = validPos.y;
     smallFollowerEnemies[i].size.x = 50.0f;
     smallFollowerEnemies[i].size.y = 50.0f;
     smallFollowerEnemies[i].speed = 2.5f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.5f;
@@ -1114,20 +1152,10 @@ void UpdateBigFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
     // Tirer vers le joueur
     if (player != NULL && bigFollowerShooterCooldowns[i] <= 0.0f)
     {
-        // Calculer la position du canon (en haut de l'image, mais avec rotation de 180° le canon est maintenant en bas)
-        const float scale = 3.5f;
-        float enemyHeight = bigFollowerShooterEnemies[i].size.y * scale;
-        float offsetDistance = enemyHeight / 2.0f; // Distance du centre au canon
-        
-        // Avec la rotation de 180°, le canon est maintenant en bas, donc offset vers le bas (angle +90° par rapport à l'angle de l'ennemi)
-        float canonAngle = bigFollowerShooterEnemies[i].angle + M_PI / 2.0f;
-        Vector2D canonPos = {
-            bigFollowerShooterEnemies[i].position.x + cosf(canonAngle) * offsetDistance,
-            bigFollowerShooterEnemies[i].position.y + sinf(canonAngle) * offsetDistance
-        };
-        
+        // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
+        Vector2D enemyCenter = bigFollowerShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(canonPos, playerPos);
+        FireEnemyBullet(enemyCenter, playerPos);
         bigFollowerShooterCooldowns[i] = BIG_FOLLOWER_SHOOTER_FIRE_RATE;
     }
 
@@ -1196,20 +1224,10 @@ void UpdateMidFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
 
     if (player != NULL && midFollowerShooterCooldowns[i] <= 0.0f)
     {
-        // Calculer la position du canon (en haut de l'image, mais avec rotation de 180° le canon est maintenant en bas)
-        const float scale = 2.0f;
-        float enemyHeight = midFollowerShooterEnemies[i].size.y * scale;
-        float offsetDistance = enemyHeight / 2.0f; // Distance du centre au canon
-        
-        // Avec la rotation de 180°, le canon est maintenant en bas, donc offset vers le bas (angle +90° par rapport à l'angle de l'ennemi)
-        float canonAngle = midFollowerShooterEnemies[i].angle + M_PI / 2.0f;
-        Vector2D canonPos = {
-            midFollowerShooterEnemies[i].position.x + cosf(canonAngle) * offsetDistance,
-            midFollowerShooterEnemies[i].position.y + sinf(canonAngle) * offsetDistance
-        };
-        
+        // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
+        Vector2D enemyCenter = midFollowerShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(canonPos, playerPos);
+        FireEnemyBullet(enemyCenter, playerPos);
         midFollowerShooterCooldowns[i] = MID_FOLLOWER_SHOOTER_FIRE_RATE;
     }
 
@@ -1246,9 +1264,12 @@ void UpdateMidFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
 
 void MidFollowerShooterEnemySpawn(int i, float parentX, float parentY)
 {
+    // Vérifier que la position est à au moins 100 pixels du joueur
+    Vector2D validPos = GetValidSpawnPosition(parentX, parentY);
+    
     midFollowerShooterEnemiesSpawn[i] = true;
-    midFollowerShooterEnemies[i].position.x = parentX;
-    midFollowerShooterEnemies[i].position.y = parentY;
+    midFollowerShooterEnemies[i].position.x = validPos.x;
+    midFollowerShooterEnemies[i].position.y = validPos.y;
     midFollowerShooterEnemies[i].size.x = 60.0f;
     midFollowerShooterEnemies[i].size.y = 60.0f;
     midFollowerShooterEnemies[i].speed = 2.0f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.5f;
@@ -1293,20 +1314,10 @@ void UpdateSmallFollowerShooterEnemy(int i, GameAssets* assets, Collision* colli
 
     if (player != NULL && smallFollowerShooterCooldowns[i] <= 0.0f)
     {
-        // Calculer la position du canon (en haut de l'image, mais avec rotation de 180° le canon est maintenant en bas)
-        const float scale = 1.5f;
-        float enemyHeight = smallFollowerShooterEnemies[i].size.y * scale;
-        float offsetDistance = enemyHeight / 2.0f; // Distance du centre au canon
-        
-        // Avec la rotation de 180°, le canon est maintenant en bas, donc offset vers le bas (angle +90° par rapport à l'angle de l'ennemi)
-        float canonAngle = smallFollowerShooterEnemies[i].angle + M_PI / 2.0f;
-        Vector2D canonPos = {
-            smallFollowerShooterEnemies[i].position.x + cosf(canonAngle) * offsetDistance,
-            smallFollowerShooterEnemies[i].position.y + sinf(canonAngle) * offsetDistance
-        };
-        
+        // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
+        Vector2D enemyCenter = smallFollowerShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(canonPos, playerPos);
+        FireEnemyBullet(enemyCenter, playerPos);
         smallFollowerShooterCooldowns[i] = SMALL_FOLLOWER_SHOOTER_FIRE_RATE;
     }
 
@@ -1336,9 +1347,12 @@ void UpdateSmallFollowerShooterEnemy(int i, GameAssets* assets, Collision* colli
 
 void SmallFollowerShooterEnemySpawn(int i, float parentX, float parentY)
 {
+    // Vérifier que la position est à au moins 100 pixels du joueur
+    Vector2D validPos = GetValidSpawnPosition(parentX, parentY);
+    
     smallFollowerShooterEnemiesSpawn[i] = true;
-    smallFollowerShooterEnemies[i].position.x = parentX;
-    smallFollowerShooterEnemies[i].position.y = parentY;
+    smallFollowerShooterEnemies[i].position.x = validPos.x;
+    smallFollowerShooterEnemies[i].position.y = validPos.y;
     smallFollowerShooterEnemies[i].size.x = 50.0f;
     smallFollowerShooterEnemies[i].size.y = 50.0f;
     smallFollowerShooterEnemies[i].speed = 2.5f + ((float)GetRandomValue(0, 100) / 100.0f) * 0.5f;
