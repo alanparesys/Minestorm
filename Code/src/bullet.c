@@ -29,7 +29,7 @@ void InitBullets(void)
     }
 }
 
-void FireBullet(Vector2D startPos, float angle)
+void FireBullet(Vector2D startPos, float angle, GameAssets* assets)
 {
     for (int i = 0; i < MAX_BULLETS; i++)
     {
@@ -407,7 +407,7 @@ void InitEnemyBullets(void)
     }
 }
 
-void FireEnemyBullet(Vector2D startPos, Vector2D targetPos)
+void FireEnemyBullet(Vector2D startPos, Vector2D targetPos, GameAssets* assets)
 {
     for (int i = 0; i < MAX_ENEMY_BULLETS; i++)
     {
@@ -436,6 +436,12 @@ void FireEnemyBullet(Vector2D startPos, Vector2D targetPos)
             return;
         }
     }
+}
+
+void PlayEnemyShootSound(GameAssets* assets)
+{
+    // Jouer le son de tir ennemi
+    PlaySound(assets->laser2);
 }
 
 // Fonction pour vérifier les collisions entre bullets du joueur et bullets ennemis
@@ -536,7 +542,7 @@ void UpdateEnemyBullets(GameAssets* assets, Ship* player)
             if (distance < enemyBullets[i].radius + playerRadius)
             {
                 enemyBullets[i].active = false;
-                lifeNumber = lifeNumber--; // Le joueur meurt instantan�ment
+                lifeNumber = lifeNumber--; // -1 life
                 printf("Player hit by enemy bullet! GAME OVER\n");
             }
         }

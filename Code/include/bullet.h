@@ -35,12 +35,13 @@ extern EnemyBullet enemyBullets[MAX_ENEMY_BULLETS];
 
 // Fonctions pour les bullets du joueur
 void InitBullets(void);
-void FireBullet(Vector2D startPos, float angle);
+void FireBullet(Vector2D startPos, float angle, GameAssets* assets);
 void UpdateBullets(GameAssets* assets, Collision* collision);
 
 // Fonctions pour les bullets des ennemis
 void InitEnemyBullets(void);
-void FireEnemyBullet(Vector2D startPos, Vector2D targetPos);
+void FireEnemyBullet(Vector2D startPos, Vector2D targetPos, GameAssets* assets);
+void PlayEnemyShootSound(GameAssets* assets);
 void UpdateEnemyBullets(GameAssets* assets, Ship* player);
 
 // Fonction pour vérifier les collisions entre bullets

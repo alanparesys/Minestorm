@@ -26,6 +26,8 @@ bool allowMove = false;
 bool gameOver = false;
 bool levelSpawned = false;
 
+bool youLosePlayed = false;
+
 // Compte à rebours au lancement
 static float countdownTimer = 3.0f; // 3 secondes de compte à rebours
 static bool countdownActive = false;
@@ -62,7 +64,7 @@ static bool collisionDebugEnabled = false;
 #define RENDER_SCALE_BIG 3.5f
 #define RENDER_SCALE_MID 2.0f
 #define RENDER_SCALE_SMALL 1.5f
-#define COLLISION_DEBUG_KEY KEY_F3  // Changé de KEY_H à KEY_F3 car H est utilisé pour les menus
+#define COLLISION_DEBUG_KEY KEY_C  // Changé de KEY_H à KEY_F3 car H est utilisé pour les menus
 
 static const Vector2D SHIP_BODY_POINTS[] = {
     { 25.0f, 0.0f },
@@ -134,11 +136,13 @@ void InitAssets(GameAssets* assets)
     assets->explosionSound = LoadSound("Assets/explosion.mp3");
     // Note: Vous devrez ajouter un fichier musique dans Assets/ (ex: background_music.mp3 ou .ogg)
     // Pour l'instant, on essaie de charger, mais si le fichier n'existe pas, le jeu continuera sans musique
-    assets->backgroundMusic = LoadMusicStream("Assets/background_music.mp3");
-    if (assets->backgroundMusic.frameCount > 0)
-    {
-        SetMusicVolume(assets->backgroundMusic, 0.5f); // Volume à 50%
-    }
+    assets->youLose = LoadSound("Assets/Sound/gameOver.wav");
+    assets->die = LoadSound("Assets/Sound/explosion.wav");
+    assets->laser = LoadSound("Assets/Sound/Laser.wav");
+    assets->laser2 = LoadSound("Assets/Sound/laser2.wav");
+    assets->selected = LoadSound("Assets/Sound/selected.wav");
+    assets->damage = LoadSound("Assets/Sound/damage.wav");
+    assets->levelUp = LoadSound("Assets/Sound/levelup.wav");
 }
 
 void UnloadAssets(GameAssets* assets)
@@ -159,8 +163,13 @@ void UnloadAssets(GameAssets* assets)
     UnloadFont(assets->magnetoFont);
     
     // Décharger les sons et la musique
-    UnloadSound(assets->explosionSound);
-    UnloadMusicStream(assets->backgroundMusic);
+    UnloadSound(assets->explosionSound);    
+    UnloadSound(assets->die);
+    UnloadSound(assets->laser);
+    UnloadSound(assets->laser2);
+    UnloadSound(assets->selected);
+    UnloadSound(assets->damage);
+    UnloadSound(assets->levelUp);
 }
 
 void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision)
@@ -197,6 +206,8 @@ void UpdateTitleScreen(GameAssets* assets)
 
     BeginDrawing();
     ClearBackground(BLACK);
+    SetMusicVolume(titleMusic, 0.4f);
+    PlayMusicStream(titleMusic);
 
     // Draw
     DrawTexture(assets->background, 0, 0, WHITE);
@@ -216,6 +227,7 @@ void UpdateTitleScreen(GameAssets* assets)
 
     if (IsKeyPressed(KEY_H))
     {
+        PlaySound(assets->selected);
         currentScreen = HELP;
         title = false;
         help = true;
@@ -223,6 +235,7 @@ void UpdateTitleScreen(GameAssets* assets)
 
     if (IsKeyPressed(KEY_C))
     {
+        PlaySound(assets->selected);
         currentScreen = CONTROLS;
         title = false;
         controls = true;
@@ -230,6 +243,7 @@ void UpdateTitleScreen(GameAssets* assets)
 
     if (IsKeyPressed(KEY_P))
     {
+        PlaySound(assets->selected);
         currentScreen = TITLE_PAUSE;
         title = false;
         titlePause = true;
@@ -237,6 +251,7 @@ void UpdateTitleScreen(GameAssets* assets)
 
     if (IsKeyPressed(KEY_F))
     {
+        PlaySound(assets->selected);
         currentScreen = SOLO_GAMEPLAY;
         title = false;
         solo = true;
@@ -261,6 +276,7 @@ void UpdateControlsGameplay(GameAssets* assets)
     EndDrawing();
     if (IsKeyPressed(KEY_C))
     {
+        PlaySound(assets->selected);
         currentScreen = TITLE;
         controls = false;
         title = true;
@@ -290,6 +306,7 @@ void UpdateHelpGameplay(GameAssets* assets)
     EndDrawing();
     if (IsKeyPressed(KEY_H))
     {
+        PlaySound(assets->selected);
         currentScreen = TITLE;
         help = false;
         title = true;
@@ -309,6 +326,7 @@ void UpdateTitlePause(GameAssets* assets)
     EndDrawing();
     if (IsKeyPressed(KEY_P))
     {
+        PlaySound(assets->selected);
         currentScreen = TITLE;
         titlePause = false;
         solo = true;
@@ -317,6 +335,11 @@ void UpdateTitlePause(GameAssets* assets)
 
 void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
 {
+    StopMusicStream(titleMusic);
+    SetMusicVolume(bgMusic, 0.4f);  // Set the music volume to 20%
+    PlayMusicStream(bgMusic);  // Start playing the music stream
+
+
     // Gérer le compte à rebours
     if (countdownActive)
     {
@@ -333,6 +356,7 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
     // Utiliser IsKeyPressed pour détecter un appui unique
     if (IsKeyPressed(COLLISION_DEBUG_KEY))
     {
+        PlaySound(assets->selected);
         collisionDebugEnabled = !collisionDebugEnabled;
         printf("Debug mode: %s (F3 key pressed)\n", collisionDebugEnabled ? "ON" : "OFF");
     }
@@ -344,7 +368,7 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
         player->angle     // rotation
     );
 
-    LevelProgress();
+    LevelProgress(assets);
 
     // Draw - TOUT doit être après BeginDrawing
     BeginDrawing();
@@ -355,7 +379,7 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
     if (currentScreen == SOLO_GAMEPLAY)
     {
         PlayerEnemyCollision();
-        UpdateControlGame();
+        UpdateControlGame(assets);
 
         DrawSpawnedPoints();
 
@@ -395,11 +419,10 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
         DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
         DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
 
-        // Toujours afficher les vecteurs de vitesse et d'orientation
-        DrawShipVectors();
-
         if (collisionDebugEnabled)
         {
+            // Afficher les vecteurs de vitesse et d'orientation uniquement en mode debug
+            DrawShipVectors();
             DrawHitboxes();
             DrawBulletHitboxes();
         }
@@ -423,6 +446,7 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
 
     if (IsKeyPressed(KEY_P))
     {
+        PlaySound(assets->selected);
         currentScreen = PAUSE;
         solo = false;
         pause = true;
@@ -443,6 +467,7 @@ void UpdatePauseMenu(GameAssets* assets)
     EndDrawing();
     if (IsKeyPressed(KEY_P))
     {
+        PlaySound(assets->selected);
         currentScreen = SOLO_GAMEPLAY;
         pause = false;
         solo = true;
@@ -464,8 +489,18 @@ void UpdateGameOver(GameAssets* assets, Collision* collision)
         DrawTextPro(assets->magnetoFont, TextFormat("Best Score : %d", bestScore), (Vector2) { 275, 700 }, (Vector2) { 0, 0 }, 0.0f, 50, 2, WHITE);
         DrawTextPro(assets->magnetoFont, "Press [ ENTER ] to restart", (Vector2) { 220, 800 }, (Vector2) { 0, 0 }, 0.0f, 40, 2, WHITE);
         EndDrawing();
+
+        StopMusicStream(bgMusic);
+        if (!youLosePlayed) {
+            printf("PlaySound called\n");
+            SetSoundVolume(assets->youLose, 1.0f);
+            PlaySound(assets->youLose);
+            youLosePlayed = true;
+        }
+
         if (IsKeyPressed(KEY_ENTER))
         {
+            PlaySound(assets->selected);
             RestartGame(assets, basicEnemy, collision);
         }
     }
@@ -503,6 +538,7 @@ void RestartGame(GameAssets* assets, Enemy* enemy, Collision* collision)
     countdownTimer = 3.0f;
     countdownActive = true;
     allowMove = false;
+    youLosePlayed = false;
 }
 
 void InitGame(void)
@@ -662,7 +698,7 @@ void InitGame(void)
 
 
 // Implementation and verification of game controls
-void CheckInput(void)
+void CheckInput(GameAssets* assets)
 {
     // Turn right
     if (IsKeyDown('D'))
@@ -702,15 +738,22 @@ void CheckInput(void)
         }
 
         // Tir autorisé uniquement si le mothership n'est pas présent
-        Vector2D firePos = Vector2D_SetFromComponents(player->position.x + player->size.x * 0.5f,
-            player->position.y + player->size.y * 0.5f);
+        // Tirer depuis le centre de la collision, en haut de la collision (selon l'angle)
+        Vector2D center = player->bbox.center;
+        float halfLength = player->size.x * 0.5f;
+        Vector2D firePos = Vector2D_SetFromComponents(
+            center.x + cosf(player->angle) * halfLength,
+            center.y + sinf(player->angle) * halfLength
+        );
         FireBullet(firePos, player->angle);
+        PlaySound(assets->laser);
 
         timeSinceLastShot = 0.0f; // reset of the timer
     }
 
     if (IsKeyPressed(KEY_LEFT_CONTROL))
     {
+        PlaySound(assets->selected);
         float randX = (float)(GetRandomValue(50, GetScreenWidth() - 50 - (int)player->size.x));
         float randY = (float)(GetRandomValue(100, GetScreenHeight() - 50 - (int)player->size.y));
         float randAngle = (float)(GetRandomValue(0, 360)) * (PI / 180.0f); // random angle in radians
@@ -731,12 +774,12 @@ void BoundingBoxPlayer(void) {
     DrawLine(player->bbox.p4.x, player->bbox.p4.y, player->bbox.p1.x, player->bbox.p1.y, RED);
 }
 
-void UpdateControlGame(void) {
+void UpdateControlGame(GameAssets* assets) {
     BorderEnemyCollision(player);
 
     // Empêcher le mouvement du joueur pendant l'animation du mothership ou le compte à rebours
     if (allowMove && !motherShipSpawned && !countdownActive) {
-        CheckInput();
+        CheckInput(assets);
 
         // inertia is applied: position = position + velocity
         player->position = Vector2D_Add(player->position, player->velocity);
@@ -909,7 +952,7 @@ void DrawHitboxes(void)
 }
 
 
-void LevelProgress(void)
+void LevelProgress(GameAssets* assets)
 {
 
     if (score >= 5000) {
@@ -1053,6 +1096,7 @@ void LevelProgress(void)
     // V�rifie si tous les ennemis spawn�s sont morts
     if (AllEnemiesDead())
     {
+        PlaySound(assets->levelUp);
         actualLevel++;
         printf("Tous les ennemis d�truits ! Passage au niveau %d\n", actualLevel);
         levelSpawned = false; // d�clenche le spawn du prochain niveau
@@ -1371,4 +1415,15 @@ static void DrawShipVectors(void)
     snprintf(dirText, sizeof(dirText), "Orientation: %.2f deg | Direction: (%.2f, %.2f)", 
              angleDegrees, dirX, dirY);
     DrawText(dirText, 10, 155, 18, MAGENTA);
+}
+
+void SoundInGame(GameAssets* assets) {
+    bgMusic = LoadMusicStream("Assets/Sound/SmartSystems.wav");  // Load music file from Assets folder
+    titleMusic = LoadMusicStream("Assets/Sound/Title.wav");
+    SetSoundVolume(assets->youLose, 0.5f);  // volume at 60 %
+    SetSoundVolume(assets->die, 0.4f);
+    SetSoundVolume(assets->laser, 0.4f);
+    SetSoundVolume(assets->laser2, 1.0f);
+    SetSoundVolume(assets->selected, 0.4f);
+    SetSoundVolume(assets->damage, 0.4f);
 }

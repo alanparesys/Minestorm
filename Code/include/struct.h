@@ -82,7 +82,13 @@ typedef struct GameAssets
     Font pixelFont;
     Font magnetoFont;
     Sound explosionSound;
-    Music backgroundMusic;
+    Sound youLose;
+    Sound die;
+    Sound laser;
+    Sound laser2;
+    Sound selected;
+    Sound damage;
+    Sound levelUp;
 } GameAssets;
 
 #endif

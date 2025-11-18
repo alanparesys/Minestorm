@@ -22,6 +22,9 @@ extern bool motherShipSpawned;
 
 extern Ship* player;
 
+Music bgMusic;
+Music titleMusic;
+
 void InitAssets(GameAssets* assets);
 void UnloadAssets(GameAssets* assets);
 void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision);
@@ -34,16 +37,16 @@ void UpdatePauseMenu(GameAssets* assets);
 void UpdateGameOver(GameAssets* assets, Collision* collision);
 void RestartGame(GameAssets* assets, Enemy* enemy, Collision* collision);
 void InitGame(void);
-void UpdateControlGame(void);
-void CheckInput(void);
+void UpdateControlGame(GameAssets* assets);
+void CheckInput(GameAssets* assets);
 void BoundingBoxPlayer(void);
 void DrawHitboxes(void);
 void BorderPlayerCollision(Ship* player);
 void PlayerEnemyCollision(void);
 
 void CheckLifeOfPlayer();
-
-void LevelProgress(void);
+void LevelProgress(GameAssets* assets);
+void SoundInGame(GameAssets* assets);
 
 
 #endif

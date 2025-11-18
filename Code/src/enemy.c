@@ -251,7 +251,7 @@ void MotherShipSpawn(GameAssets* assets)
         motherShip[0].position.y = screenHeight;
         motherShip[0].size.x = 64.0f;
         motherShip[0].size.y = 64.0f;
-        motherShip[0].speed = 3.0f;
+        motherShip[0].speed = 7.0f;
         motherShip[0].angle = 0.0f;
     }
 }
@@ -259,7 +259,7 @@ void MotherShipSpawn(GameAssets* assets)
 // Modifier aussi MotherShipMovement pour NE PAS dessiner le mothership ici
 void MotherShipMovement(GameAssets* assets, Collision* collision)
 {
-    motherShip[0].speed = 4.0f;
+    motherShip[0].speed = 7.0f;
 
     if (motherShip[0].position.y > -300)
     {
@@ -414,7 +414,7 @@ void DrawSpawnedPoints()
 {
     for (int i = 0; i < currentSpawnIndex; i++)
     {
-        DrawCircle(spawnPoints[i].x, spawnPoints[i].y, 5, RED);
+        DrawCircle(spawnPoints[i].x, spawnPoints[i].y, 5, LIGHTGRAY);
     }
 }
 // ===================== FONCTION POUR OBTENIR UN POINT DE SPAWN =====================
@@ -734,7 +734,8 @@ void UpdateBigShooterEnemy(int i, GameAssets* assets, Collision* collision)
         // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
         Vector2D enemyCenter = bigShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(enemyCenter, playerPos);
+        FireEnemyBullet(enemyCenter, playerPos, assets);
+        PlayEnemyShootSound(assets);
         bigShooterCooldowns[i] = BIG_SHOOTER_FIRE_RATE;
     }
 
@@ -801,7 +802,8 @@ void UpdateMidShooterEnemy(int i, GameAssets* assets, Collision* collision)
         // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
         Vector2D enemyCenter = midShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(enemyCenter, playerPos);
+        FireEnemyBullet(enemyCenter, playerPos, assets);
+        PlayEnemyShootSound(assets);
         midShooterCooldowns[i] = MID_SHOOTER_FIRE_RATE;
     }
 
@@ -890,7 +892,8 @@ void UpdateSmallShooterEnemy(int i, GameAssets* assets, Collision* collision)
         // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
         Vector2D enemyCenter = smallShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(enemyCenter, playerPos);
+        FireEnemyBullet(enemyCenter, playerPos, assets);
+        PlayEnemyShootSound(assets);
         smallShooterCooldowns[i] = SMALL_SHOOTER_FIRE_RATE;
     }
 
@@ -1175,7 +1178,8 @@ void UpdateBigFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
         // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
         Vector2D enemyCenter = bigFollowerShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(enemyCenter, playerPos);
+        FireEnemyBullet(enemyCenter, playerPos, assets);
+        PlayEnemyShootSound(assets);
         bigFollowerShooterCooldowns[i] = BIG_FOLLOWER_SHOOTER_FIRE_RATE;
     }
 
@@ -1247,7 +1251,8 @@ void UpdateMidFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
         // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
         Vector2D enemyCenter = midFollowerShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(enemyCenter, playerPos);
+        FireEnemyBullet(enemyCenter, playerPos, assets);
+        PlayEnemyShootSound(assets);
         midFollowerShooterCooldowns[i] = MID_FOLLOWER_SHOOTER_FIRE_RATE;
     }
 
@@ -1337,7 +1342,8 @@ void UpdateSmallFollowerShooterEnemy(int i, GameAssets* assets, Collision* colli
         // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
         Vector2D enemyCenter = smallFollowerShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
-        FireEnemyBullet(enemyCenter, playerPos);
+        FireEnemyBullet(enemyCenter, playerPos, assets);
+        PlayEnemyShootSound(assets);
         smallFollowerShooterCooldowns[i] = SMALL_FOLLOWER_SHOOTER_FIRE_RATE;
     }
 
