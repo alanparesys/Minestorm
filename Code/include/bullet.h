@@ -40,7 +40,11 @@ void UpdateBullets(GameAssets* assets, Collision* collision);
 
 // Fonctions pour les bullets des ennemis
 void InitEnemyBullets(void);
+<<<<<<< HEAD
 void FireEnemyBullet(Vector2D startPos, Vector2D targetPos, GameAssets* assets);
+=======
+void FireEnemyBullet(Vector2D startPos, Vector2D targetPos);
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 void UpdateEnemyBullets(GameAssets* assets, Ship* player);
 
 // Fonction pour vérifier les collisions entre bullets

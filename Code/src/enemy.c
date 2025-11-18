@@ -734,7 +734,11 @@ void UpdateBigShooterEnemy(int i, GameAssets* assets, Collision* collision)
         // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
         Vector2D enemyCenter = bigShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
+<<<<<<< HEAD
         FireEnemyBullet(enemyCenter, playerPos, assets);
+=======
+        FireEnemyBullet(enemyCenter, playerPos);
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         bigShooterCooldowns[i] = BIG_SHOOTER_FIRE_RATE;
     }
 
@@ -801,7 +805,11 @@ void UpdateMidShooterEnemy(int i, GameAssets* assets, Collision* collision)
         // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
         Vector2D enemyCenter = midShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
+<<<<<<< HEAD
         FireEnemyBullet(enemyCenter, playerPos, assets);
+=======
+        FireEnemyBullet(enemyCenter, playerPos);
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         midShooterCooldowns[i] = MID_SHOOTER_FIRE_RATE;
     }
 
@@ -890,7 +898,11 @@ void UpdateSmallShooterEnemy(int i, GameAssets* assets, Collision* collision)
         // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
         Vector2D enemyCenter = smallShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
+<<<<<<< HEAD
         FireEnemyBullet(enemyCenter, playerPos, assets);
+=======
+        FireEnemyBullet(enemyCenter, playerPos);
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         smallShooterCooldowns[i] = SMALL_SHOOTER_FIRE_RATE;
     }
 
@@ -1175,7 +1187,11 @@ void UpdateBigFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
         // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
         Vector2D enemyCenter = bigFollowerShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
+<<<<<<< HEAD
         FireEnemyBullet(enemyCenter, playerPos, assets);
+=======
+        FireEnemyBullet(enemyCenter, playerPos);
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         bigFollowerShooterCooldowns[i] = BIG_FOLLOWER_SHOOTER_FIRE_RATE;
     }
 
@@ -1247,7 +1263,11 @@ void UpdateMidFollowerShooterEnemy(int i, GameAssets* assets, Collision* collisi
         // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
         Vector2D enemyCenter = midFollowerShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
+<<<<<<< HEAD
         FireEnemyBullet(enemyCenter, playerPos, assets);
+=======
+        FireEnemyBullet(enemyCenter, playerPos);
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         midFollowerShooterCooldowns[i] = MID_FOLLOWER_SHOOTER_FIRE_RATE;
     }
 
@@ -1337,7 +1357,11 @@ void UpdateSmallFollowerShooterEnemy(int i, GameAssets* assets, Collision* colli
         // Tir depuis le centre du sprite de l'ennemi (utilise la position de l'ennemi qui est le centre)
         Vector2D enemyCenter = smallFollowerShooterEnemies[i].position;
         Vector2D playerPos = { player->position.x, player->position.y };
+<<<<<<< HEAD
         FireEnemyBullet(enemyCenter, playerPos, assets);
+=======
+        FireEnemyBullet(enemyCenter, playerPos);
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         smallFollowerShooterCooldowns[i] = SMALL_FOLLOWER_SHOOTER_FIRE_RATE;
     }
 

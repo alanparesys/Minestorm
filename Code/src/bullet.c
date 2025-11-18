@@ -407,7 +407,11 @@ void InitEnemyBullets(void)
     }
 }
 
+<<<<<<< HEAD
 void FireEnemyBullet(Vector2D startPos, Vector2D targetPos, GameAssets* assets)
+=======
+void FireEnemyBullet(Vector2D startPos, Vector2D targetPos)
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 {
     for (int i = 0; i < MAX_ENEMY_BULLETS; i++)
     {
@@ -433,7 +437,10 @@ void FireEnemyBullet(Vector2D startPos, Vector2D targetPos, GameAssets* assets)
             }
 
             enemyBullets[i].radius = BULLET_RADIUS;
+<<<<<<< HEAD
             PlaySound(assets->laser2);
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
             return;
         }
     }

@@ -25,7 +25,10 @@ bool pause = false;
 bool allowMove = false;
 bool gameOver = false;
 bool levelSpawned = false;
+<<<<<<< HEAD
 bool youLosePlayed = false;
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 
 // Compte à rebours au lancement
 static float countdownTimer = 3.0f; // 3 secondes de compte à rebours
@@ -92,6 +95,7 @@ static void FreeShipCollisionPolygons(Polygone2D* polys, int count);
 static void HandleEnemyGroupCollision(Enemy* enemies, int count, float renderScale,
     Sphere2D playerSphere, AABB2D playerAABB,
     Polygone2D* shipPolys, int shipPolyCount,
+<<<<<<< HEAD
     bool* shipPolyHits, bool* playerSphereBroadHit, bool* playerAABBBroadHit, GameAssets* assets);
 static void ProcessEnemyCollision(Enemy* enemy, float renderScale,
     Sphere2D playerSphere, AABB2D playerAABB,
@@ -101,6 +105,17 @@ static void DrawPolygonOutline(Polygone2D poly, Color color);
 static void DrawAABBOutline(AABB2D box, Color color);
 static void DrawSphereOutline(Sphere2D sphere, Color color);
 static void PlayerTakeDamage(GameAssets* assets);
+=======
+    bool* shipPolyHits, bool* playerSphereBroadHit, bool* playerAABBBroadHit);
+static void ProcessEnemyCollision(Enemy* enemy, float renderScale,
+    Sphere2D playerSphere, AABB2D playerAABB,
+    Polygone2D* shipPolys, int shipPolyCount,
+    bool* shipPolyHits, bool* playerSphereBroadHit, bool* playerAABBBroadHit);
+static void DrawPolygonOutline(Polygone2D poly, Color color);
+static void DrawAABBOutline(AABB2D box, Color color);
+static void DrawSphereOutline(Sphere2D sphere, Color color);
+static void PlayerTakeDamage(void);
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 static void DrawHitboxGroup(Enemy* enemies, int count, Sphere2D(*hitboxFunc)(int), Color color);
 static void DrawBulletHitboxes(void);
 static void DrawShipVectors(void);
@@ -135,6 +150,7 @@ void InitAssets(GameAssets* assets)
     assets->explosionSound = LoadSound("Assets/explosion.mp3");
     // Note: Vous devrez ajouter un fichier musique dans Assets/ (ex: background_music.mp3 ou .ogg)
     // Pour l'instant, on essaie de charger, mais si le fichier n'existe pas, le jeu continuera sans musique
+<<<<<<< HEAD
     assets->youLose = LoadSound("Assets/Sound/gameOver.wav");
     assets->die = LoadSound("Assets/Sound/explosion.wav");
     assets->laser = LoadSound("Assets/Sound/Laser.wav");
@@ -142,6 +158,13 @@ void InitAssets(GameAssets* assets)
     assets->selected = LoadSound("Assets/Sound/selected.wav");
     assets->damage = LoadSound("Assets/Sound/damage.wav");
     assets->levelUp = LoadSound("Assets/Sound/levelup.wav");
+=======
+    assets->backgroundMusic = LoadMusicStream("Assets/background_music.mp3");
+    if (assets->backgroundMusic.frameCount > 0)
+    {
+        SetMusicVolume(assets->backgroundMusic, 0.5f); // Volume à 50%
+    }
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 }
 
 void UnloadAssets(GameAssets* assets)
@@ -163,6 +186,7 @@ void UnloadAssets(GameAssets* assets)
     
     // Décharger les sons et la musique
     UnloadSound(assets->explosionSound);
+<<<<<<< HEAD
     UnloadSound(assets->youLose);
     UnloadSound(assets->die);
     UnloadSound(assets->laser);
@@ -171,6 +195,9 @@ void UnloadAssets(GameAssets* assets)
     UnloadSound(assets->damage);
     UnloadSound(assets->levelUp);
     
+=======
+    UnloadMusicStream(assets->backgroundMusic);
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 }
 
 void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision)
@@ -204,8 +231,12 @@ void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision)
 
 void UpdateTitleScreen(GameAssets* assets)
 {
+<<<<<<< HEAD
     SetMusicVolume(titleMusic, 0.4f);
     PlayMusicStream(titleMusic);
+=======
+
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
     BeginDrawing();
     ClearBackground(BLACK);
 
@@ -235,7 +266,10 @@ void UpdateTitleScreen(GameAssets* assets)
 
     if (IsKeyPressed(KEY_C))
     {
+<<<<<<< HEAD
         PlaySound(assets->selected);
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         currentScreen = CONTROLS;
         title = false;
         controls = true;
@@ -243,7 +277,10 @@ void UpdateTitleScreen(GameAssets* assets)
 
     if (IsKeyPressed(KEY_P))
     {
+<<<<<<< HEAD
         PlaySound(assets->selected);
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         currentScreen = TITLE_PAUSE;
         title = false;
         titlePause = true;
@@ -276,7 +313,10 @@ void UpdateControlsGameplay(GameAssets* assets)
     EndDrawing();
     if (IsKeyPressed(KEY_C))
     {
+<<<<<<< HEAD
         PlaySound(assets->selected);
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         currentScreen = TITLE;
         controls = false;
         title = true;
@@ -326,7 +366,10 @@ void UpdateTitlePause(GameAssets* assets)
     EndDrawing();
     if (IsKeyPressed(KEY_P))
     {
+<<<<<<< HEAD
         PlaySound(assets->selected);
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         currentScreen = TITLE;
         titlePause = false;
         solo = true;
@@ -335,10 +378,13 @@ void UpdateTitlePause(GameAssets* assets)
 
 void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
 {
+<<<<<<< HEAD
     StopMusicStream(titleMusic);
     SetMusicVolume(bgMusic, 0.4f);  // Set the music volume to 20%
     PlayMusicStream(bgMusic);  // Start playing the music stream
 
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
     // Gérer le compte à rebours
     if (countdownActive)
     {
@@ -355,12 +401,26 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
     // Utiliser IsKeyPressed pour détecter un appui unique
     if (IsKeyPressed(COLLISION_DEBUG_KEY))
     {
+<<<<<<< HEAD
         PlaySound(assets->selected);
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         collisionDebugEnabled = !collisionDebugEnabled;
         printf("Debug mode: %s (F3 key pressed)\n", collisionDebugEnabled ? "ON" : "OFF");
     }
 
+<<<<<<< HEAD
     LevelProgress(assets);
+=======
+    player->bbox = Rectangle2D_SetFromCenterLengthWidthAngle(
+        player->position,
+        player->size.x,   // longueur
+        player->size.y,   // largeur
+        player->angle     // rotation
+    );
+
+    LevelProgress();
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 
     // Draw - TOUT doit être après BeginDrawing
     BeginDrawing();
@@ -370,8 +430,13 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
 
     if (currentScreen == SOLO_GAMEPLAY)
     {
+<<<<<<< HEAD
         PlayerEnemyCollision(assets);
         UpdateControlGame(assets);
+=======
+        PlayerEnemyCollision();
+        UpdateControlGame();
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 
         DrawSpawnedPoints();
 
@@ -470,6 +535,7 @@ void UpdateGameOver(GameAssets* assets, Collision* collision)
 {
     if (currentScreen == GAMEOVER)
     {
+<<<<<<< HEAD
         StopMusicStream(bgMusic);
         if (!youLosePlayed) {
             printf("PlaySound called\n");
@@ -477,6 +543,8 @@ void UpdateGameOver(GameAssets* assets, Collision* collision)
             PlaySound(assets->youLose);
             youLosePlayed = true;
         }
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         BeginDrawing();
         ClearBackground(BLACK);
         // Draw
@@ -490,7 +558,10 @@ void UpdateGameOver(GameAssets* assets, Collision* collision)
         EndDrawing();
         if (IsKeyPressed(KEY_ENTER))
         {
+<<<<<<< HEAD
             PlaySound(assets->selected);
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
             RestartGame(assets, basicEnemy, collision);
         }
     }
@@ -528,7 +599,10 @@ void RestartGame(GameAssets* assets, Enemy* enemy, Collision* collision)
     countdownTimer = 3.0f;
     countdownActive = true;
     allowMove = false;
+<<<<<<< HEAD
     youLosePlayed = false;
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 }
 
 void InitGame(void)
@@ -688,7 +762,11 @@ void InitGame(void)
 
 
 // Implementation and verification of game controls
+<<<<<<< HEAD
 void CheckInput(GameAssets* assets)
+=======
+void CheckInput(void)
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 {
     // Turn right
     if (IsKeyDown('D'))
@@ -736,7 +814,11 @@ void CheckInput(GameAssets* assets)
             center.y + sinf(player->angle) * halfLength
         );
         FireBullet(firePos, player->angle);
+<<<<<<< HEAD
         PlaySound(assets->laser);
+=======
+
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         timeSinceLastShot = 0.0f; // reset of the timer
     }
 
@@ -762,12 +844,20 @@ void BoundingBoxPlayer(void) {
     DrawLine(player->bbox.p4.x, player->bbox.p4.y, player->bbox.p1.x, player->bbox.p1.y, RED);
 }
 
+<<<<<<< HEAD
 void UpdateControlGame(GameAssets* assets) {
+=======
+void UpdateControlGame(void) {
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
     BorderEnemyCollision(player);
 
     // Empêcher le mouvement du joueur pendant l'animation du mothership ou le compte à rebours
     if (allowMove && !motherShipSpawned && !countdownActive) {
+<<<<<<< HEAD
         CheckInput(assets);
+=======
+        CheckInput();
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 
         // inertia is applied: position = position + velocity
         player->position = Vector2D_Add(player->position, player->velocity);
@@ -807,7 +897,11 @@ void BorderPlayerCollision(Ship* player)
         player->position.y = 0;
 }
 
+<<<<<<< HEAD
 void PlayerEnemyCollision(GameAssets* assets)
+=======
+void PlayerEnemyCollision(void)
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 {
     if (player == NULL)
     {
@@ -855,6 +949,7 @@ void PlayerEnemyCollision(GameAssets* assets)
 
     HandleEnemyGroupCollision(bigBasicEnemies, maxBigBasicEnemies, RENDER_SCALE_BIG,
         playerSphere, playerAABB, shipPolys, shipPolyCount,
+<<<<<<< HEAD
         shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit, assets);
 
     HandleEnemyGroupCollision(midBasicEnemies, maxMidBasicEnemies, RENDER_SCALE_MID,
@@ -900,6 +995,53 @@ void PlayerEnemyCollision(GameAssets* assets)
     HandleEnemyGroupCollision(smallFollowerShooterEnemies, maxSmallFollowerShooterEnemy, RENDER_SCALE_SMALL,
         playerSphere, playerAABB, shipPolys, shipPolyCount,
         shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit, assets);
+=======
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(midBasicEnemies, maxMidBasicEnemies, RENDER_SCALE_MID,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(smallBasicEnemies, maxSmallBasicEnemies, RENDER_SCALE_SMALL,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(bigShooterEnemies, maxBigShooterEnemy, RENDER_SCALE_BIG,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(midShooterEnemies, maxMidShooterEnemy, RENDER_SCALE_MID,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(smallShooterEnemies, maxSmallShooterEnemy, RENDER_SCALE_SMALL,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(bigFollowerEnemies, maxBigFollowerEnemy, RENDER_SCALE_BIG,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(midFollowerEnemies, maxMidFollowerEnemy, RENDER_SCALE_MID,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(smallFollowerEnemies, maxSmallFollowerEnemy, RENDER_SCALE_SMALL,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(bigFollowerShooterEnemies, maxBigFollowerShooterEnemy, RENDER_SCALE_BIG,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(midFollowerShooterEnemies, maxMidFollowerShooterEnemy, RENDER_SCALE_MID,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+
+    HandleEnemyGroupCollision(smallFollowerShooterEnemies, maxSmallFollowerShooterEnemy, RENDER_SCALE_SMALL,
+        playerSphere, playerAABB, shipPolys, shipPolyCount,
+        shipPolyHits, &playerSphereBroadHit, &playerAABBBroadHit);
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 
     if (collisionDebugEnabled)
     {
@@ -940,9 +1082,21 @@ void DrawHitboxes(void)
 }
 
 
+<<<<<<< HEAD
 void LevelProgress(GameAssets* assets)
 {
 
+=======
+void LevelProgress(void)
+{
+
+    if (score >= 5000) {
+        actualLevel = actualLevel++;
+        score = 0;
+        lifeNumber = 3;
+    }
+
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
     CheckLifeOfPlayer();
 
     if (!levelSpawned)
@@ -1078,7 +1232,10 @@ void LevelProgress(GameAssets* assets)
     // V�rifie si tous les ennemis spawn�s sont morts
     if (AllEnemiesDead())
     {
+<<<<<<< HEAD
         PlaySound(assets->levelUp);
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         actualLevel++;
         printf("Tous les ennemis d�truits ! Passage au niveau %d\n", actualLevel);
         levelSpawned = false; // d�clenche le spawn du prochain niveau
@@ -1155,19 +1312,31 @@ static void FreeShipCollisionPolygons(Polygone2D* polys, int count)
 static void HandleEnemyGroupCollision(Enemy* enemies, int count, float renderScale,
     Sphere2D playerSphere, AABB2D playerAABB,
     Polygone2D* shipPolys, int shipPolyCount,
+<<<<<<< HEAD
     bool* shipPolyHits, bool* playerSphereBroadHit, bool* playerAABBBroadHit, GameAssets* assets)
+=======
+    bool* shipPolyHits, bool* playerSphereBroadHit, bool* playerAABBBroadHit)
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 {
     for (int i = 0; i < count; ++i)
     {
         ProcessEnemyCollision(&enemies[i], renderScale, playerSphere, playerAABB,
+<<<<<<< HEAD
             shipPolys, shipPolyCount, shipPolyHits, playerSphereBroadHit, playerAABBBroadHit, assets);
+=======
+            shipPolys, shipPolyCount, shipPolyHits, playerSphereBroadHit, playerAABBBroadHit);
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
     }
 }
 
 static void ProcessEnemyCollision(Enemy* enemy, float renderScale,
     Sphere2D playerSphere, AABB2D playerAABB,
     Polygone2D* shipPolys, int shipPolyCount,
+<<<<<<< HEAD
     bool* shipPolyHits, bool* playerSphereBroadHit, bool* playerAABBBroadHit, GameAssets* assets)
+=======
+    bool* shipPolyHits, bool* playerSphereBroadHit, bool* playerAABBBroadHit)
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 {
     if (enemy->size.x <= 0.0f || enemy->size.y <= 0.0f)
     {
@@ -1226,7 +1395,11 @@ static void ProcessEnemyCollision(Enemy* enemy, float renderScale,
     if (enemyTouched && player->invincibilityFrames <= 0)
     {
         player->invincibilityFrames = 60;
+<<<<<<< HEAD
         PlayerTakeDamage(assets);
+=======
+        PlayerTakeDamage();
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
     }
 }
 
@@ -1263,12 +1436,19 @@ static void DrawSphereOutline(Sphere2D sphere, Color color)
     DrawCircleLines((int)sphere.center.x, (int)sphere.center.y, (int)sphere.radius, color);
 }
 
+<<<<<<< HEAD
 static void PlayerTakeDamage(GameAssets* assets)
+=======
+static void PlayerTakeDamage(void)
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 {
     if (lifeNumber > 0)
     {
         lifeNumber--;
+<<<<<<< HEAD
         PlaySound(assets->damage);
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
         printf("COLLISION DETECTEE ! Vie restante : %d\n", lifeNumber);
     }
     CheckLifeOfPlayer();
@@ -1398,6 +1578,7 @@ static void DrawShipVectors(void)
     snprintf(dirText, sizeof(dirText), "Orientation: %.2f deg | Direction: (%.2f, %.2f)", 
              angleDegrees, dirX, dirY);
     DrawText(dirText, 10, 155, 18, MAGENTA);
+<<<<<<< HEAD
 }
 
 void SoundInGame(GameAssets* assets) {
@@ -1409,4 +1590,6 @@ void SoundInGame(GameAssets* assets) {
     SetSoundVolume(assets->laser2, 0.3f);
     SetSoundVolume(assets->selected, 0.4f);
     SetSoundVolume(assets->damage, 0.4f);
+=======
+>>>>>>> a1d5b559b11f4fbdf00f17918fa5242aa9a63ff9
 }
