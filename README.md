@@ -1,34 +1,4 @@
-# Minestorm
-# GP1
-# ALAN, LOUIS & EDEN
-# main.c
-# vector2D.c / vector2D.h
-# test_vector2D.c
-# triangle2D.c / triangle2D.h
-# test_triangle2D.c
-# rectangle2D.c / rectangle2D.h
-# test_rectangle2D.c
-# polygone2D.c / polygone2D.h
-# test_polygone2D.c
-# sphere2D.c / sphere2D.h
-# test_sphere2D.c
-
-MineStorm Raylib Project - Project By Eden Mounguengui, Alan Paresys, Louis Gil Silveira for ISART DIGITAL
-
-		 
-███████╗███████╗██████╗  █████╗ 
-╚══███╔╝██╔════╝██╔══██╗██╔══██╗
-  ███╔╝ █████╗  ██████╔╝ ███████║
- ███╔╝  ██╔══╝  ██╔══ ║ ██╔══██║
-███████╗███████╗██║ ██║ ██║	 ██║
-╚══════╝╚══════╝╚═╝ ╚═╝ ╚═╝  ╚═╝
- _____    _____     ____     _____       __    __ 
-(_   _)  / ____\   / __ \   (_   _)      ) )  ( ( 
-  | |   ( (___    / /  \ \    | |       ( (    ) )
-  | |    \___ \  ( ()  () )   | |        ) )  ( ( 
-  | |        ) ) ( ()  () )   | |   __  ( (    ) )
- _| |__  ___/ /   \ \__/ /  __| |___) )  ) \__/ ( 
-/_____( /____/     \____/   \________/   \______/ 
+# MineStorm Raylib Project - Project By Eden Mounguengui, Alan Paresys, Louis Gil Silveira for ISART DIGITAL
 
 =====================================================================================
 
