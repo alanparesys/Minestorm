@@ -1,0 +1,33 @@
+﻿  game.c
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(295,75): warning C4305: 'fonction' : troncation de 'double' à 'float'
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(296,76): warning C4305: 'fonction' : troncation de 'double' à 'float'
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(391,70): warning C4244: 'initialisation' : conversion de 'int' en 'float', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(391,90): warning C4244: 'initialisation' : conversion de 'int' en 'float', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(721,32): warning C4244: 'fonction' : conversion de 'double' en 'float', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(721,59): warning C4244: 'fonction' : conversion de 'double' en 'float', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(773,29): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(773,48): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(773,67): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(773,86): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(774,29): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(774,48): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(774,67): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(774,86): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(775,29): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(775,48): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(775,67): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(775,86): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(776,29): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(776,48): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(776,67): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(776,86): warning C4244: 'fonction' : conversion de 'float' en 'int', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(780,26): warning C4133: 'fonction' : types incompatibles - de 'Ship *' à 'Enemy *'
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(1283,76): warning C4244: 'fonction' : conversion de 'int' en 'float', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(1304,80): warning C4244: 'fonction' : conversion de 'int' en 'float', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(1317,36): warning C4244: 'fonction' : conversion de 'int' en 'float', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(1320,36): warning C4244: 'fonction' : conversion de 'int' en 'float', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(1331,37): warning C4244: 'fonction' : conversion de 'int' en 'float', perte possible de données
+C:\Users\alanp\Desktop\Minestorm DEV\Code\src\game.c(1334,37): warning C4244: 'fonction' : conversion de 'int' en 'float', perte possible de données
+  MineStorm.vcxproj -> C:\Users\alanp\Desktop\Minestorm DEV\Build\x64\Debug\MineStorm.exe
+  0 fichier(s) copiÚ(s)
+  0 fichier(s) copiÚ(s)

@@ -1,0 +1,501 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\game.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\game.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\bullet.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\bullet.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\struct.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\include\\struct.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\enemy.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\enemy.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\collision2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\collision2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\bullet.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\include\\bullet.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\aabb2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\aabb2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\include\\game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\explosion.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\explosion.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\explosion.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\include\\explosion.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\polygone2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\polygone2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\sphere2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\sphere2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\ship_player.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\ship_player.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\rectangle2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\rectangle2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\ShipBullet.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\ShipBullet.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\vector2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\vector2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\triangle2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F6B1BEB9-7A8E-41C7-B173-9F1F33474918}|MineStorm.vcxproj|solutionrelative:Code\\src\\triangle2D.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\test_vector2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Code\\include\\test_vector2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\test_sphere2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Code\\include\\test_sphere2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\test_rectangle2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Code\\include\\test_rectangle2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\test_polygone2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Code\\include\\test_polygone2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\sphere2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Code\\include\\sphere2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\triangle2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Code\\include\\triangle2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\vector2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Code\\include\\vector2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\rectangle2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Code\\include\\rectangle2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\ShipBullet.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Code\\include\\ShipBullet.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\ship_player.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Code\\include\\ship_player.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\polygone2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Code\\include\\polygone2D.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\enemy.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Code\\include\\enemy.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "struct.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\struct.h",
+              "RelativeDocumentMoniker": "Code\\include\\struct.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\struct.h",
+              "RelativeToolTip": "Code\\include\\struct.h",
+              "ViewState": "AgIAAEEAAAAAAAAAAADgv1cAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-16T14:06:10.662Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "bullet.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\bullet.c",
+              "RelativeDocumentMoniker": "Code\\src\\bullet.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\bullet.c",
+              "RelativeToolTip": "Code\\src\\bullet.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-16T00:26:00.764Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "game.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\game.c",
+              "RelativeDocumentMoniker": "Code\\src\\game.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\game.c",
+              "RelativeToolTip": "Code\\src\\game.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-12T19:37:26.736Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "game.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\game.h",
+              "RelativeDocumentMoniker": "Code\\include\\game.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\game.h",
+              "RelativeToolTip": "Code\\include\\game.h",
+              "ViewState": "AgIAABEAAAAAAAAAAADgvycAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-12T18:51:11.08Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "main.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\main.c",
+              "RelativeDocumentMoniker": "Code\\src\\main.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\main.c",
+              "RelativeToolTip": "Code\\src\\main.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-12T18:41:59.077Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "aabb2D.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\aabb2D.c",
+              "RelativeDocumentMoniker": "Code\\src\\aabb2D.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\aabb2D.c",
+              "RelativeToolTip": "Code\\src\\aabb2D.c",
+              "ViewState": "AgIAACQAAAAAAAAAAAAAACsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-17T13:21:52.799Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "enemy.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\enemy.h",
+              "RelativeDocumentMoniker": "Code\\include\\enemy.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\enemy.h",
+              "RelativeToolTip": "Code\\include\\enemy.h",
+              "ViewState": "AgIAAIwAAAAAAAAAAAAAwLYAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-12T18:42:52.947Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "bullet.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\bullet.h",
+              "RelativeDocumentMoniker": "Code\\include\\bullet.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\bullet.h",
+              "RelativeToolTip": "Code\\include\\bullet.h",
+              "ViewState": "AgIAABQAAAAAAAAAAADgvyoAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-16T00:28:48.559Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "enemy.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\enemy.c",
+              "RelativeDocumentMoniker": "Code\\src\\enemy.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\enemy.c",
+              "RelativeToolTip": "Code\\src\\enemy.c",
+              "ViewState": "AgIAAM0CAAAAAAAAAADgv+ACAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-18T08:06:19.373Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "rectangle2D.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\rectangle2D.h",
+              "RelativeDocumentMoniker": "Code\\include\\rectangle2D.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\rectangle2D.h",
+              "RelativeToolTip": "Code\\include\\rectangle2D.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-12T19:18:48.1Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "collision2D.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\collision2D.c",
+              "RelativeDocumentMoniker": "Code\\src\\collision2D.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\collision2D.c",
+              "RelativeToolTip": "Code\\src\\collision2D.c",
+              "ViewState": "AgIAANIAAAAAAAAAAAAAABIAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-17T13:23:41.671Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "ship_player.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\ship_player.h",
+              "RelativeDocumentMoniker": "Code\\include\\ship_player.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\ship_player.h",
+              "RelativeToolTip": "Code\\include\\ship_player.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-17T10:17:42.153Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "ShipBullet.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\ShipBullet.h",
+              "RelativeDocumentMoniker": "Code\\include\\ShipBullet.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\ShipBullet.h",
+              "RelativeToolTip": "Code\\include\\ShipBullet.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-17T10:17:40.394Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "explosion.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\explosion.c",
+              "RelativeDocumentMoniker": "Code\\src\\explosion.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\explosion.c",
+              "RelativeToolTip": "Code\\src\\explosion.c",
+              "ViewState": "AgIAAF0AAAAAAAAAAAAAAB4AAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-17T12:06:15.368Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "polygone2D.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\polygone2D.h",
+              "RelativeDocumentMoniker": "Code\\include\\polygone2D.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\polygone2D.h",
+              "RelativeToolTip": "Code\\include\\polygone2D.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-12T19:18:35.668Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "explosion.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\explosion.h",
+              "RelativeDocumentMoniker": "Code\\include\\explosion.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\explosion.h",
+              "RelativeToolTip": "Code\\include\\explosion.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-17T12:06:02.1Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "polygone2D.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\polygone2D.c",
+              "RelativeDocumentMoniker": "Code\\src\\polygone2D.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\polygone2D.c",
+              "RelativeToolTip": "Code\\src\\polygone2D.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-12T19:19:53.713Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "rectangle2D.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\rectangle2D.c",
+              "RelativeDocumentMoniker": "Code\\src\\rectangle2D.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\rectangle2D.c",
+              "RelativeToolTip": "Code\\src\\rectangle2D.c",
+              "ViewState": "AgIAAFwAAAAAAAAAAAAAwH8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-12T19:20:05.478Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "vector2D.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\vector2D.c",
+              "RelativeDocumentMoniker": "Code\\src\\vector2D.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\vector2D.c",
+              "RelativeToolTip": "Code\\src\\vector2D.c",
+              "ViewState": "AgIAAHAAAAAAAAAAAAAAwJMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-12T19:20:28.568Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "sphere2D.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\sphere2D.c",
+              "RelativeDocumentMoniker": "Code\\src\\sphere2D.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\sphere2D.c",
+              "RelativeToolTip": "Code\\src\\sphere2D.c",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAwDgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-12T19:20:14.805Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "ship_player.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\ship_player.c",
+              "RelativeDocumentMoniker": "Code\\src\\ship_player.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\ship_player.c",
+              "RelativeToolTip": "Code\\src\\ship_player.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-17T08:07:04.073Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "ShipBullet.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\ShipBullet.c",
+              "RelativeDocumentMoniker": "Code\\src\\ShipBullet.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\ShipBullet.c",
+              "RelativeToolTip": "Code\\src\\ShipBullet.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-17T08:07:05.909Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "sphere2D.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\sphere2D.h",
+              "RelativeDocumentMoniker": "Code\\include\\sphere2D.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\sphere2D.h",
+              "RelativeToolTip": "Code\\include\\sphere2D.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-12T19:19:03.8Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "test_rectangle2D.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\test_rectangle2D.h",
+              "RelativeDocumentMoniker": "Code\\include\\test_rectangle2D.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\test_rectangle2D.h",
+              "RelativeToolTip": "Code\\include\\test_rectangle2D.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-12T19:39:06.601Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "triangle2D.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\triangle2D.h",
+              "RelativeDocumentMoniker": "Code\\include\\triangle2D.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\triangle2D.h",
+              "RelativeToolTip": "Code\\include\\triangle2D.h",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAAwCgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-12T19:19:19.92Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "vector2D.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\vector2D.h",
+              "RelativeDocumentMoniker": "Code\\include\\vector2D.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\vector2D.h",
+              "RelativeToolTip": "Code\\include\\vector2D.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-12T19:19:27.601Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "test_polygone2D.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\test_polygone2D.h",
+              "RelativeDocumentMoniker": "Code\\include\\test_polygone2D.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\test_polygone2D.h",
+              "RelativeToolTip": "Code\\include\\test_polygone2D.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-12T19:39:06.032Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "test_sphere2D.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\test_sphere2D.h",
+              "RelativeDocumentMoniker": "Code\\include\\test_sphere2D.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\test_sphere2D.h",
+              "RelativeToolTip": "Code\\include\\test_sphere2D.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-12T19:39:07.188Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "test_vector2D.h",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\test_vector2D.h",
+              "RelativeDocumentMoniker": "Code\\include\\test_vector2D.h",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\include\\test_vector2D.h",
+              "RelativeToolTip": "Code\\include\\test_vector2D.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-12T19:39:08.852Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "triangle2D.c",
+              "DocumentMoniker": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\triangle2D.c",
+              "RelativeDocumentMoniker": "Code\\src\\triangle2D.c",
+              "ToolTip": "C:\\Users\\alanp\\Desktop\\Minestorm DEV\\Code\\src\\triangle2D.c",
+              "RelativeToolTip": "Code\\src\\triangle2D.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-12T19:20:23.203Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
