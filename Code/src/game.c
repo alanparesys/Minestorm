@@ -62,7 +62,7 @@ static bool collisionDebugEnabled = false;
 #define RENDER_SCALE_BIG 3.5f
 #define RENDER_SCALE_MID 2.0f
 #define RENDER_SCALE_SMALL 1.5f
-#define COLLISION_DEBUG_KEY KEY_F3  // Changé de KEY_H à KEY_F3 car H est utilisé pour les menus
+#define COLLISION_DEBUG_KEY KEY_C  // Changé de KEY_H à KEY_F3 car H est utilisé pour les menus
 
 static const Vector2D SHIP_BODY_POINTS[] = {
     { 25.0f, 0.0f },
@@ -395,11 +395,10 @@ void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision)
         DrawTextureEx(assets->interface, (Vector2) { 0, 0 }, 0, 1, WHITE);
         DrawTextureEx(assets->minestorm, (Vector2) { 230, -25 }, 0, 0.7f, WHITE);
 
-        // Toujours afficher les vecteurs de vitesse et d'orientation
-        DrawShipVectors();
-
         if (collisionDebugEnabled)
         {
+            // Afficher les vecteurs de vitesse et d'orientation uniquement en mode debug
+            DrawShipVectors();
             DrawHitboxes();
             DrawBulletHitboxes();
         }
@@ -702,8 +701,13 @@ void CheckInput(void)
         }
 
         // Tir autorisé uniquement si le mothership n'est pas présent
-        Vector2D firePos = Vector2D_SetFromComponents(player->position.x + player->size.x * 0.5f,
-            player->position.y + player->size.y * 0.5f);
+        // Tirer depuis le centre de la collision, en haut de la collision (selon l'angle)
+        Vector2D center = player->bbox.center;
+        float halfLength = player->size.x * 0.5f;
+        Vector2D firePos = Vector2D_SetFromComponents(
+            center.x + cosf(player->angle) * halfLength,
+            center.y + sinf(player->angle) * halfLength
+        );
         FireBullet(firePos, player->angle);
 
         timeSinceLastShot = 0.0f; // reset of the timer

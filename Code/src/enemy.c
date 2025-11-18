@@ -251,7 +251,7 @@ void MotherShipSpawn(GameAssets* assets)
         motherShip[0].position.y = screenHeight;
         motherShip[0].size.x = 64.0f;
         motherShip[0].size.y = 64.0f;
-        motherShip[0].speed = 3.0f;
+        motherShip[0].speed = 7.0f;
         motherShip[0].angle = 0.0f;
     }
 }
@@ -259,7 +259,7 @@ void MotherShipSpawn(GameAssets* assets)
 // Modifier aussi MotherShipMovement pour NE PAS dessiner le mothership ici
 void MotherShipMovement(GameAssets* assets, Collision* collision)
 {
-    motherShip[0].speed = 4.0f;
+    motherShip[0].speed = 7.0f;
 
     if (motherShip[0].position.y > -300)
     {
@@ -414,7 +414,7 @@ void DrawSpawnedPoints()
 {
     for (int i = 0; i < currentSpawnIndex; i++)
     {
-        DrawCircle(spawnPoints[i].x, spawnPoints[i].y, 5, RED);
+        DrawCircle(spawnPoints[i].x, spawnPoints[i].y, 5, LIGHTGRAY);
     }
 }
 // ===================== FONCTION POUR OBTENIR UN POINT DE SPAWN =====================

@@ -536,7 +536,7 @@ void UpdateEnemyBullets(GameAssets* assets, Ship* player)
             if (distance < enemyBullets[i].radius + playerRadius)
             {
                 enemyBullets[i].active = false;
-                lifeNumber = lifeNumber--; // Le joueur meurt instantan�ment
+                lifeNumber = lifeNumber--; // -1 life
                 printf("Player hit by enemy bullet! GAME OVER\n");
             }
         }
