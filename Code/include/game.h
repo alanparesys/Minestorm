@@ -1,20 +1,54 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "raylib.h"
+#include "struct.h"
+#include "sphere2D.h"
+
 typedef enum GameScreen
 {
     TITLE,
     SOLO_GAMEPLAY,
     VS_GAMEPLAY,
+    CONTROLS,
     HELP,
-	PAUSE,
+    TITLE_PAUSE,
+    PAUSE,
     ENDING,
+    GAMEOVER,
 } GameScreen;
 
-int UpdateGame(Texture2D background, Texture2D ship/*, GameScreen currentScreen*/);
-void UpdateTitleScreen(Texture2D background /*GameScreen currentScreen*/);
-void UpdateSoloGameplay(Texture2D background, Texture2D ship/*, GameScreen currentScreen*/);
-void UpdateHelpGameplay(Texture2D background);
-void UpdatePauseMenu(Texture2D background/*, GameScreen currentScreen*/);
+extern bool motherShipSpawned;
 
-#endif  // GAME_H	
+extern Ship* player;
+
+Music bgMusic;
+Music titleMusic;
+
+void InitAssets(GameAssets* assets);
+void UnloadAssets(GameAssets* assets);
+void UpdateGame(GameAssets* assets, Enemy* enemy, Collision* collision);
+void UpdateTitleScreen(GameAssets* assets);
+void UpdateSoloGameplay(GameAssets* assets, Enemy* enemy, Collision* collision);
+void UpdateControlsGameplay(GameAssets* assets);
+void UpdateHelpGameplay(GameAssets* assets);
+void UpdateTitlePause(assets);
+void UpdatePauseMenu(GameAssets* assets);
+void UpdateGameOver(GameAssets* assets, Collision* collision);
+void RestartGame(GameAssets* assets, Enemy* enemy, Collision* collision);
+void InitGame(void);
+void UpdateControlGame(GameAssets* assets);
+void CheckInput(GameAssets* assets);
+void BoundingBoxPlayer(void);
+void DrawHitboxes(void);
+void BorderPlayerCollision(Ship* player);
+void PlayerEnemyCollision(GameAssets* assets);
+
+void CheckLifeOfPlayer();
+
+void LevelProgress(GameAssets* assets);
+
+void SoundInGame(GameAssets* assets);
+
+
+#endif

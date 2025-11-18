@@ -1,25 +1,37 @@
-#include <raylib.h>
-
+﻿#include <raylib.h>
 #include "game.h"
+#include "enemy.h"
+#include "explosion.h"
 
-
-int main()
+int main(void)
 {
-    InitWindow(640, 800, "MineStorm");
+    const int screenWidth = 1080;
+    const int screenHeight = 1300;
+
+    InitWindow(screenWidth, screenHeight, "MineStorm");
+    InitAudioDevice(); // Initialiser le système audio
     SetTargetFPS(60);
 
-    Texture2D background = LoadTexture("Assets/minestorm_background.png");
-    Texture2D ship = LoadTexture("Assets/Kenney/ship_K.png");
-
+    GameAssets assets;
+    Enemy basicEnemy = { 0 };
+    Collision collision = { 0 };
+    InitAssets(&assets);
+    InitGame();
+    SoundInGame(&assets);
+    
+    // Configurer le son d'explosion
+    SetExplosionSound(assets.explosionSound);
 
     while (!WindowShouldClose())
     {
-        UpdateGame(background, ship/*, currentScreen */);
+        UpdateMusicStream(titleMusic);
+        UpdateMusicStream(bgMusic);  // Keep the background music stream updated      
+        UpdateGame(&assets, &basicEnemy, &collision);
     }
-
-    UnloadTexture(background);
-    UnloadTexture(ship);
-
+    UnloadAssets(&assets);
+    UnloadMusicStream(titleMusic);
+    UnloadMusicStream(bgMusic); // Free background music resources
+    CloseAudioDevice(); // Fermer le système audio
     CloseWindow();
 
     return 0;
