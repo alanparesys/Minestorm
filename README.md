@@ -13,7 +13,7 @@ How to play :
 	Press "Enter" to retry
 	Press "Echap" to quit
 
-===================================================================================
+===============================================================
 
 Game's Rules :
 
@@ -24,7 +24,7 @@ Destroying enemies gives you score points, the amount of which varies depending
 on the enemy destroyed. When you eat an apple your tail stretches and your body grow.
 If your spaceship touch any enemys more than 3 times, you lose.
 
-=================================================================================
+===============================================================
 
 link : https://www.raylib.com/index.html
 
