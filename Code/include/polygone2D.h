@@ -4,18 +4,18 @@
 #include "Vector2D.h"
 #include "Rectangle2D.h"
 
-typedef struct Polygone2D {
-
-    int nbsommets;
-    Vector2D* point;
-
-} Polygone2D;
-
 typedef struct Points {
     Vector2D coordinate;
     struct Points* next;
     struct Points* prev;
 } Points;
+
+typedef struct Polygone2D {
+
+    int nbsommets;
+    Points* point;
+
+} Polygone2D;
 
 
 Polygone2D Polygone2D_SetFromPoints(int Nbsommets, ...);

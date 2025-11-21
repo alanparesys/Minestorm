@@ -1,3 +1,43 @@
+# Dossiers temporaires de build
 Build/
 Obj/
 .vs/
+x64/
+Debug/
+Release/
+
+# Fichiers binaires compil�s
+*.exe
+*.dll
+*.so
+*.pdb
+*.obj
+*.o
+*.a
+*.lib
+*.out
+
+# Fichiers de cache et temporaires
+*.log
+*.tmp
+*.bak
+
+# Fichiers g�n�r�s par Visual Studio / CodeBlocks / CMake
+*.vcxproj*
+*.sln
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/
+
+# Dossiers internes de raylib clon�
+raylib/.git/
+raylib/.github/
+raylib/out/
+raylib/projects/
+raylib/examples/
+raylib/logo/
+raylib/src/
+
+# Dossiers sp�cifiques � ton projet
+Library/
+.vscode/

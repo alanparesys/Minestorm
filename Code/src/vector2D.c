@@ -146,5 +146,3 @@ void Vector2D_Print(Vector2D v)
 {
     printf("(% f, % f)", v.x, v.y);
 }
-    
-
